@@ -1,0 +1,230 @@
+---
+title: "baseqtl: Bayesian Allele Specific Expression for eQTL analysis"
+author: "Elena Vigorito"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{baseqtl: Bayesian Allele Specific Expression for eQTL Analysis}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+## Introduction
+
+BaseQTL detects eQTLs combining between individual variation (modelled by a negative binomial distribution) with allele specific expression (ASE modelled by a beta-binomial distribution). To mitigate reference sequence mapping bias, a major source of bias that can lead to false positive calls when modelling ASE, we implemented a reference panel bias correction. To improve phasing accuracy for modelling ASE we adopted a Bayesian approach which allow us to exploit external reference genotype panel data to improve phasing accuracy. In addition, our Bayesian approach is ideally suited to incorporate information from existing large eQTL studies which allow us to shrink extreme fold change estimates and improve accuracy in a way analogous to moderation of variance estimates. Last, our Bayesian model is embeded within a standard Hamiltonian Monte Carlo environment which is run by stan, allowing researchers to develop flexible analytical approaches appropriate to their data.
+
+In this package and vignette we descibe models for 4 scenarios:
+
+1. eQTL analysis when DNA-seq and RNA-seq data are available (with genotypes).
+1. eQTL analysis when only RNA-seq is available (unknown genotypes).
+1. eQTL analysis with paired samples (two treatments on same samples) with genotypes.
+1. eQTL analysis with samples from two conditions (diseases vs control) and unkown gentopyes.
+
+Preparation of the required files to run these functions can be made using the pipeline and companion package input4baseqtl *add link*.
+
+### eQTL analysis when DNA-seq and RNA-seq data are available
+
+The function to call is **baseqtl.gt**. It will test for eQTL effects in one specified gene. To show an example we provide data files for gene ENSG00000159958 on chromosome 22.
+
+
+**Arguments**
+
+*gene*: ensembl gene id
+
+*chr*: number of chromosome
+
+*snps*: if numeric, it will test for eQTL effects within a cis-window from start/end of the gene expressed in base pairs, defaults to $5*10^5$. For testing specific SNPs input a character vector with pos:reference:alternative allele (example snps=c("13444352:A:G", "13444567:T:C")).
+
+*counts.f*: full name of a txt file with total gene counts, first column is gene_id, followed by samples.
+
+*covariates*: full name to rds file with a matrix of covariates, details in **input4baseqtl**. For running the analysis without covariates set covariates=1.
+
+*e.snps*: full name of txt file with a list of exonic SNPS across genes, details in **input4baseqtl**.
+
+*u.esnps*: optional argument, when strand information is not available for RNA-seq some exonic SNPs could be shared between genes making difficult to assess allele specific expression. In this case it is recommended to provide a list of exonic SNPs uniquely mapping genes. In this mode, e.snps will be used to imporve phasing accuracy and u.esnps to compute allele specific expression, further deatails in **input4baseqtl**.
+
+*gene.coord*: full name to file with gene id, gene sart and gene end, details in **input4baseqtl**.
+
+*vcf*: full name to vcf file with genotypes and  allele specific expression, details in **input4baseqtl**.
+
+*le.file*: full name to legend file with external reference panel SNP description. We use 1000G version3 (https://www.internationalgenome.org/1000-genomes-browsers).
+
+*h.file*: full name to hap file with haplotypes for external reference panel.
+
+*population*: one of AFR AMR EAS EUR SAS ALL, defaults to EUR. Use to calculate EAF of eQTL SNP to include in output.
+
+*nhets*: minimun number of hetrozygous individuals for the eQTL SNP to run model, defaults to 5.
+
+*min.ase*: minimun number of ASE counts for an individual to be included in the model, deaults to 5. 
+
+*min.ase.het*: minumun number of heterozygous individuals for the eQTL SNP with sufficient ASE counts in order to run the ASE component of the model, defaults to 5.
+
+"min.ase.n": minimun number of individual (any genotype) with sufficient ASE counts to run ASE model, defaults to 5.
+
+"tag.threshold": r^2 threshold for grouping SNPs to reduce the number of running test, recommended when running with cis-windows, defaults to 0.9. To disable, when running selected SNPS set to "no".
+
+*out*: path to output directory to write files, deafults to current directory.
+
+*prefix*: prefix to add to output files, defaults to gene id.
+
+*model*: whether to run NB-ASE only (full model negative binomial and allele specific counts),NB (negat
+ive binomial only) or both (NB-ASE when sufficient information and NB for those associations with no ASE information), defaults to "both".
+
+*stan.model*: optional parameter, defaults is to run built-in NB-ASE model. When AI_estimate is provided (below) the model corrects for reference panel bias, otherwise id doesn't. Alternatively, users can provide their alternative compiled stanmodel object, whcih should use the same input data.
+
+*stan.negonly*: compiled stanmodel object with neg only side, deafults to built-in model.
+model.
+
+*prob*: number p∈(0,1) indicating the desired posterior probability mass to report, defaults to 0.99 -0.95 quantiles.
+
+*prior*: prior for eQTL effect. Defaults to a mixture of 2 Gaussians learnt from external eQTL data.
+
+*ex.fsnps*: for sensitivity analysis it is possible to exclude selected exonic (feature) SNPs by proving a character vector with psoition:reference:alternative allele, defaults to NULL (no exlcusion).
+
+*AI_estimate*: full name to txt file  with pre-computed allelic imbalance estimates for reference panel bias for exonic SNPs, details in  **input4baseqtl**. Defaults to NULL for  no correction.
+
+*pretotalReads*: cut-off for total initial reads to consider AI estimates, defaults to 100, details in  **input4baseqtl**. When reference panel correction is not enabled this argument won't be used.
+
+
+
+```{r}
+## Retrive input files for running baseqtl.gt
+## Most of the files contain information for the selected gene only to minimise their size
+
+counts.f <- system.file("extdata/input", "counts.txt", package = "baseqtl", mustWork = TRUE)
+covariates <- system.file("extdata/input", "lbsize_gc.rds", package = "baseqtl", mustWork = TRUE)
+e.snps = system.file("extdata/input", "chr22.fSNPS.ENSG00000159958.txt", package = "baseqtl", mustWork = TRUE)
+u.snps = system.file("extdata/input", "chr22.unique.fSNPS.ENSG00000159958.txt", package = "baseqtl", mustWork = TRUE)
+gene.coord = system.file("extdata/input", "ENSG00000159958_data.txt", package = "baseqtl", mustWork = TRUE)
+vcf = system.file("extdata/input", "chr22GT.86GEU.vcf.gz", package = "baseqtl", mustWork = TRUE)
+le.file = system.file("extdata/input", "1000GP_Phase3_subset_chr22.legend.gz", package = "baseqtl", mustWork = TRUE)
+h.file = system.file("extdata/input", "1000GP_Phase3_subset_chr22.hap.gz", package = "baseqtl", mustWork = TRUE)
+AI_estimate = system.file("extdata/input", "AI_estimate.GT.txt", package = "baseqtl", mustWork = TRUE)
+
+```
+
+``` {r, eval=FALSE}
+## Choose your output directory
+out <- "path/to/output_dir"
+
+## To minimise file sizes and computational load SNPs are within a 10^4 cis-window
+## baseqtl is computational intense, it is recommended to be run with several cores
+## cores are automatically detected by R
+
+## Run baseqtl.gt:
+baseqtl.gt(gene = "ENSG00000159958",
+	   chr = 22,
+	   snps = 10^4,
+	   counts.f = counts.f,
+	   covariates = covariates,
+	   e.snps = e.snps,
+	   u.esnps = u.snps,
+	   gene.coord = gene.coord,
+	   vcf = vcf,
+	   le.file = le.file,
+	   h.file = h.file,
+	   out = out,
+	   AI_estimate = AI_estimate)
+```
+The following messages will appera on screen:
+
+max r2 is now0.894478527607361 ## relates to the tagging
+
+[1] "Effective number of fSNPs: 1"  (number of exonic SNPs used in ASE model)
+[1] "Preparing stan inputs"
+[1] "Running NB_ASE model" (stan is running NB_ASE model)
+[1] "Running NB model" (stan is running negative binomial model)
+
+**Output files**
+
+With default prefix argument you will find the following files in your output directory:
+
+ENSG00000159958.eqtl.tags.lookup.txt
+ENSG00000159958.eqtl.trecase.excluded.rsnps.txt
+ENSG00000159958.stan.summary.txt
+
+```{r}
+```
+
+##  eQTL analysis when only RNA-seq is available
+
+The function to call is **baseqtl.nogt**. To show an example we provide data files for gene ENSG00000159958 on chromosome 22.
+I will describe below the arguments that differ from baseqtl.gt.
+
+**Arguments**
+
+*vcf*: full name for vcf file with genotypes and ASE counts for exonic SNPS. This file is produced from RNA-seq data only as explained in **input4baseqtl**
+
+*info*: cut-off based on the imputation quality of cis-SNP. By default the model is only run for those SNPs with info$>= 0.3$
+
+*ex.fsnp*: if numeric  p-value cut-off for fSNPs to exclude based on fisher test for suspected genotype error based on comparing the proportion of hets in the sample and reference panel, defaults to 0.01. If character: vector with pos:ref:alt for fsnps to exclude (same as baseqtl.gt),if NULL no fSNP will be excluded.
+
+*sample.file*: sample file for the reference panel (sample description), to be used if ex.fsnp test is numeric and population is not the whole reference panel
+
+```{r}
+## Retrive input files for running baseqtl.nogtqq
+
+counts.f <- system.file("extdata/input", "counts.txt", package = "baseqtl", mustWork = TRUE)
+covariates <- system.file("extdata/input", "lbsize_gc.rds", package = "baseqtl", mustWork = TRUE)
+e.snps <- system.file("extdata/input", "chr22.fSNPS.ENSG00000159958.txt", package = "baseqtl", mustWork = TRUE)
+u.snps <- system.file("extdata/input", "chr22.unique.fSNPS.ENSG00000159958.txt", package = "baseqtl", mustWork = TRUE)
+gene.coord <- system.file("extdata/input", "ENSG00000159958_data.txt", package = "baseqtl", mustWork = TRUE)
+vcf = system.file("extdata/input", "chr22noGT.86GEU.vcf.gz", package = "baseqtl", mustWork = TRUE)
+sample.f <- system.file("extdata/input", "1000GP_Phase3.sample", package = "baseqtl", mustWork = TRUE)
+le.file <- system.file("extdata/input", "1000GP_Phase3_subset_chr22.legend.gz", package = "baseqtl", mustWork = TRUE)
+h.file <- system.file("extdata/input", "1000GP_Phase3_subset_chr22.hap.gz", package = "baseqtl", mustWork = TRUE)
+AI_estimate <- system.file("extdata/input", "AI_estimate.noGT.txt", package = "baseqtl", mustWork = TRUE)
+
+
+```
+
+
+``` {r, eval=FALSE}
+## Choose your output directory
+out <- "path/to/output_dir"
+
+## To minimise file sizes and computational load SNPs are within a 10^4 cis-window
+## baseqtl is computational intense, it is recommended to be run with several cores
+## cores are automatically detected by R
+
+## Run baseqtl.gt:
+baseqtl.nogt(gene = "ENSG00000159958",
+	   chr = 22,
+	   snps = 10^4,
+	   counts.f = counts.f,
+	   covariates = covariates,
+	   e.snps = e.snps,
+	   u.esnps = u.snps,
+	   gene.coord = gene.coord,
+	   vcf = vcf,
+	   sample.f=sample.f,
+	   le.file = le.file,
+	   h.file = h.file,
+	   out = out,
+	   AI_estimate = AI_estimate)
+```
+
+
+
+
+
+## More Examples
+
+You can write math expressions, e.g. $Y = X\beta + \epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
+
+```{r, echo=FALSE, results='asis'}
+knitr::kable(head(mtcars, 10))
+```
+
+Also a quote using `>`:
+
+> "He who gives up [code] safety for [code] speed deserves neither."
+([via](https://twitter.com/hadleywickham/status/504368538874703872))

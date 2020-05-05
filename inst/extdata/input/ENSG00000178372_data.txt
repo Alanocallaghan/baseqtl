@@ -1,0 +1,2 @@
+"gene_id" "start" "end" "chrom" "length" "percentage_gc_content"
+"ENSG00000178372" 5540658 5541533 "10" 876 66.78
