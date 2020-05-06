@@ -24,7 +24,7 @@ distribution). We descibe models for 4 scenarios:
 
 ## Instalations
 
-### bcftools can be download it from [bcftools](http://www.htslib.org/download/)
+### bcftools can be downloaded from [htslib](http://www.htslib.org/download/)
 
 Move the downloaded file to your bin directory to build
 
@@ -44,7 +44,7 @@ export PATH=/where/to/install/bin:$PATH
 ### Install baseqtl from [GitLab](https://gitlab.com):
 
 ``` r
-## From R:
+## Within R:
 install.packages("devtools") # if you don't already have the package
 library(devtools)
 devtools::install_git(url = "https://gitlab.com/evigorito/baseqtl.git") 
@@ -61,7 +61,7 @@ devtools::install_github("chr1swallace/GUESSFM", ref="groups")
 ## Running baseqtl
 
 Preparation of the required files to run these functions can be made
-using the pipeline and companion package input4baseqtl *add link*.
+using the pipeline and companion package **input4baseqtl** *add link*.
 
 ### eQTL analysis when DNA-seq and RNA-seq data are available
 
@@ -583,21 +583,24 @@ names(results)
 
   - **Description**
     
-    1.  Similar output as baseqtl.gt, except that now we look at 4
+      - Similar output as baseqtl.gt, except that now we look at 4
         coefficients: ba, bd, bt1 and bt2.
-    2.  bt1 and bt2 corespond to the two treatments/condition, as
-        ordered in counts.f and vcf inputs.
-    3.  ba corresponds to the ‘addition’ coefficient, \(ba = bt1 + bt2\)
-    4.  bd corresponds to the ‘difference’ coefficient,
+      - bt1 and bt2 corespond to the two treatments/condition
+        respectively, as ordered in counts.f and vcf inputs.
+      - ba corresponds to the ‘addition’ coefficient, \(ba = bt1 + bt2\)
+      - bd corresponds to the ‘difference’ coefficient,
         \(bd = bt1 - bt2\)
-    5.  We evaluate ba and bd to look for a condition specific effect
-    6.  When ba significant implies a significant eQTl efect in one or
-        both treatments. If bd is significant, there is evidence for
-        condition specific effect, likely the eQTL effect is detected in
-        one condition only.
-    7.  If ba is not significant but bd is significant it could indicate
-        eQTL effects in opposite directions.
-    8.  ASE.hets gives the number of hets individuals for the rSNP with
+      - We evaluate ‘ba’ and ‘bd’ to look for a condition specific
+        effect
+      - When ‘ba’ is significant implies a significant eQTL efect in one
+        or both treatments. If ‘bd’ is significant, there is evidence
+        for condition specific effect. The most common scenario is a
+        significant eQTL effect in only one condition, look at ‘bt1’ and
+        ‘bt2’.
+      - If ‘ba’ is not significant but ‘bd’ is significant it could
+        indicate eQTL effects in opposite directions, look at ‘bt1’ and
+        ‘bt2’.
+      - ASE.hets gives the number of hets individuals for the rSNP with
         sufficient ASE counts for each treatment as
 ‘14,10’
 
