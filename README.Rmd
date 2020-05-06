@@ -95,7 +95,7 @@ The function to call is **baseqtl.gt**. It will test for eQTL effects in one spe
 
 *vcf*: full name to vcf file with genotypes and  allele specific expression, details in **input4baseqtl**.
 
-*le.file*: full name to legend file with external reference panel SNP description. We use the $1000G$ version3 ([1000Gv3](https://www.internationalgenome.org/1000-genomes-browsers)).
+*le.file*: full name to legend file with external reference panel SNP description. We use the 1000G version3 ([1000Gv3](https://www.internationalgenome.org/1000-genomes-browsers)).
 
 *h.file*: full name to hap file with haplotypes for external reference panel.
 

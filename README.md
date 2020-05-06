@@ -106,7 +106,7 @@ details in **input4baseqtl**.
 expression, details in **input4baseqtl**.
 
 *le.file*: full name to legend file with external reference panel SNP
-description. We use the \(1000G\) version3
+description. We use the 1000G version3
 ([1000Gv3](https://www.internationalgenome.org/1000-genomes-browsers)).
 
 *h.file*: full name to hap file with haplotypes for external reference
