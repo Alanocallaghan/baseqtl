@@ -128,9 +128,11 @@ model, defaults to 5.
 *min.ase.n*: minimun number of individual (any genotype) with sufficient
 ASE counts to run ASE model, defaults to 5.
 
-*tag.threshold*: \(r^2\) threshold for grouping SNPs to reduce the
-number of running test, recommended when running with cis-windows,
-defaults to 0.9. To disable, when running selected SNPS set to “no”.
+*tag.threshold*:
+![r^2](https://render.githubusercontent.com/render/math?math=r%5E2)
+threshold for grouping SNPs to reduce the number of running test,
+recommended when running with cis-windows, defaults to 0.9. To disable,
+when running selected SNPS set to “no”.
 
 *out*: path to output directory to write files, deafults to current
 directory.
