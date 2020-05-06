@@ -125,10 +125,10 @@ in the model, deaults to 5.
 SNP with sufficient ASE counts in order to run the ASE component of the
 model, defaults to 5.
 
-“min.ase.n”: minimun number of individual (any genotype) with sufficient
+*min.ase.n*: minimun number of individual (any genotype) with sufficient
 ASE counts to run ASE model, defaults to 5.
 
-“tag.threshold”: \(r^2\) threshold for grouping SNPs to reduce the
+*tag.threshold*: \(r^2\) threshold for grouping SNPs to reduce the
 number of running test, recommended when running with cis-windows,
 defaults to 0.9. To disable, when running selected SNPS set to “no”.
 
