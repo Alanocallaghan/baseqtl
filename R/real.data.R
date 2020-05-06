@@ -271,7 +271,7 @@ haps.range <- function(file1, file2, cw,population="EUR", maf=0.05){
     names(eth) <- c("AFR", "AMR", "EAS",  "EUR", "SAS", "ALL")
     
     ## get snp info for range including line number, from legend file
-    snp.i <- system(paste0("zcat ", file1, " | awk '{if ($2 >= ", cw[1], "&& $2 <= " ,cw[2], ") {print NR \" \" $2\":\"$3 \":\" $4 \" \" $",unname(eth[names(eth)==population]),"} }'"), intern=TRUE)  ## second field in legend file is POS,then ref then alt allele
+    snp.i <- system(paste0("gunzip -c ", file1, " | awk '{if ($2 >= ", cw[1], "&& $2 <= " ,cw[2], ") {print NR \" \" $2\":\"$3 \":\" $4 \" \" $",unname(eth[names(eth)==population]),"} }'"), intern=TRUE)  ## second field in legend file is POS,then ref then alt allele
 
     if(length(snp.i)==0) return("no snps in reference panel")
     
@@ -281,7 +281,7 @@ haps.range <- function(file1, file2, cw,population="EUR", maf=0.05){
     names(DT) <- c("line","snp","maf")
     DT[,line:=as.numeric(line)-1]  ## first line in legend file is headings, need to substract 1 to match hap.gz file
     DT[,maf:=as.numeric(maf)]
-    haps <- paste0("zcat ", file2, " | sed -n '", DT$line[1], ",", DT$line[nrow(DT)], "p' ")
+    haps <- paste0("gunzip -c ", file2, " | sed -n '", DT$line[1], ",", DT$line[nrow(DT)], "p' ")
     
     rf <- data.table::fread(cmd=haps, header=F)  ## referene panel for snps in hap format
     ## remove snps below maf cut-off
@@ -316,7 +316,7 @@ snp.eaf <- function(file1, snps,population="EUR"){
     cw <- c(min(tmp),max(tmp))
     
     ## get snp info for range including line number, from legend file
-    snp.i <- system(paste0("zcat ", file1, " | awk '{if ($2 >= ", cw[1], "&& $2 <= " ,cw[2], ") {print NR \" \" $2\":\"$3 \":\" $4 \" \" $",unname(eth[names(eth)==population]),"} }'"), intern=TRUE)  ## second field in legend file is POS,then ref then alt allele
+    snp.i <- system(paste0("gunzip -c ", file1, " | awk '{if ($2 >= ", cw[1], "&& $2 <= " ,cw[2], ") {print NR \" \" $2\":\"$3 \":\" $4 \" \" $",unname(eth[names(eth)==population]),"} }'"), intern=TRUE)  ## second field in legend file is POS,then ref then alt allele
 
     if(length(snp.i)==0) return("no snps in reference panel")
     
