@@ -8,6 +8,7 @@
 #' @useDynLib baseqtl, .registration = TRUE
 #' @import data.table
 #' @import GUESSFM
+#' @import addstrings
 #' @import methods
 #' @import Rcpp
 #' @importFrom rstan sampling

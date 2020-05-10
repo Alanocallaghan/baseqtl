@@ -20,7 +20,8 @@ Imports:
     data.table,
     GUESSFM,
     Matrix,
-    parallel
+    parallel,
+    addstrings
 LinkingTo: 
     BH (>= 1.66.0),
     Rcpp (>= 0.12.0),

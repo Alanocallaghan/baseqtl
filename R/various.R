@@ -1,5 +1,4 @@
-## Helping functions 
-
+ 
 #' Generating all possible haplotypes for a set of sample and their corresponding AS
 #'
 #' This function allows you to compute all possible haplotypes for an individual for a set of fSNPs and each rSNP
@@ -67,42 +66,6 @@ haps_sub<- function(z, het.rows){
     return(haps)
 }
 
-#' Get unique pairs of haplotypes from a set of haplotypes
-#'
-#' This function allows you to get a unique set of haplotypes
-#' @param h haplotype set
-#' @export
-#' @return data table of unique combinations of pairs
-#' u.hap.pairs()
-
-u.hap.pairs <- function(h){
-    uhaps <- unique(apply(h,1,paste,collapse=""))
-    # generate all posible combinations of hap pairs
-    pairs <- u.hap.pairs2(uhaps)
-    return(pairs)
-}
-
-#' Get unique pairs of haplotypes starting from all possible combinations of haplotype pairs
-#'
-#' This function allows you to get a unique set of haplotype pairs starting from a unique set of haplotypes
-#' @param uhaps haplotype set with unique entries
-#' @export
-#' @return data table of unique combinations of pairs
-#' u.hap.pairs2()
-
-u.hap.pairs2 <- function(uhaps){
-    # generate all posible combinations of hap pairs
-    haps.pairs <- data.table(expand.grid(uhaps,uhaps))
-    # remove swapped haplotyes
-    for(i in uhaps){
-        w <- haps.pairs[Var1==i & Var1!=Var2,]
-        if(nrow(w)!=0){
-            ind <- which(haps.pairs$Var1 %in% w$Var2 & haps.pairs$Var2==i)
-            haps.pairs <- haps.pairs[-ind,]
-            }
-    }
-    return(haps.pairs)
-}
 
 #'Sum haplotypes to get genotypes
 #'
@@ -123,67 +86,6 @@ add.geno <- function(a,b) {
     return(u)
 }
 
-#' Get unique pairs of haplotypes from a set of haplotypes
-#'
-#' This function allows you to sum a pair of haplotypes (strings) and return a string with the sum
-#' @param a vector with haplotypes 1
-#' @param b vector with haplotypes 
-#' @keywords sum haplotype pairs
-#' @export
-#' @return vector  with the sum of the haplotype pair (genotype)
-#' For speed, the function assumes that the two strings are the same length and contains only the chars '0' and '1'., written by Colin Starr
-#' addStrings
-
-Rcpp::cppFunction("
-#include <string>
-std::vector<std::string> addStrings(std::vector<std::string> &one, 
-std::vector<std::string> &two) {
-     std::vector<std::string> out(one.size());
-     for (unsigned i = 0; i < one.size(); i++) {
-         out[i].resize(one[i].size());
-         for (unsigned j = 0; j < one[i].size(); j++) {
-             out[i][j] = one[i][j] + two[i][j] - '0';
-         }
-     }
-     return out;
-}
-")
-
-
-#' Sub function for simulating haplotypes with ASE, fSNPs plus one rSNP: calculate probability of population haplotype pairs
-#'
-#' This function allows you to calculate frequency of haplotype pairs in population
-#' @param h population haplotypes
-#' @keywords simulation probability haplotype pairs
-#' @export
-#' @return data.table with probabilities of haplotype pairs and genotype
-#' p.hap.pair.dt()
-
-p.hap.pair.dt <- function(h){
-    nsnp <- ncol(h)
-    N <- nrow(h)/2 # individuals is number of haplotypes/2
-    ## haplotype frequencies
-    DT <- data.table::as.data.table(h)
-    hap.freq <- DT[,.N, by=names(DT)][, N:=N/sum(N)] ## if DT has duplicated names (fsnp is rnsp) then hap.freq will label one with ".1", so names(DT) and hap.freq will be different
-    hap.freq[,hstr:= apply(hap.freq[,1:ncol(DT), with=F], 1,  paste, collapse="")]
-    h2 <- as.matrix(hap.freq[, 1:ncol(DT), with=F])
-    hap.freq[,names(hap.freq)[1:ncol(DT)]:=NULL]
-    #unique(h)
-    uhaps <- unique(hap.freq$hstr)
-    uhaps.pairs <- u.hap.pairs(h2)   
-    uhaps.pairs[,freq:=0]
-    uhaps.pairs[,geno:=addStrings(as.character(Var1),as.character(Var2))]
-    ## merge hap.freq with uhap.pairs by Var1 to get a col of freq_Var1, then do the same for Var2
-    uhaps.pairs <- merge(uhaps.pairs, hap.freq, by.x="Var1", by.y="hstr", sort=F)
-    uhaps.pairs <- merge(uhaps.pairs, hap.freq, by.x="Var2", by.y="hstr", sort=F)
-    uhaps.pairs[Var1==Var2,freq:= N.x*N.y][Var1!=Var2, freq:=2*N.x*N.y]
-    
-    # to ease finding hap.pairs
-    uhaps.pairs[,haps:=paste0(uhaps.pairs[,Var1],",",uhaps.pairs[,Var2])]
-   return(uhaps.pairs)
-}
-
-
 
 #' Calculate probability of population haplotype pairs and return sparse matrix
 #'
@@ -195,7 +97,7 @@ p.hap.pair.dt <- function(h){
 #' p.hap.pair.s()
 
 p.hap.pair.s <- function(h){
-    DT <- p.hap.pair.dt(h)
+    DT <- addstrings::p.hap.pair.dt(h)
     ## create matrix of frequency of haplotype by genotype
     M2 <- Matrix::sparseMatrix(i=1:nrow(DT), j=match(DT$geno, unique(DT$geno))  ,x=DT$freq, dims=c(nrow(DT), length(unique(DT$geno))), dimnames = list( DT[,haps], unique(DT$geno)))   
     return(M2)
