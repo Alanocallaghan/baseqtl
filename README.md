@@ -61,8 +61,9 @@ devtools::install_github("chr1swallace/GUESSFM", ref="groups")
 
 ## Running baseqtl
 
-Preparation of the required files to run these functions can be made
-using the pipeline and companion package **input4baseqtl** *add link*.
+Preparation of the required files to run these functions can be made as
+described in
+[baseqtl\_pipeline](https://gitlab.com/evigorito/baseqtl_pipeline/-/tree/master/input).
 
 ### eQTL analysis when DNA-seq and RNA-seq data are available
 
@@ -83,32 +84,44 @@ pos:reference:alternative allele (example snps=c(“13444352:A:G”,
 “13444567:T:C”)).
 
 *counts.f*: full name of a txt file with total gene counts, first column
-is gene\_id, followed by samples, details in **input4baseqtl**..
+is gene\_id, followed by samples, details in
+[snakefile](https://gitlab.com/evigorito/baseqtl_pipeline/-/blob/master/input/Snakefile)
+output from rule total\_gene\_counts.
 
 *covariates*: full name to rds file with a matrix of covariates, details
-in **input4baseqtl**. For running the analysis without covariates set
-covariates=1.
+in in
+[snakefile](https://gitlab.com/evigorito/baseqtl_pipeline/-/blob/master/input/Snakefile)
+output from rule total\_gene\_counts. For running the analysis without
+covariates set covariates=1. You can add extra columns to the matrix for
+additional covariates
 
 *e.snps*: full name of txt file with a list of exonic SNPS across genes,
-details in **input4baseqtl**.
+details in in
+[snakefile](https://gitlab.com/evigorito/baseqtl_pipeline/-/blob/master/input/Snakefile)
+output from rule fSNP\_gene (fsnps output).
 
 *u.esnps*: optional argument, when strand information is not available
 for RNA-seq some exonic SNPs could be shared between genes making
 difficult to assess allele specific expression. In this case it is
 recommended to provide a list of exonic SNPs uniquely mapping genes. In
 this mode, e.snps will be used to imporve phasing accuracy and u.esnps
-to compute allele specific expression, further deatails in
-**input4baseqtl**.
+to compute allele specific expression, further deatails in in
+[snakefile](https://gitlab.com/evigorito/baseqtl_pipeline/-/blob/master/input/Snakefile)
+output from rule fSNP\_gene (ufsnps output).
 
 *gene.coord*: full name to file with gene id, gene sart and gene end,
-details in **input4baseqtl**.
+details in in
+[snakefile](https://gitlab.com/evigorito/baseqtl_pipeline/-/blob/master/input/Snakefile)
+output from rule exon\_by\_gene.
 
 *vcf*: full name to vcf file with genotypes and allele specific
-expression, details in **input4baseqtl**.
+expression, details inin
+[snakefile](https://gitlab.com/evigorito/baseqtl_pipeline/-/blob/master/input/Snakefile)
+output from rule merge\_vcf (source=“DNA”).
 
 *le.file*: full name to legend file with external reference panel SNP
-description. We use the 1000G version3
-([1000Gv3](https://www.internationalgenome.org/1000-genomes-browsers)).
+description. We use the [1000 Genomes
+Phase3](https://mathgen.stats.ox.ac.uk/impute/1000GP_Phase3.html).
 
 *h.file*: full name to hap file with haplotypes for external reference
 panel.
@@ -166,7 +179,10 @@ psoition:reference:alternative allele, defaults to NULL (no exlcusion).
 
 *AI\_estimate*: full name to txt file with pre-computed allelic
 imbalance estimates for reference panel bias for exonic SNPs, details in
-**input4baseqtl**. Defaults to NULL for no correction.
+in
+[snakefile](https://gitlab.com/evigorito/baseqtl_pipeline/-/blob/master/input/Snakefile)
+output from rule get\_AI with source=“DNA”. Defaults to NULL for no
+correction.
 
 *pretotalReads*: cut-off for total initial reads to consider AI
 estimates, defaults to 100, details in **input4baseqtl**. When reference
@@ -363,8 +379,9 @@ below the arguments that differ from baseqtl.gt.
 **Arguments**
 
 *vcf*: full name for vcf file with genotypes and ASE counts for exonic
-SNPS. This file is produced from RNA-seq data only as explained in
-**input4baseqtl**
+SNPS. This file is produced from RNA-seq data only as explained in in
+[snakefile](https://gitlab.com/evigorito/baseqtl_pipeline/-/blob/master/input/Snakefile)
+output from rule merge\_vcf, source=“RNA”\*\*
 
 *info*: cut-off based on the imputation quality of cis-SNP. By default
 the model is only run for those SNPs with info\(>= 0.3\)
@@ -492,7 +509,7 @@ Same as baseqtl.gt except:
 treatment. First column gene id followed by samples. Samples in same
 order and same name in both files, details in **input4baseqtl**.
 
-*vcf*: vector with full name to vcf files with GT adn ASE counts.
+*vcf*: vector with full name to vcf files with GT and ASE counts.
 Genotype field should be the same in both files. Order of treatments
 should be the same as in count.f, details in **input4baseqtl**.
 
