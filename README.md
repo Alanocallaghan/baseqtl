@@ -3,11 +3,11 @@
 
 # BaseQTL
 
-BaseQTL, **B**ayesian **a**llele **s**pecific **e**xpression of **QTL**,
-is a suite of models to discover molecular QTLs combining between
-individual variation (modelled by a negative binomial distribution, NB)
-with allele specific expression (ASE modelled by a beta-binomial
-distribution). We descibe models for 4 scenarios:
+**B**ayesian **a**llele **s**pecific **e**xpression of **QTL**, is a
+suite of models to discover molecular QTLs combining between individual
+variation (modelled by a negative binomial distribution, NB) with allele
+specific expression (ASE modelled by a beta-binomial distribution). We
+descibe models for 4 scenarios:
 
 1.  eQTL analysis when DNA-seq and RNA-seq data are available (with
     genotypes).
