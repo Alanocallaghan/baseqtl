@@ -2,6 +2,5 @@ Meta
 doc
 inst/doc
 R/*R~
-DESCRIPTION~
-*.Rmd*
+*~
 *html

@@ -1,9 +1,10 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# baseqtl
+# BaseQTL
 
-BaseQTL is a suite of models to discover eQTLs combining between
+BaseQTL, **B**ayesian **a**llele **s**pecific **e**xpression of **QTL**,
+is a suite of models to discover molecular QTLs combining between
 individual variation (modelled by a negative binomial distribution, NB)
 with allele specific expression (ASE modelled by a beta-binomial
 distribution). We descibe models for 4 scenarios:
@@ -63,7 +64,7 @@ devtools::install_github("chr1swallace/GUESSFM", ref="groups")
 
 Preparation of the required files to run these functions can be made as
 described in
-[baseqtl\_pipeline](https://gitlab.com/evigorito/baseqtl_pipeline/-/tree/master/input).
+[baseqtl\_pipeline](https://gitlab.com/evigorito/baseqtl_pipeline).
 
 ### eQTL analysis when DNA-seq and RNA-seq data are available
 
@@ -89,14 +90,14 @@ is gene\_id, followed by samples, details in
 output from rule total\_gene\_counts.
 
 *covariates*: full name to rds file with a matrix of covariates, details
-in in
+in
 [snakefile](https://gitlab.com/evigorito/baseqtl_pipeline/-/blob/master/input/Snakefile)
 output from rule total\_gene\_counts. For running the analysis without
 covariates set covariates=1. You can add extra columns to the matrix for
 additional covariates
 
 *e.snps*: full name of txt file with a list of exonic SNPS across genes,
-details in in
+details in
 [snakefile](https://gitlab.com/evigorito/baseqtl_pipeline/-/blob/master/input/Snakefile)
 output from rule fSNP\_gene (fsnps output).
 
@@ -105,17 +106,17 @@ for RNA-seq some exonic SNPs could be shared between genes making
 difficult to assess allele specific expression. In this case it is
 recommended to provide a list of exonic SNPs uniquely mapping genes. In
 this mode, e.snps will be used to imporve phasing accuracy and u.esnps
-to compute allele specific expression, further deatails in in
+to compute allele specific expression, further deatails in
 [snakefile](https://gitlab.com/evigorito/baseqtl_pipeline/-/blob/master/input/Snakefile)
 output from rule fSNP\_gene (ufsnps output).
 
 *gene.coord*: full name to file with gene id, gene sart and gene end,
-details in in
+details in
 [snakefile](https://gitlab.com/evigorito/baseqtl_pipeline/-/blob/master/input/Snakefile)
 output from rule exon\_by\_gene.
 
 *vcf*: full name to vcf file with genotypes and allele specific
-expression, details inin
+expression, details in
 [snakefile](https://gitlab.com/evigorito/baseqtl_pipeline/-/blob/master/input/Snakefile)
 output from rule merge\_vcf (source=“DNA”).
 
@@ -179,7 +180,6 @@ psoition:reference:alternative allele, defaults to NULL (no exlcusion).
 
 *AI\_estimate*: full name to txt file with pre-computed allelic
 imbalance estimates for reference panel bias for exonic SNPs, details in
-in
 [snakefile](https://gitlab.com/evigorito/baseqtl_pipeline/-/blob/master/input/Snakefile)
 output from rule get\_AI with source=“DNA”. Defaults to NULL for no
 correction.
@@ -379,7 +379,7 @@ below the arguments that differ from baseqtl.gt.
 **Arguments**
 
 *vcf*: full name for vcf file with genotypes and ASE counts for exonic
-SNPS. This file is produced from RNA-seq data only as explained in in
+SNPS. This file is produced from RNA-seq data only as explained in
 [snakefile](https://gitlab.com/evigorito/baseqtl_pipeline/-/blob/master/input/Snakefile)
 output from rule merge\_vcf, source=“RNA”\*\*
 
