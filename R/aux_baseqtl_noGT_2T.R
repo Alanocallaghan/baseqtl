@@ -37,7 +37,7 @@ list.err <- function(l,txt){
 #' @param snps.ex data table with rsnps to exclude from running
 #' @param prefix character with prefix to add for saving files, defaults to NULL
 #' @param out path to save outputs, default to current directory
-#' @param prior named list: mean= vector with the mean of Gaussians, sd= vector with Gaussians sd for eQTL effect prior, mix=vector with mixing proportions. Defaults to NULL, mixture of 3 components with mean (0,0,0) ;sd  c( 0.0436992,  0.3492696, 0.4920049); and mixing proportions  c(0.9478807,0.05142192, 0.0006974015).
+#' @param prior named list: mean= vector with the mean of Gaussians, sd= vector with Gaussians sd for eQTL effect prior, mix=vector with mixing proportions. Defaults to NULL, mixture of 3 components with mean (0,0,0) ;sd  c( 0.0436992,  0.3492696, 0.4920049); and mixing proportions  c(0.955, 2*0.015, 0.015).
 #' @export
 #' @return list with stan input
 #' aux.in()
@@ -65,7 +65,7 @@ aux.in <- function(gene, ai=NULL, case, rp.f, rp.r, f.ase, counts.g, covariates,
         if(length(unique(sapply(prior, length))) !=1) stop("mean and sd for prior argument must have the same length")
     } else {
         ## use default prior
-        prior=c(0,0,0, sqrt(2)*0.0309, sqrt(0.0309**2 + 0.3479**2), sqrt(2)*0.3479, 0.97359164**2, 2*0.97359164*0.02640836, 0.02640836**2 )
+        prior=c(0,0,0, sqrt(2)*0.0309, sqrt(0.0309**2 + 0.3479**2), sqrt(2)*0.3479, 0.955, 2*0.015, 0.015)
         k=length(prior)/3 ## number of gaussians
         s <- seq(1,length(prior),k)
         l <- lapply(1:3, function(i) as.numeric(prior[s[i]: (s[i]+k-1)]))

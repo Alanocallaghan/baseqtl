@@ -62,7 +62,7 @@ g.for <- function(dt){
 #' @param prefix optional prefix for saving tables, if NULL gene_id.eqtl will be used
 #' @param model whether to run NB-ASE (full model negative binomial and allele specific counts),NB (negative binomial only) or both (NB-ASE and NB for those associations with no ASE information)
 #' @param prob  number p∈(0,1) indicating the desired probability mass to include in the intervals, defaults to 0.99 and 0.95 quantiles
-#' @param prior named list: mean= vector with the mean of Gaussians, sd= vector with Gaussians sd for eQTL effect prior, mix=vector with mixing proportions. Defaults to NULL, mixture of 3 components with mean (0,0,0) ;sd  c( 0.0436992, 0.3492696, 0.4920049); and mixing proportions  c(0.9478807,0.05142192, 0.0006974015).
+#' @param prior named list: mean= vector with the mean of Gaussians, sd= vector with Gaussians sd for eQTL effect prior, mix=vector with mixing proportions. Defaults to NULL, mixture of 3 components with mean (0,0,0) ;sd  c( 0.0436992, 0.3492696, 0.4920049); and mixing proportions  c(0.955,2*0.015, 0.015).
 #' @param ex.fsnp, if character: vector with pos:ref:alt for fsnps to exclude,  defaults to NULL
 #' @param AI_estimate full name to data table with AI estimates for reference panel bias for fSNPs, defaults to NULL
 #' @param pretotalReads numeric indicating a cut-off for total initial reads to consider AI estimates, defaults to 100
@@ -83,7 +83,7 @@ btrecase.gt.paired.in <- function(gene, chr, snps=5*10^5,counts.f,covariates=1,e
         if(length(unique(sapply(prior, length))) !=1) stop("mean and sd for prior argument must have the same length")
     } else {
         ## use default prior
-        prior=c(0,0,0, sqrt(2)*0.0309, sqrt(0.0309**2 + 0.3479**2), sqrt(2)*0.3479, 0.97359164**2, 2*0.97359164*0.02640836, 0.02640836**2 )
+        prior=c(0,0,0, sqrt(2)*0.0309, sqrt(0.0309**2 + 0.3479**2), sqrt(2)*0.3479, 0.955, 2*0.015, 0.15 )
         k=length(prior)/3 ## number of gaussians
         s <- seq(1,length(prior),k)
         l <- lapply(1:3, function(i) as.numeric(prior[s[i]: (s[i]+k-1)]))
