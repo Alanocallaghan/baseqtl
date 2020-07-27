@@ -83,7 +83,7 @@ btrecase.gt.paired.in <- function(gene, chr, snps=5*10^5,counts.f,covariates=1,e
         if(length(unique(sapply(prior, length))) !=1) stop("mean and sd for prior argument must have the same length")
     } else {
         ## use default prior
-        prior=c(0,0,0, sqrt(2)*0.0309, sqrt(0.0309**2 + 0.3479**2), sqrt(2)*0.3479, 0.955, 2*0.015, 0.15 )
+        prior=c(0,0,0, sqrt(2)*0.0309, sqrt(0.0309**2 + 0.3479**2), sqrt(2)*0.3479, 0.955, 2*0.015, 0.015 )
         k=length(prior)/3 ## number of gaussians
         s <- seq(1,length(prior),k)
         l <- lapply(1:3, function(i) as.numeric(prior[s[i]: (s[i]+k-1)]))
