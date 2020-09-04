@@ -88,6 +88,8 @@ The function to call is **baseqtl.gt**. It will test for eQTL effects in one spe
 
 *covariates*: full name to rds file with a matrix of covariates, details in [snakefile](https://gitlab.com/evigorito/baseqtl_pipeline/-/blob/master/input/Snakefile) output from rule total_gene_counts. For running the analysis without covariates set covariates=1. You can add extra columns to the matrix for additional covariates
 
+*additional_cov*: full name to file with covariates that are gene independent, especially useful when using argument *covariates* with library size adjusted by GC-content. Format is first column sample names and additional columns with covariate information. Defaults to NULL
+
 *e.snps*: full name of txt file with a list of exonic SNPS across genes, details in [snakefile](https://gitlab.com/evigorito/baseqtl_pipeline/-/blob/master/input/Snakefile) output from rule fSNP_gene (fsnps output).
 
 *u.esnps*: optional argument, when strand information is not available for RNA-seq some exonic SNPs could be shared between genes making difficult to assess allele specific expression. In this case it is recommended to provide a list of exonic SNPs uniquely mapping genes. In this mode, e.snps will be used to imporve phasing accuracy and u.esnps to compute allele specific expression, further deatails in  [snakefile](https://gitlab.com/evigorito/baseqtl_pipeline/-/blob/master/input/Snakefile) output from rule fSNP_gene (ufsnps output).
@@ -166,6 +168,7 @@ baseqtl.gt(gene = "ENSG00000159958",
 	   snps = 10^4,
 	   counts.f = counts.f,
 	   covariates = covariates,
+	   additional_cov = NULL,
 	   e.snps = e.snps,
 	   u.esnps = u.snps,
 	   gene.coord = gene.coord,
@@ -308,6 +311,7 @@ baseqtl.nogt(gene = "ENSG00000159958",
 	   snps = 10^4,
 	   counts.f = counts.f,
 	   covariates = covariates,
+	   additional_cov = NULL,
 	   e.snps = e.snps,
 	   u.esnps = u.snps,
 	   gene.coord = gene.coord,
@@ -404,6 +408,7 @@ baseqtl.gt.paired(gene = "ENSG00000159958",
 	   snps = 10^4,
 	   counts.f = counts.f,
 	   covariates = covariates,
+	   additional_cov = NULL,
 	   e.snps = e.snps,
 	   u.esnps = u.snps,
 	   gene.coord = gene.coord,
@@ -458,6 +463,8 @@ We call **baseqtl2T.nogt**. I will describe below the arguments that differ from
 
 *covariates*:character vector with names of files with covariates for each treatment
 
+*additional_cov*: character vector with names of files with covariates for each treatment. See description above, defaults to NULL
+
 *vcf*: character vector with names of fvcf iles with GT and ASE for fSNPs for each treatment
 
 *treatments* character vector with the 2 treatments (tissues, diseases) to study
@@ -502,6 +509,7 @@ baseqtl2T.nogt(gene = "ENSG00000178372",
 	   snps = 10^4,
 	   counts.f = counts.f,
 	   covariates = covariates,
+	   additional_cov = NULL,
 	   e.snps = e.snps,
 	   u.esnps = u.snps,
 	   gene.coord = gene.coord,

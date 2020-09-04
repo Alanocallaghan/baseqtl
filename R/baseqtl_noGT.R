@@ -10,6 +10,7 @@ options(mc.cores = parallel::detectCores())
 #' @param snps either cis-window or character vector with pos:ref:alt allele for each snp, defaults to cis-window
 #' @param counts.f path to file with filtered counts: rows genes, first col gene_id followed by samples, prepared in inputs.R
 #' @param covariates path to matrix of covariates prepared in inputs.R. If using gc correction (each gene diffrent value), the matrix has rownames= genes and cols=samples plus extra columns if other covariates are added. If only using lib size or gene independent covariates, rows are samples and columns are covariates. If no covariates, covariates =1, default
+#' @param additional_cov full name to file with first column sample names and additional columns gene independent covariates, defaults to NULL
 #' @param e.snps path to file listing exonic snps for the chromosome where the gene is, prepared in input.R
 #' @param u.esnps whether to use unique exonic snps per gene, defaults to NULL when it is not necessary if strand info is known
 #' @param gene.coord path to file listing gene coordinates and exons, prepared in input.R
@@ -36,7 +37,7 @@ options(mc.cores = parallel::detectCores())
 #' @export
 #' @return data.table with summary of gene-snp associations. Saves the summary table in "out" dir as /out/prefix.main.txt. When using tags, saves /out/prefix.tags.lookup.txt. Saves a table of excluded rsnps.
 
-baseqtl.nogt <- function(gene, chr, snps=5*10^5,counts.f,covariates=1,e.snps,u.esnps=NULL, gene.coord,vcf,sample.file=NULL, le.file,h.file,population=c("EUR","AFR", "AMR", "EAS",  "SAS", "ALL"), maf=0.05, min.ase=5,min.ase.snp=5,min.ase.n=5,tag.threshold=.9, info=0.3, out=".", prefix=NULL, model=NULL, model.negonly=NULL, prob=NULL, prior=NULL, ex.fsnp=0.01, AI_estimate=NULL, pretotalReads=100) {
+baseqtl.nogt <- function(gene, chr, snps=5*10^5,counts.f,covariates=1,additional_cov=NULL, e.snps,u.esnps=NULL, gene.coord,vcf,sample.file=NULL, le.file,h.file,population=c("EUR","AFR", "AMR", "EAS",  "SAS", "ALL"), maf=0.05, min.ase=5,min.ase.snp=5,min.ase.n=5,tag.threshold=.9, info=0.3, out=".", prefix=NULL, model=NULL, model.negonly=NULL, prob=NULL, prior=NULL, ex.fsnp=0.01, AI_estimate=NULL, pretotalReads=100) {
 
     ## check stan models
 
@@ -81,6 +82,7 @@ baseqtl.nogt <- function(gene, chr, snps=5*10^5,counts.f,covariates=1,e.snps,u.e
                               snps=snps,
                               counts.f= counts.f,
                               covariates=covariates,
+                              additional_cov=additional_cov,
                               e.snps = e.snps,
                               u.esnps=u.esnps,
                               gene.coord=gene.coord,

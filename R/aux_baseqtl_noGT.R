@@ -10,6 +10,7 @@ options(mc.cores = parallel::detectCores())
 #' @param snps either cis-window or character vector with pos:ref:alt allele for each snp, defaults to cis-window
 #' @param counts.f path to file with filtered counts: rows genes, first col gene_id followed by samples, prepared in inputs.R
 #' @param covariates path to matrix of covariates prepared in inputs.R, if no covariates, covariates =1, default
+#' @param additional_cov full name to file with first column sample names and additional columns gene independent covariates, defaults to NULL
 #' @param e.snps path to file listing exonic snps for the chromosome where the gene is, prepared in input.R
 #' @param u.esnps whether to use unique exonic snps per gene, defaults to NULL when it is not necessary if strand info is known
 #' @param gene.coord path to file listing gene coordinates and exons, prepared in input.R
@@ -34,7 +35,7 @@ options(mc.cores = parallel::detectCores())
 #' @return list with counts, covariates and probs argument to prepare inputs
 #' aux.in1()
 
-aux.in1 <- function(gene, chr, snps=5*10^5,counts.f,covariates=1,e.snps,u.esnps=NULL, gene.coord,vcf,sample.file=NULL, le.file, h.file,population=c("EUR","AFR", "AMR", "EAS",  "SAS", "ALL"), maf=NULL, nhets=NULL,min.ase=5,min.ase.het=NULL, min.ase.snp=NULL, min.ase.n=NULL,tag.threshold=.9, info=NULL, out=".", model=NULL, prob=NULL, AI_estimate=NULL, pretotalReads=100) {
+aux.in1 <- function(gene, chr, snps=5*10^5,counts.f,covariates=1,additional_cov=NULL,e.snps,u.esnps=NULL, gene.coord,vcf,sample.file=NULL, le.file, h.file,population=c("EUR","AFR", "AMR", "EAS",  "SAS", "ALL"), maf=NULL, nhets=NULL,min.ase=5,min.ase.het=NULL, min.ase.snp=NULL, min.ase.n=NULL,tag.threshold=.9, info=NULL, out=".", model=NULL, prob=NULL, AI_estimate=NULL, pretotalReads=100) {
 
     ## check inputs:
     if(!is.null(model)) {
@@ -47,6 +48,7 @@ aux.in1 <- function(gene, chr, snps=5*10^5,counts.f,covariates=1,e.snps,u.esnps=
     files <- c(counts.f,e.snps,gene.coord,vcf,le.file,h.file)
     if(!is.null(u.esnps)) files <- c(files, u.esnps)
     if(!is.null(sample.file)) files <- c(files,sample.file)
+    if(!is.null(additional_cov)) files <- c(files, additional_cov)
     if(!is.null(AI_estimate)){
         files <- c(files,AI_estimate)
         if(!is.numeric(pretotalReads)) stop("pretotalReads requires a numeric value")
@@ -103,6 +105,19 @@ aux.in1 <- function(gene, chr, snps=5*10^5,counts.f,covariates=1,e.snps,u.esnps=
         ## scale
         covariates <- apply(covariates,2,scale,center=TRUE,scale=TRUE)
         rownames(covariates)=names(counts.g)
+    }
+    if(!is.null(additional_cov)){
+        add_cov <- fread(additional_cov)
+        
+        if(!(nrow(add_cov)==ncol(counts.g)))  stop(cat("Number of individuals in additional_cov file is:", nrow(add_cov), "\n and Number of individuals in gene counts", ncol(counts.g), "\n please adjust"))
+        add_cov_scale <- apply(add_cov[, 2:ncol(add_cov)],2,scale,center=TRUE,scale=TRUE)
+        rownames(add_cov_scale) <- unname(unlist(add_cov[,1]))
+        
+        if(exists("covariates")){
+            covariates <- cbind(covariates, add_cov_scale[rownames(covariates),, drop=F])
+        } else {
+            covariates <- add_cov_scale[rownames(counts.g),]
+        }
     }
     
     
@@ -276,6 +291,7 @@ aux.in3 <- function(gene, ai=NULL, case, rp.f, rp.r, f.ase, counts.g, covariates
 #' @param snps either cis-window or character vector with pos:ref:alt allele for each snp, defaults to cis-window
 #' @param counts.f path to file with filtered counts: rows genes, first col gene_id followed by samples, prepared in inputs.R
 #' @param covariates path to matrix of covariates prepared in inputs.R. If using gc correction (each gene diffrent value), the matrix has rownames= genes and cols=samples plus extra columns if other covariates are added. If only using lib size or gene independent covariates, rows are samples and columns are covariates. If no covariates, covariates =1, default
+#' @param additional_cov full name to file with first column sample names and additional columns gene independent covariates, defaults to NULL
 #' @param e.snps path to file listing exonic snps for the chromosome where the gene is, prepared in input.R
 #' @param u.esnps whether to use unique exonic snps per gene, defaults to NULL when it is not necessary if strand info is known
 #' @param gene.coord path to file listing gene coordinates and exons, prepared in input.R
@@ -300,7 +316,7 @@ aux.in3 <- function(gene, ai=NULL, case, rp.f, rp.r, f.ase, counts.g, covariates
 #' @return list with 1)c.ase and 2)stan.noGT object
 #' baseqtl.nogt.in()
 
-baseqtl.nogt.in <- function(gene, chr, snps=5*10^5,counts.f,covariates=1,e.snps,u.esnps=NULL,gene.coord,vcf,sample.file=NULL, le.file,h.file,population=c("EUR","AFR", "AMR", "EAS",  "SAS", "ALL"), maf=0.05, min.ase=5,min.ase.snp=5,min.ase.n=5,tag.threshold=.9, info=0.3, out=".", model =NULL, prefix=NULL, ex.fsnp=NULL, prob=NULL, AI_estimate=NULL, pretotalReads=100) {
+baseqtl.nogt.in <- function(gene, chr, snps=5*10^5,counts.f,covariates=1,additional_cov=NULL, e.snps,u.esnps=NULL,gene.coord,vcf,sample.file=NULL, le.file,h.file,population=c("EUR","AFR", "AMR", "EAS",  "SAS", "ALL"), maf=0.05, min.ase=5,min.ase.snp=5,min.ase.n=5,tag.threshold=.9, info=0.3, out=".", model =NULL, prefix=NULL, ex.fsnp=NULL, prob=NULL, AI_estimate=NULL, pretotalReads=100) {
   
     ## check inputs and extract inputs for gene
     
@@ -309,6 +325,7 @@ baseqtl.nogt.in <- function(gene, chr, snps=5*10^5,counts.f,covariates=1,e.snps,
                       snps=snps,
                       counts.f,
                       covariates=covariates,
+                      additional_cov=additional_cov,
                       e.snps,
                       u.esnps,
                       gene.coord,
@@ -539,7 +556,7 @@ baseqtl.nogt.in <- function(gene, chr, snps=5*10^5,counts.f,covariates=1,e.snps,
                     
                     ## fsnps, pre-compute what I need because applies to every snp
 
-                    print("Preparing stan inputs")
+                    message("Preparing stan inputs")
                    
                     if(!is.null(ai)) {
                         ## make all inputs with the same fSNPS

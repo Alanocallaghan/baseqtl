@@ -220,6 +220,7 @@ aux.in <- function(gene, ai=NULL, case, rp.f, rp.r, f.ase, counts.g, covariates,
 #' @param snps either cis-window or character vector with pos:ref:alt allele for each snp, defaults to cis-window
 #' @param counts.f path to files with filtered counts: rows genes, first col gene_id followed by samples, prepared in inputs.R
 #' @param covariates path to matrixes of covariates prepared in inputs.R. If using gc correction (each gene diffrent value), the matrix has rownames= genes and cols=samples plus extra columns if other covariates are added. If only using lib size or gene independent covariates, rows are samples and columns are covariates. If no covariates, covariates =1, default
+#' @param additional_cov full name to file with first column sample names and additional columns gene independent covariates, defaults to NULL
 #' @param e.snps path to file listing exonic snps for the chromosome where the gene is, prepared in input.R
 #' @param u.esnps whether to use unique exonic snps per gene, defaults to NULL when it is not necessary if strand info is known
 #' @param gene.coord path to file listing gene coordinates and exons, prepared in input.R
@@ -247,7 +248,7 @@ aux.in <- function(gene, ai=NULL, case, rp.f, rp.r, f.ase, counts.g, covariates,
 #' @return list with 1)c.ase and 2)stan.noGT object
 #' baseqtl2Tnogt.in()
 
-baseqtl2Tnogt.in <- function(gene, chr, snps=5*10^5,counts.f,covariates=1,e.snps,u.esnps=NULL,gene.coord,vcf,sample.file=NULL, le.file,h.file,population=c("EUR","AFR", "AMR", "EAS",  "SAS", "ALL"), maf=0.05, min.ase=5,min.ase.snp=5,min.ase.n=5,tag.threshold=.9, info=0.3, out=".", prefix=NULL, prior=NULL, ex.fsnp=0.01, prob=NULL, AI_estimate=NULL, pretotalReads=100, skin, fishjoin="joint") {
+baseqtl2Tnogt.in <- function(gene, chr, snps=5*10^5,counts.f,covariates=1, additional_cov=NULL, e.snps,u.esnps=NULL,gene.coord,vcf,sample.file=NULL, le.file,h.file,population=c("EUR","AFR", "AMR", "EAS",  "SAS", "ALL"), maf=0.05, min.ase=5,min.ase.snp=5,min.ase.n=5,tag.threshold=.9, info=0.3, out=".", prefix=NULL, prior=NULL, ex.fsnp=0.01, prob=NULL, AI_estimate=NULL, pretotalReads=100, skin, fishjoin="joint") {
   
     ## check inputs and extract inputs for gene
 
@@ -255,6 +256,7 @@ baseqtl2Tnogt.in <- function(gene, chr, snps=5*10^5,counts.f,covariates=1,e.snps
     ingene <- mapply(aux.in1,
                      counts.f=counts.f,
                      covariates=covariates,
+                     additional_cov=additional_cov,
                      vcf=vcf,
                      MoreArgs=list(gene,
                                    chr,

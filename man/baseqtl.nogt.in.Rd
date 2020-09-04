@@ -10,6 +10,7 @@ baseqtl.nogt.in(
   snps = 5 * 10^5,
   counts.f,
   covariates = 1,
+  additional_cov = NULL,
   e.snps,
   u.esnps = NULL,
   gene.coord,
@@ -43,6 +44,8 @@ baseqtl.nogt.in(
 \item{counts.f}{path to file with filtered counts: rows genes, first col gene_id followed by samples, prepared in inputs.R}
 
 \item{covariates}{path to matrix of covariates prepared in inputs.R. If using gc correction (each gene diffrent value), the matrix has rownames= genes and cols=samples plus extra columns if other covariates are added. If only using lib size or gene independent covariates, rows are samples and columns are covariates. If no covariates, covariates =1, default}
+
+\item{additional_cov}{full name to file with first column sample names and additional columns gene independent covariates, defaults to NULL}
 
 \item{e.snps}{path to file listing exonic snps for the chromosome where the gene is, prepared in input.R}
 

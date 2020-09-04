@@ -96,6 +96,11 @@ output from rule total\_gene\_counts. For running the analysis without
 covariates set covariates=1. You can add extra columns to the matrix for
 additional covariates
 
+*additional\_cov*: full name to file with covariates that are gene
+independent, especially useful when using argument *covariates* with
+library size adjusted by GC-content. Format is first column sample names
+and additional columns with covariate information. Defaults to NULL
+
 *e.snps*: full name of txt file with a list of exonic SNPS across genes,
 details in
 [snakefile](https://gitlab.com/evigorito/baseqtl_pipeline/-/blob/master/input/Snakefile)
@@ -217,6 +222,7 @@ baseqtl.gt(gene = "ENSG00000159958",
        snps = 10^4,
        counts.f = counts.f,
        covariates = covariates,
+       additional_cov = NULL,
        e.snps = e.snps,
        u.esnps = u.snps,
        gene.coord = gene.coord,
@@ -306,14 +312,12 @@ The summary file has the following information:
 
 ``` r
 names(results)
-#>  [1] "Gene_id"          "tag"              "log2_aFC_mean"   
-#>  [4] "log2_aFC_se_mean" "log2_aFC_sd"      "log2_aFC_0.5%"   
-#>  [7] "log2_aFC_2.5%"    "log2_aFC_25%"     "log2_aFC_50%"    
-#> [10] "log2_aFC_75%"     "log2_aFC_97.5%"   "log2_aFC_99.5%"  
-#> [13] "log2_aFC_d"       "null.99"          "Signif"          
-#> [16] "n_eff"            "Rhat"             "model"           
-#> [19] "nhets"            "ASE.hets"         "tag.EAF"         
-#> [22] "n.fsnps"          "PEP"              "min_AI"
+#>  [1] "Gene_id"          "tag"              "log2_aFC_mean"    "log2_aFC_se_mean"
+#>  [5] "log2_aFC_sd"      "log2_aFC_0.5%"    "log2_aFC_2.5%"    "log2_aFC_25%"    
+#>  [9] "log2_aFC_50%"     "log2_aFC_75%"     "log2_aFC_97.5%"   "log2_aFC_99.5%"  
+#> [13] "log2_aFC_d"       "null.99"          "Signif"           "n_eff"           
+#> [17] "Rhat"             "model"            "nhets"            "ASE.hets"        
+#> [21] "tag.EAF"          "n.fsnps"          "PEP"              "min_AI"
 ```
 
   - Description:
@@ -425,6 +429,7 @@ baseqtl.nogt(gene = "ENSG00000159958",
        snps = 10^4,
        counts.f = counts.f,
        covariates = covariates,
+       additional_cov = NULL,
        e.snps = e.snps,
        u.esnps = u.snps,
        gene.coord = gene.coord,
@@ -477,14 +482,12 @@ The summary file has the following information:
 
 ``` r
 names(results)
-#>  [1] "Gene_id"          "tag"              "log2_aFC_mean"   
-#>  [4] "log2_aFC_se_mean" "log2_aFC_sd"      "log2_aFC_0.5%"   
-#>  [7] "log2_aFC_2.5%"    "log2_aFC_25%"     "log2_aFC_50%"    
-#> [10] "log2_aFC_75%"     "log2_aFC_97.5%"   "log2_aFC_99.5%"  
-#> [13] "log2_aFC_d"       "null.99"          "Signif"          
-#> [16] "n_eff"            "Rhat"             "model"           
-#> [19] "nhets"            "ASE.hets"         "tag.EAF"         
-#> [22] "info"             "n.fsnps"          "min.p.fsnp"      
+#>  [1] "Gene_id"          "tag"              "log2_aFC_mean"    "log2_aFC_se_mean"
+#>  [5] "log2_aFC_sd"      "log2_aFC_0.5%"    "log2_aFC_2.5%"    "log2_aFC_25%"    
+#>  [9] "log2_aFC_50%"     "log2_aFC_75%"     "log2_aFC_97.5%"   "log2_aFC_99.5%"  
+#> [13] "log2_aFC_d"       "null.99"          "Signif"           "n_eff"           
+#> [17] "Rhat"             "model"            "nhets"            "ASE.hets"        
+#> [21] "tag.EAF"          "info"             "n.fsnps"          "min.p.fsnp"      
 #> [25] "PEP"              "min_AI"
 ```
 
@@ -544,6 +547,7 @@ baseqtl.gt.paired(gene = "ENSG00000159958",
        snps = 10^4,
        counts.f = counts.f,
        covariates = covariates,
+       additional_cov = NULL,
        e.snps = e.snps,
        u.esnps = u.snps,
        gene.coord = gene.coord,
@@ -639,6 +643,9 @@ for each treatment
 *covariates*:character vector with names of files with covariates for
 each treatment
 
+*additional\_cov*: character vector with names of files with covariates
+for each treatment. See description above, defaults to NULL
+
 *vcf*: character vector with names of fvcf iles with GT and ASE for
 fSNPs for each treatment
 
@@ -689,6 +696,7 @@ baseqtl2T.nogt(gene = "ENSG00000178372",
        snps = 10^4,
        counts.f = counts.f,
        covariates = covariates,
+       additional_cov = NULL,
        e.snps = e.snps,
        u.esnps = u.snps,
        gene.coord = gene.coord,

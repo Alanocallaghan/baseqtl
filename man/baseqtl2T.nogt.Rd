@@ -11,6 +11,7 @@ baseqtl2T.nogt(
   snps = 5 * 10^5,
   counts.f,
   covariates = 1,
+  additional_cov = NULL,
   e.snps,
   u.esnps = NULL,
   gene.coord,
@@ -48,6 +49,8 @@ baseqtl2T.nogt(
 
 \item{covariates}{path to matrix of covariates prepared in inputs.R, if no covariates, covariates =1, default. Same  order of treatments as counts.f}
 
+\item{additional_cov}{full name to file with first column sample names and additional columns gene independent covariates, defaults to NULL}
+
 \item{e.snps}{path to file listing exonic snps for the chromosome where the gene is, prepared in input.R}
 
 \item{u.esnps}{whether to use unique exonic snps per gene, defaults to NULL when it is not necessary if strand info is known}
@@ -83,7 +86,7 @@ baseqtl2T.nogt(
 
 \item{prob}{number p∈(0,1) indicating the desired probability mass to include in the intervals, defaults to 0.95 and 0.99 quantiles}
 
-\item{prior}{named list: mean= vector with the mean of Gaussians, sd= vector with Gaussians sd for eQTL effect prior, mix=vector with mixing proportions. Defaults to NULL, mixture of 3 components with mean (0,0,0) ;sd  c( 0.0436992,  0.3492696, 0.4920049); and mixing proportions  c(0.9478807,0.05142192, 0.0006974015).}
+\item{prior}{named list: mean= vector with the mean of Gaussians, sd= vector with Gaussians sd for eQTL effect prior, mix=vector with mixing proportions. Defaults to NULL, mixture of 3 components with mean (0,0,0) ;sd  c( 0.0436992,  0.3492696, 0.4920049); and mixing proportions  c(0.955, 2*0.015, 0.015).}
 
 \item{ex.fsnp}{if character: vector with pos:ref:alt for fsnps to exclude, if numeric  p-value cut-off for fSNPs to exclude based on fisher test for suspected genotype error based on comparing the proportion of hets in the sample and reference panel,  defaults to 0.01. If NULL no fSNP will be excluded.}
 
