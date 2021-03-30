@@ -181,7 +181,7 @@ stan.trecase.eff2 <- function(counts.g, rp.1r, rp.f, f.ase, rs.hap, rec.rsnp, st
     if (any(a)){
         gm <- gm[!a,]
         n.all <- n.all[!a]
-        pH.all <- pH.all[-a]
+        pH.all <- pH.all[!a]
         if(any(names(stan.f) == "ai")) {
             ai.all <- ai.all[!a]
             vai0 <- vai0[!a]
@@ -543,7 +543,7 @@ fsnp.prep2 <- function(rp.f, f.ase, c.ase , min.ase=5, min.ase.n=5, ai=NULL){
 
     fsnp.in <- lapply(1:length(f.comb), function(i) {
         samp <- rownames(index[index[,i],,drop=FALSE])
-        cols.fase <- unlist(lapply(samp, grep, x=names(f.ase), value=TRUE))
+        cols.fase <- unlist(lapply(samp, function(g) grep(pattern=paste0(g, "_"), x=names(f.ase), value=TRUE)))
         fsnps <- f.comb[[i]]
         cols.case <- unlist(lapply(fsnps, grep, x=colnames(c.ase), value=TRUE))
         ## for each entry I ignore checking for ase, it is only a subset of individuals and it was checked globally above

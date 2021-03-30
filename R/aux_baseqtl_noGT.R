@@ -275,7 +275,7 @@ aux.in3 <- function(gene, ai=NULL, case, rp.f, rp.r, f.ase, counts.g, covariates
         
         
         stan.noGT2 <- lapply(stan.noGT, function(i) {
-            if(!is.matrix(covariates)){
+            if(is.matrix(covariates)){
                 l=in.neg.beta.noGT.eff2(i, covar=covariates[names(i$NB$counts),, drop=F])
             } else {
                 l=in.neg.beta.noGT.eff2(i, covar=covariates)
@@ -512,7 +512,7 @@ baseqtl.nogt.in <- function(gene, chr, snps=5*10^5,counts.f,covariates=1,additio
         }
         
         ## restrict rsnp to tag snps
-        rp.r <- rp.r[unique(tags(rtag)),]
+        rp.r <- rp.r[unique(GUESSFM::tags(rtag)),]
     }
     r.tag <- switch(is.numeric(tag.threshold),"yes") ## to output results after stan, when tag.threshold is char, returns NULL
    

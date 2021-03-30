@@ -351,7 +351,7 @@ names(results)
         panel for the population requested, NA if the rSNP is not in the
         reference panel
       - n.fsnps: number of exonic SNPs used in model, NA for NB model
-        \*PEP: posterior exclusion probablity based on 4000 posteriror
+        \*PEP: posterior exclusion probablity based on 4000 posterior
         draws. Gives the proportion of posterior draws of opposite sign
         to the posterior mean
       - min\_AI: when using reference panel bias correcion gives the
