@@ -20,8 +20,8 @@ descibe models for 4 scenarios:
 ## System requirements
 
     R versions >= 3.4.0.
-    GNU make
-    bcftools
+    GNU make >= 3.82
+    bcftools >= 1.3.1
 
 ## Instalations
 
