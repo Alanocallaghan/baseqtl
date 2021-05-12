@@ -50,6 +50,8 @@ export PATH=/where/to/install/bin:$PATH
 
 ### Install  baseqtl from [GitLab](https://gitlab.com):
 
+Installation has been tested on R 3.5.1. Installation time is estimated as 2 minutes.
+
 ``` r
 ## Within R:
 install.packages("devtools") # if you don't already have the package
