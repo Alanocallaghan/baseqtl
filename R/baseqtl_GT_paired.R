@@ -27,7 +27,7 @@ options(mc.cores = parallel::detectCores())
 #' @param prefix optional prefix for saving tables, if NULL gene_id.eqtl will be used
 #' @param model whether to run NB-ASE (full model negative binomial and allele specific counts),NB (negative binomial only) or both (NB-ASE and NB for those associations with no ASE information)
 #' @param stan.model compiled stanmodel object with stan model, defaults NULL which uses  built-in NB-ASE model. When AI_estimate is provided the model corrects for reference panel bias, otherwise id doesn't.
-#' @param stan.negonly compiled stanmodel object with neg only side, deafults to NULL which is built-in model.
+#' @param stan.negonly compiled stanmodel object with neg only side, defaults to NULL which is built-in model.
 #' @param prob  number p∈(0,1) indicating the desired probability mass to include in the intervals, defaults to 0.99, 0.95 quantiles
 #' @param prior named list: mean= vector with the mean of Gaussians, sd= vector with Gaussians sd for eQTL effect prior, mix=vector with mixing proportions. Defaults to NULL, mixture of 3 components with mean (0,0,0) ;sd  c( 0.0436992,  0.3492696, 0.4920049); and mixing proportions  c(0.955, 2*0.015, 0.015).
 #' @param ex.fsnp, if character: vector with pos:ref:alt for fsnps to exclude,  defaults to NULL

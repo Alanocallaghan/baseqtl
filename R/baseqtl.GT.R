@@ -106,7 +106,7 @@ baseqtl.gt <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, add
     r.tag <- base.in$nbase$r.tag
 
 
-    print("Running NB_ASE model")
+    message("Running NB_ASE model")
 
     stan.full <- parallel::mclapply(stan.in2, function(i) {
       s <- run.stan(stan.model, data = i, pars = "bj", probs = probs)
@@ -127,7 +127,7 @@ baseqtl.gt <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, add
     nhets <- base.in$neg$nhets
 
 
-    print("Running NB model")
+    message("Running NB model")
     ## get full posterior
     stan.neg <- parallel::mclapply(in.neg, function(i) {
       s <- run.stan(stan.negonly, data = i, pars = "bj", probs = probs)

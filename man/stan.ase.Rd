@@ -19,7 +19,7 @@ stan.ase(M, M.cond, s.M, n.mat, ai0.mat = NULL, vai0.mat = NULL)
 @param vai0.mat matrix with variance estimates for allelic imbnalance for reference bias correction, defaults to NULL}
 }
 \value{
-list of stan input: list of 1) list with vectors of n.counts, 2) list of vectors of  p(H(f+r)|Gf) , 3) list of vectors of possible genotype rsnp in scale 0,1,-1,2, each vector one sample, 4)optional list with AI reference bias estimates 
+list of stan input: list of 1) list with vectors of n.counts, 2) list of vectors of  p(H(f+r)|Gf) , 3) list of vectors of possible genotype rsnp in scale 0,1,-1,2, each vector one sample, 4)optional list with AI reference bias estimates
 stan.ase()
 }
 \description{

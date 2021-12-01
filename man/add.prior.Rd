@@ -2,7 +2,7 @@
 % Please edit documentation in R/stan.eff.R
 \name{add.prior}
 \alias{add.prior}
-\title{Add any mixture of Guassians to stan inputs}
+\title{Add any mixture of Gaussians to stan inputs}
 \usage{
 add.prior(prior, l)
 }

@@ -40,7 +40,7 @@ aux.snps <- function(gene, chr, snps, gcoord, gene.coord, vcf, rsnps.ex) {
     if (is.character(cis_window)) stop(cis_window)
     if (is.list(cis_window)) cis_window <- unlist(cis_window)
     gt.as <- vcf_w(vcf, chr, st = cis_window["start"], end = cis_window["end"], exclude = "yes")
-    if (is.character(gt.as)) stop(print(gt.as))
+    if (is.character(gt.as)) stop(gt.as)
     rsnps.ex <- gt.as$excluded
     gt.as <- gt.as$keep
     ## make sure gt.as doesn't have missing values or unphased GT
@@ -78,7 +78,7 @@ aux.snps <- function(gene, chr, snps, gcoord, gene.coord, vcf, rsnps.ex) {
 
     cis_window <- setNames(c(min(pos, st_end), max(pos, st_end)), c("start", "end"))
     gt.as <- vcf_w(vcf, chr, cis_window["start"], cis_window["end"], exclude = "yes")
-    if (is.character(gt.as)) stop(print("snps not found in vcf"))
+    if (is.character(gt.as)) stop("snps not found in vcf")
     rsnps.ex <- gt.as$excluded[id %in% snps, ]
     gt.as <- gt.as$keep
     rs <- gt.as[id %in% snps, ][, grep("_AS", names(gt.as), value = T) := NULL] ## gt rsnps only
@@ -322,7 +322,7 @@ baseqtl.gt.in <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, 
           f.ase <- f.ase[id %in% rownames(rp), ]
 
           if (nrow(f.ase) == 0) {
-            print("No fsnps ref panel")
+            message("No fsnps ref panel")
             rsnps.ex <- rbind(rsnps.ex, data.table::data.table(id = rec.rs2$id, reason = "No fsnps in reference panel"))
           } else {
 
@@ -339,7 +339,7 @@ baseqtl.gt.in <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, 
 
               if (!is.character(filt.fsnp(counts.ase, min.ase.snp = 0))) { ## Enough ind with ase counts
 
-                print(paste("Effective number of fSNPs:", nrow(f.ase)))
+                message("Effective number of fSNPs: ", nrow(f.ase))
 
                 ## select rsnps in ref panel for full model
                 rs.full <- rs[id %in% rec.rs2$id, which(names(rs) %in% names(rec.rs2)), with = F]
@@ -360,7 +360,7 @@ baseqtl.gt.in <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, 
                 }
 
 
-                print("Preparing stan inputs")
+                message("Preparing stan inputs")
 
                 ## order fsnps in couts.ase as in f.ase
 

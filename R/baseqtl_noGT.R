@@ -9,7 +9,7 @@ options(mc.cores = parallel::detectCores())
 #' @param chr chromosome where the gene is, example chr=22
 #' @param snps either cis-window or character vector with pos:ref:alt allele for each snp, defaults to cis-window
 #' @param counts.f path to file with filtered counts: rows genes, first col gene_id followed by samples, prepared in inputs.R
-#' @param covariates path to matrix of covariates prepared in inputs.R. If using gc correction (each gene diffrent value), the matrix has rownames= genes and cols=samples plus extra columns if other covariates are added. If only using lib size or gene independent covariates, rows are samples and columns are covariates. If no covariates, covariates =1, default
+#' @param covariates path to matrix of covariates prepared in inputs.R. If using gc correction (each gene different value), the matrix has rownames= genes and cols=samples plus extra columns if other covariates are added. If only using lib size or gene independent covariates, rows are samples and columns are covariates. If no covariates, covariates =1, default
 #' @param additional_cov full name to file with first column sample names and additional columns gene independent covariates, defaults to NULL
 #' @param e.snps path to file listing exonic snps for the chromosome where the gene is, prepared in input.R
 #' @param u.esnps whether to use unique exonic snps per gene, defaults to NULL when it is not necessary if strand info is known
@@ -18,7 +18,7 @@ options(mc.cores = parallel::detectCores())
 #' @param sample.file sample file for the reference panel (sample description), to be used if ex.fsnp test is required and population is not the whole reference panel
 #' @param le.file path to gz legend file (legend.gz) for the chromosome of interest for the reference panel (snp description)
 #' @param h.file path to gz haplotpe file for the chromosome of interest for the reference panel (haplotypes for all samples in reference panel)
-#' @param population ethnicity to set a cut-off for maf: AFR AMR EAS EUR SAS ALL, and for testing fSNPs to exclude (ex.fsnp below) if applicabloe, defaults to EUR
+#' @param population ethnicity to set a cut-off for maf: AFR AMR EAS EUR SAS ALL, and for testing fSNPs to exclude (ex.fsnp below) if applicable, defaults to EUR
 #' @param maf cut-off for maf, defaults to 0.05
 #' @param min.ase minimun number of ASE counts for an individual in order to be included, defaults to 5
 #' @param min.ase.snp minum number of ASE counts for a single snp to be considered, for a particular individual
@@ -28,7 +28,7 @@ options(mc.cores = parallel::detectCores())
 #' @param out path to save outputs, default to current directory
 #' @param prefix optional prefix for saving files, if NULL gene_id.eqtl will be used
 #' @param model compiled stanmodel object with stan model, defaults NULL which uses  built-in NB-ASE model. When AI_estimate is provided the model corrects for reference panel bias, otherwise id doesn't.
-#' @param model.negonly compailed stanmodel object with neg only side, deafults to NULL which is built-in model.
+#' @param model.negonly compiled stanmodel object with neg only side, defaults to NULL which is built-in model.
 #' @param prob  number p∈(0,1) indicating the desired probability mass to include in the intervals, defaults to 0.99 and 0.95 quantiles
 #' @param prior named list: mean= vector with the mean of Gaussians, sd= vector with Gaussians sd for eQTL effect prior, mix=vector with mixing proportions. Defaults to NULL, mixture of 2 components with mean (0,0) ;sd  c( 0.0309, 0.3479); and mixing proportions  c(0.97359164, 0.02640836).
 #' @param ex.fsnp if character: vector with pos:ref:alt for fsnps to exclude, if numeric  p-value cut-off for fSNPs to exclude based on fisher test for suspected genotype error based on comparing the proportion of hets in the sample and reference panel,  defaults to 0.01. If NULL no fSNP will be excluded.

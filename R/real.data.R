@@ -496,7 +496,7 @@ filt.fsnp <- function(c.ase, ase = 5, min.ase.snp = 5, n = 5, gt.err = NULL, rem
 #' @param x matrix (example haplotypes for the snps, cols snps, rows samples)
 #' @keywords correlation haplotypes reference panel
 #' @export
-#' @return matrix of correlatons
+#' @return matrix of correlations
 #' cor2
 cor2 <- function(x) {
   SD.x <- apply(x, 2, sd)
@@ -508,7 +508,7 @@ cor2 <- function(x) {
 ##' Derive tag SNPs for a SnpMatrix object using heirarchical clustering
 ##'
 ##' Uses complete linkage and the \code{\link{hclust}} function to define clusters,
-##' then cuts the tree at 1-tag.threshold. Based on Chirs Wallace function tags but allowing for haplotype input.
+##' then cuts the tree at 1-tag.threshold. Based on Chris Wallace's function tags but allowing for haplotype input.
 ##' @param X matrix of haplotypes, each rows is an observed hap, cols snps
 ##' @param tag.threshold threshold to cut tree, default=0.99
 ##' @param quiet if FALSE (default), show progress messages
@@ -541,7 +541,7 @@ tag.noGT <- function(X, tag.threshold = 0.99, quiet = FALSE, method = "single") 
   r2 <- r2[GUESSFM::tags(groups), GUESSFM::tags(groups)]
   diag(r2) <- 0
   if (!quiet) {
-    message("max r2 is now", max(r2), "\n")
+    message("max r2 is now ", max(r2))
   }
   return(methods::as(groups, "tags"))
 }
@@ -601,7 +601,7 @@ var.rp <- function(file1, file2, x) {
 #'
 #' This function allows you to to calculate var(E(G)), var(G), r2=var(E(G))/var(G) and abs(`log2(aFC)_mean.ngt`-`log2(aFC)_mean.gt`) into a data.frame
 #' @param genes, character vector of genes to select inputs from, defaults to NULL to use all genes run by model
-#' @param path charcater vector with path to files with stan.input
+#' @param path character vector with path to files with stan.input
 #' @param pattern character vector with pattern to match
 #' @param noGT data table with Gene_id and tags to extract gene/snps pairs
 #' @param le.file path to legend file for specific chromosome

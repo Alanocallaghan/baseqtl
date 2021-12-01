@@ -20,5 +20,5 @@ character vector, names are \code{snps}, values are the tag for each SNP
 }
 \description{
 Uses complete linkage and the \code{\link{hclust}} function to define clusters,
-then cuts the tree at 1-tag.threshold. Based on Chirs Wallace function tags but allowing for haplotype input.
+then cuts the tree at 1-tag.threshold. Based on Chris Wallace's function tags but allowing for haplotype input.
 }

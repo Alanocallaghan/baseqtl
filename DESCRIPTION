@@ -5,7 +5,7 @@ Authors@R: c(
     person("Elena", "Vigorito", email = "elena.vigorito@mrc-bsu.cam.ac.uk",  role = c("aut", "cre")),
     person("Chris", "Wallace", email="cew54@cam.ac.uk", role="aut"),
     person("Colin", "Starr", email="colin.starr@mrc-bsu.cam.ac.uk", role="aut"))         
-Description: eQTL method that combines between individual variation (modelled by a negative binomial distribution) with allele specific expression (beta-binomial distribution) adopting a Bayesian approach which allows us to shrink eQTL estimates to improve accuracy, as well as to exploit external reference genotype panel data to improve phasing accuracy for	modelling allele specfic expression. Our Bayesian model is embeded within a standard Hamiltonian Monte Carlo environment which is run by stan, allowing researchers to develop flexible analyticapproaches appropriate to their data. In this package we provide models for 4 scenarios: 1. eQTL analysis when DNA-seq and RNA-seq data are available (with genotypes). 2. eQTL analysis when only RNA-seq is available (unknown genotypes). 3. eQTL analysis with paired samples (two treatments) with genotypes. 4. eQTL analysis with samples from two conditions (diseases vs control) and unkown gentopyes.
+Description: eQTL method that combines between individual variation (modelled by a negative binomial distribution) with allele specific expression (beta-binomial distribution) adopting a Bayesian approach which allows us to shrink eQTL estimates to improve accuracy, as well as to exploit external reference genotype panel data to improve phasing accuracy for	modelling allele specific expression. Our Bayesian model is embedded within a standard Hamiltonian Monte Carlo environment which is run by stan, allowing researchers to develop flexible analytic approaches appropriate to their data. In this package we provide models for 4 scenarios: 1. eQTL analysis when DNA-seq and RNA-seq data are available (with genotypes). 2. eQTL analysis when only RNA-seq is available (unknown genotypes). 3. eQTL analysis with paired samples (two treatments) with genotypes. 4. eQTL analysis with samples from two conditions (diseases vs control) and unknown genotypes.
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
@@ -29,8 +29,9 @@ LinkingTo:
     rstan (>= 2.18.1),
     StanHeaders (>= 2.18.0)
 SystemRequirements: GNU make
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.2
 Remotes: Alanocallaghan/GUESSFM@groups
+Language: en-GB
 Suggests: 
     knitr,
     rmarkdown

@@ -14,7 +14,7 @@ vcf_cl(cl1, cl2, sep = " ")
 \item{sep}{separation fields based on bcftools query, defaults =" "}
 }
 \value{
-data table 
+data table
 vcf_cl()
 }
 \description{

@@ -914,7 +914,7 @@ unload.ddl <- function(model) {
 #' @param c.ase output from tot.ase for the rsnp id
 #' @param min.ase ase cut-off default is 5 counts, trecase default 5
 #' @param min.ase.n minimun number of individuals with sufficient ase counts, trease default 5
-#' @param NB, whether to return NB element of output, defalts to "yes" as it is required for noGT, use "no" for GT input preparation
+#' @param NB, whether to return NB element of output, defualts to "yes" as it is required for noGT, use "no" for GT input preparation
 #' @param ai data table with AI estimates per SNP, defaults to NULL
 #' @keywords stan input fsnp
 #' @export
@@ -1389,7 +1389,7 @@ aux.stan.ase <- function(mat, g.rsnp, n.mat) {
   return(ai0.list)
 }
 
-#' Add any mixture of Guassians to stan inputs
+#' Add any mixture of Gaussians to stan inputs
 #'
 #' This functions allows adding any Gaussian (or mixture) to be used as prior for eQTL effect when runing stan model
 #' @param prior named list: mean= vector with the mean of Gaussians, sd= vector with Gaussians sd for eQTL effect prior, mix=vector with mixing proportions
