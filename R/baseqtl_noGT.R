@@ -4,7 +4,7 @@ options(mc.cores = parallel::detectCores())
 
 #' Run baseqtl with unknown rsnp GT and missing values for GT fsnps with optional  reference panel bias correction
 #'
-#' This function allows you to run baseqtl for one gene and multiple pre-selected snps. 
+#' This function allows you to run baseqtl for one gene and multiple pre-selected snps.
 #' @param gene gene id for the gene to run
 #' @param chr chromosome where the gene is, example chr=22
 #' @param snps either cis-window or character vector with pos:ref:alt allele for each snp, defaults to cis-window
@@ -38,148 +38,143 @@ options(mc.cores = parallel::detectCores())
 #' @export
 #' @return data.table with summary of gene-snp associations. Saves the summary table in "out" dir as /out/prefix.main.txt. When using tags, saves /out/prefix.tags.lookup.txt. Saves a table of excluded rsnps.
 
-baseqtl.nogt <- function(gene, chr, snps=5*10^5,counts.f,covariates=1,additional_cov=NULL, e.snps,u.esnps=NULL, gene.coord,vcf,sample.file=NULL, le.file,h.file,population=c("EUR","AFR", "AMR", "EAS",  "SAS", "ALL"), maf=0.05, min.ase=5,min.ase.snp=5,min.ase.n=5,tag.threshold=.9, info=0.3, out=".", prefix=NULL, model=NULL, model.negonly=NULL, prob=NULL, prior=NULL, ex.fsnp=0.01, AI_estimate=NULL, pretotalReads=100, save_input=FALSE) {
+baseqtl.nogt <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, additional_cov = NULL, e.snps, u.esnps = NULL, gene.coord, vcf, sample.file = NULL, le.file, h.file, population = c("EUR", "AFR", "AMR", "EAS", "SAS", "ALL"), maf = 0.05, min.ase = 5, min.ase.snp = 5, min.ase.n = 5, tag.threshold = .9, info = 0.3, out = ".", prefix = NULL, model = NULL, model.negonly = NULL, prob = NULL, prior = NULL, ex.fsnp = 0.01, AI_estimate = NULL, pretotalReads = 100, save_input = FALSE) {
 
-    ## check stan models
+  ## check stan models
 
-    if(is.null(model)){
-        ## check if ref panelbias correction
-        if(is.null(AI_estimate)){
-            model <- stanmodels$noGT_nb_ase
-        } else {
-            model <- stanmodels$noGT_nb_ase_refbias
-        }
-    } else { ## model provided by user
-        if(class(model) != "stanmodel"){
-            stop("Model provided by user for argument model is not a stanmodel object")
-        }
-    }
-
-    if(is.null(model.negonly)){
-        model.negonly <- stanmodels$noGT_nb
+  if (is.null(model)) {
+    ## check if ref panelbias correction
+    if (is.null(AI_estimate)) {
+      model <- stanmodels$noGT_nb_ase
     } else {
-        if(class(model.negonly) != "stanmodel"){
-            stop("Model provided by user for argument model.negonly is not a stanmodel object")
-        }
+      model <- stanmodels$noGT_nb_ase_refbias
     }
-        
-    if(!is.null(prior)){
-        if(class(prior) != "list") stop("prior argument must be a list")
-        if(any(!names(prior) %in% c("mean", "sd", "mix"))) stop("prior argument must be a named 'mean' and 'sd'")
-        if(length(unique(sapply(prior, length))) !=1) stop("mean and sd for prior argument must have the same length")
-    } else {
-        ## use default prior
-        prior=c(0,0, 0.0309, 0.3479, 0.97359164, 0.02640836)
-        k=length(prior)/3 ## number of gaussians
-        s <- seq(1,length(prior),k)
-        l <- lapply(1:3, function(i) as.numeric(prior[s[i]: (s[i]+k-1)]))
-        names(l) <- c("mean", "sd", "mix")
-        prior <- l
+  } else { ## model provided by user
+    if (class(model) != "stanmodel") {
+      stop("Model provided by user for argument model is not a stanmodel object")
     }
+  }
 
-    
-    inputs <- baseqtl.nogt.in(gene=gene,
-                              chr=chr,
-                              snps=snps,
-                              counts.f= counts.f,
-                              covariates=covariates,
-                              additional_cov=additional_cov,
-                              e.snps = e.snps,
-                              u.esnps=u.esnps,
-                              gene.coord=gene.coord,
-                              vcf=vcf,
-                              sample.file=sample.file,
-                              le.file=le.file,
-                              h.file=h.file,
-                              population=population,
-                              maf=maf,      
-                              min.ase=min.ase,
-                              min.ase.snp=min.ase.snp,
-                              min.ase.n=min.ase.n,
-                              tag.threshold=tag.threshold,
-                              info=info,
-                              out=out,
-                              model=NULL, ## compatibility with GT functions
-                              prefix=prefix,
-                              prob=prob,
-                              ex.fsnp=ex.fsnp,
-                              AI_estimate=AI_estimate,
-                              pretotalReads=pretotalReads,
-                              save_input)
+  if (is.null(model.negonly)) {
+    model.negonly <- stanmodels$noGT_nb
+  } else {
+    if (class(model.negonly) != "stanmodel") {
+      stop("Model provided by user for argument model.negonly is not a stanmodel object")
+    }
+  }
 
-    
-    
-    if(is.character(inputs$inp)) stop(inputs$inp)
+  if (!is.null(prior)) {
+    if (class(prior) != "list") stop("prior argument must be a list")
+    if (any(!names(prior) %in% c("mean", "sd", "mix"))) stop("prior argument must be a named 'mean' and 'sd'")
+    if (length(unique(sapply(prior, length))) != 1) stop("mean and sd for prior argument must have the same length")
+  } else {
+    ## use default prior
+    prior <- c(0, 0, 0.0309, 0.3479, 0.97359164, 0.02640836)
+    k <- length(prior) / 3 ## number of gaussians
+    s <- seq(1, length(prior), k)
+    l <- lapply(1:3, function(i) as.numeric(prior[s[i]:(s[i] + k - 1)]))
+    names(l) <- c("mean", "sd", "mix")
+    prior <- l
+  }
 
-    stan.noGT2 <- inputs$inp$stan.noGT2
-    if(!is.null(ex.fsnp) & is.numeric(ex.fsnp)) {
-        het.f <- inputs$inp$het.f
-        het.fall <- inputs$inp$het.all
-    } else {
-        het.f=NULL
+
+  inputs <- baseqtl.nogt.in(
+    gene = gene,
+    chr = chr,
+    snps = snps,
+    counts.f = counts.f,
+    covariates = covariates,
+    additional_cov = additional_cov,
+    e.snps = e.snps,
+    u.esnps = u.esnps,
+    gene.coord = gene.coord,
+    vcf = vcf,
+    sample.file = sample.file,
+    le.file = le.file,
+    h.file = h.file,
+    population = population,
+    maf = maf,
+    min.ase = min.ase,
+    min.ase.snp = min.ase.snp,
+    min.ase.n = min.ase.n,
+    tag.threshold = tag.threshold,
+    info = info,
+    out = out,
+    model = NULL, ## compatibility with GT functions
+    prefix = prefix,
+    prob = prob,
+    ex.fsnp = ex.fsnp,
+    AI_estimate = AI_estimate,
+    pretotalReads = pretotalReads,
+    save_input
+  )
+
+
+
+  if (is.character(inputs$inp)) stop(inputs$inp)
+
+  stan.noGT2 <- inputs$inp$stan.noGT2
+  if (!is.null(ex.fsnp) & is.numeric(ex.fsnp)) {
+    het.f <- inputs$inp$het.f
+    het.fall <- inputs$inp$het.all
+  } else {
+    het.f <- NULL
+  }
+
+  nfsnps <- inputs$inp$nfsnps
+  info.ok <- inputs$inp$info.ok
+  probs <- inputs$probs
+  r.tag <- inputs$r.tag
+
+
+  stan.noGT2 <- lapply(stan.noGT2, function(l) {
+    ## add prior
+    l <- add.prior(prior, l)
+    return(l)
+  })
+
+  if (inputs$model == "NB-ASE") {
+    model2run <- model
+  } else {
+    model2run <- model.negonly
+  }
+
+  model <- inputs$model # "NB-ASE" or 'NB'
+
+  cat("Running stan for ", model)
+
+  stan.full <- parallel::mclapply(
+    1:length(stan.noGT2),
+    function(i) {
+      s <- run.stan(model2run, data = stan.noGT2[[i]], pars = "bj", probs = probs)
+      return(s)
     }
-    
-    nfsnps <- inputs$inp$nfsnps
-    info.ok <- inputs$inp$info.ok
-    probs <- inputs$probs
-    r.tag <- inputs$r.tag
-    
-  
-    stan.noGT2 <- lapply(stan.noGT2, function(l){ 
-        ## add prior
-        l <- add.prior(prior,l)
-        return(l)
+  )
+  names(stan.full) <- names(stan.noGT2)
+
+  ## get maf for tags run in model
+  maf.t <- snp.eaf(le.file, names(stan.noGT2), population)
+  if (model == "NB") {
+    nfsnps <- NA
+  }
+  ## stan.bt creates PEP from post.prop.neg
+  full.sum <- stan.bt(x = stan.full, y = "bj", rtag = r.tag, model = model, gene = gene, EAF = maf.t, info = info.ok, nfsnps = nfsnps, min.pval = het.f, probs = probs)
+  ## add min AI_post
+  if (!is.null(AI_estimate) & model == "NB-ASE") {
+    full.sum[, min_AI := inputs$inp$min_AI]
+  }
+
+  if (!is.null(prefix)) {
+    write.table(full.sum, paste0(out, "/", prefix, ".noGT.stan.summary.txt"), row.names = FALSE)
+    if (exists("het.fall")) {
+      write.table(het.fall, paste0(out, "/", prefix, ".fsnps.het.fisher.test.txt"), row.names = FALSE)
     }
-    )
-    
-    if(inputs$model== "NB-ASE"){
-        model2run <- model
-    } else {
-        model2run <- model.negonly          
+  } else {
+    write.table(full.sum, paste0(out, "/", gene, ".noGT.stan.summary.txt"), row.names = FALSE)
+    if (exists("het.fall")) {
+      write.table(het.fall, paste0(out, "/", gene, ".fsnps.het.fisher.test.txt"), row.names = FALSE)
     }
-    
-    model <- inputs$model #"NB-ASE" or 'NB'
-    
-    cat("Running stan for ", model)          
-    
-    stan.full <-  parallel::mclapply(1:length(stan.noGT2),
-                                     function (i) {
-                                         s <- run.stan(model2run,data=stan.noGT2[[i]], pars='bj', probs=probs)
-                                         return(s)
-                                     })
-    names(stan.full) <- names(stan.noGT2)
-    
-    ## get maf for tags run in model
-    maf.t <- snp.eaf(le.file,names(stan.noGT2),population)
-    if(model == "NB"){
-        nfsnps=NA
-    }
-    ## stan.bt creates PEP from post.prop.neg
-    full.sum <- stan.bt(x=stan.full,y= "bj",rtag=r.tag,model=model ,gene=gene,EAF=maf.t, info=info.ok, nfsnps=nfsnps, min.pval=het.f, probs=probs)
-    ## add min AI_post
-    if(!is.null(AI_estimate) & model == "NB-ASE"){
-        full.sum[, min_AI:= inputs$inp$min_AI]
-    }
-    
-    if(!is.null(prefix)) {             
-        
-        write.table(full.sum, paste0(out,"/",prefix,".noGT.stan.summary.txt"), row.names=FALSE)
-        if(exists("het.fall")){
-            write.table(het.fall, paste0(out,"/",prefix,".fsnps.het.fisher.test.txt"), row.names=FALSE)
-        }
-        
-    } else {
-        
-        write.table(full.sum,paste0(out,"/",gene,".noGT.stan.summary.txt"), row.names=FALSE)
-        if(exists("het.fall")){
-            write.table(het.fall, paste0(out,"/",gene,".fsnps.het.fisher.test.txt"), row.names=FALSE)
-        }
-        
-    }
-    
-    return(full.sum)  
+  }
+
+  return(full.sum)
 }
-
-
-
-

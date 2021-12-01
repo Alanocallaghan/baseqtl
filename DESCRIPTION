@@ -30,6 +30,7 @@ LinkingTo:
     StanHeaders (>= 2.18.0)
 SystemRequirements: GNU make
 RoxygenNote: 7.1.0
+Remotes: Alanocallaghan/GUESSFM@groups
 Suggests: 
     knitr,
     rmarkdown

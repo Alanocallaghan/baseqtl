@@ -38,145 +38,125 @@ options(mc.cores = parallel::detectCores())
 #' @export
 #' @return Saves the summary table in "out" dir as /out/prefix.main.txt. When using tags, saves /out/prefix.tags.lookup.txt. Saves a table of excluded rsnps from model.
 
-baseqtl.gt <- function(gene, chr, snps=5*10^5,counts.f,covariates=1, additional_cov=NULL, e.snps,u.esnps=NULL, gene.coord,vcf,le.file,h.file,population=c("EUR","AFR", "AMR", "EAS",  "SAS", "ALL"), nhets=5,min.ase=5,min.ase.het=5,tag.threshold=.9, out=".", prefix=NULL, model=c("both","NB-ASE","NB"), stan.model=NULL ,
-                                stan.negonly=NULL,
-                               prob=NULL, prior=NULL, ex.fsnp=NULL, AI_estimate=NULL, pretotalReads=100) {
+baseqtl.gt <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, additional_cov = NULL, e.snps, u.esnps = NULL, gene.coord, vcf, le.file, h.file, population = c("EUR", "AFR", "AMR", "EAS", "SAS", "ALL"), nhets = 5, min.ase = 5, min.ase.het = 5, tag.threshold = .9, out = ".", prefix = NULL, model = c("both", "NB-ASE", "NB"), stan.model = NULL,
+                       stan.negonly = NULL,
+                       prob = NULL, prior = NULL, ex.fsnp = NULL, AI_estimate = NULL, pretotalReads = 100) {
 
-    ## check for valid stan models
-    if(is.null(stan.model)){
-        ## check if ref panelbias correction
-        if(is.null(AI_estimate)){
-            stan.model <- stanmodels$GT_nb_ase
-        } else {
-            stan.model <- stanmodels$GT_nb_ase_refbias
-        }
-    } else { ## model provided by user
-        if(class(stan.model) != "stanmodel"){
-            stop("Model provided by user in argument stan.model is not a stanmodel object")
-        }
-    }
-
-    if(is.null(stan.negonly)){
-        stan.negonly <- stanmodels$GT_nb
+  ## check for valid stan models
+  if (is.null(stan.model)) {
+    ## check if ref panelbias correction
+    if (is.null(AI_estimate)) {
+      stan.model <- stanmodels$GT_nb_ase
     } else {
-        if(class(stan.negonly) != "stanmodel"){
-            stop("Model provided by user for argument stan.negonly is not a stanmodel object")
-        }
+      stan.model <- stanmodels$GT_nb_ase_refbias
     }
-    
-    ## prepare inputs
-    base.in <- baseqtl.gt.in(gene=gene,
-                             chr=chr,
-                             snps=snps,
-                             counts.f=counts.f,
-                             covariates=covariates,
-                             additional_cov=additional_cov,
-                             e.snps,
-                             u.esnps,
-                             gene.coord,
-                             vcf,
-                             le.file,
-                             h.file,
-                             population,
-                             nhets,
-                             min.ase,
-                             min.ase.het,
-                             tag.threshold,
-                             out,
-                             prefix,
-                             model,
-                             prob,
-                             prior,
-                             ex.fsnp,
-                             AI_estimate,
-                             pretotalReads)
-    
-    if(is.character(base.in)) stop(base.in)
+  } else { ## model provided by user
+    if (class(stan.model) != "stanmodel") {
+      stop("Model provided by user in argument stan.model is not a stanmodel object")
+    }
+  }
 
-        ## get inputs
-        if(any(names(base.in) == "nbase")) { ## proceed with full model
-            stan.in2 <- base.in$nbase$stanIn
-            ASE.hets <- base.in$nbase$ASE.hets
-            eaf.t <-base.in$nbase$eaf.t
-            probs <- base.in$nbase$probs
-            nhets <- base.in$nbase$nhets
-            nfsnps <- base.in$nbase$nfsnps
-            r.tag <- base.in$nbase$r.tag
+  if (is.null(stan.negonly)) {
+    stan.negonly <- stanmodels$GT_nb
+  } else {
+    if (class(stan.negonly) != "stanmodel") {
+      stop("Model provided by user for argument stan.negonly is not a stanmodel object")
+    }
+  }
 
-            
-            print("Running NB_ASE model")
-           
-            stan.full <- parallel::mclapply(stan.in2, function(i) {
-                s <- run.stan(stan.model, data=i, pars='bj', probs=probs) 
-                return(s)
-            })
-            names(stan.full) <- names(stan.in2)
-            full.sum <- stan.bt(x=stan.full,y= NULL, rtag=r.tag, model="NB-ASE", nhets=nhets, ASE.het=ASE.hets,gene=gene, EAF=eaf.t, nfsnps=nfsnps, probs=probs )
+  ## prepare inputs
+  base.in <- baseqtl.gt.in(
+    gene = gene,
+    chr = chr,
+    snps = snps,
+    counts.f = counts.f,
+    covariates = covariates,
+    additional_cov = additional_cov,
+    e.snps,
+    u.esnps,
+    gene.coord,
+    vcf,
+    le.file,
+    h.file,
+    population,
+    nhets,
+    min.ase,
+    min.ase.het,
+    tag.threshold,
+    out,
+    prefix,
+    model,
+    prob,
+    prior,
+    ex.fsnp,
+    AI_estimate,
+    pretotalReads
+  )
 
-            ## add min AI_post
-            if(!is.null(AI_estimate)) full.sum[, min_AI:= base.in$nbase$minAI]
+  if (is.character(base.in)) stop(base.in)
 
-        }
-
-        if(any(names(base.in) == "neg")){
-            in.neg <- base.in$neg$neg
-            eaf.t <- base.in$neg$eaf.t
-            r.tag <- base.in$neg$r.tag
-            probs <- base.in$neg$probs
-            nhets <- base.in$neg$nhets
-
-            
-                print("Running NB model")
-                ## get full posterior
-                stan.neg <-  parallel::mclapply(in.neg, function (i) {
-                    s <- run.stan(stan.negonly,data=i, pars="bj", probs=probs)
-                    return(s)
-                })
-                names(stan.neg) <- names(in.neg)
-
-                neg.sum <- stan.bt(x=stan.neg, y=NULL,rtag=r.tag,model="NB", nhets=nhets,gene=gene, EAF=eaf.t, nfsnps="NA", probs=probs)
-
-            
-        }
-
-        if( (exists("full.sum") & exists("neg.sum")) | exists("neg.sum") ) {
-            if(exists("full.sum")){
-                
-                neg.sum <- rbind(full.sum, neg.sum, fill=TRUE)
-            }
-            
-            if(!is.null(prefix)){             
-                
-                write.table(neg.sum, paste0(out,"/",prefix,".GT.stan.summary.txt"), row.names=FALSE)
-               
-            } else {
-               
-                write.table(neg.sum,paste0(out,"/",gene,".GT.stan.summary.txt"), row.names=FALSE)
-               
-            }
-        }
-        
+  ## get inputs
+  if (any(names(base.in) == "nbase")) { ## proceed with full model
+    stan.in2 <- base.in$nbase$stanIn
+    ASE.hets <- base.in$nbase$ASE.hets
+    eaf.t <- base.in$nbase$eaf.t
+    probs <- base.in$nbase$probs
+    nhets <- base.in$nbase$nhets
+    nfsnps <- base.in$nbase$nfsnps
+    r.tag <- base.in$nbase$r.tag
 
 
-        if(exists("full.sum") & !exists("neg.sum")) {
-            
-            if(!is.null(prefix)){             
-                
-                write.table(full.sum, paste0(out,"/",prefix,".GT.stan.summary.txt"), row.names=FALSE)
-                
-            } else {
-                
-                write.table(full.sum,paste0(out,"/",gene,".GT.stan.summary.txt"), row.names=FALSE)
-                
-            }
-        }
+    print("Running NB_ASE model")
 
+    stan.full <- parallel::mclapply(stan.in2, function(i) {
+      s <- run.stan(stan.model, data = i, pars = "bj", probs = probs)
+      return(s)
+    })
+    names(stan.full) <- names(stan.in2)
+    full.sum <- stan.bt(x = stan.full, y = NULL, rtag = r.tag, model = "NB-ASE", nhets = nhets, ASE.het = ASE.hets, gene = gene, EAF = eaf.t, nfsnps = nfsnps, probs = probs)
+
+    ## add min AI_post
+    if (!is.null(AI_estimate)) full.sum[, min_AI := base.in$nbase$minAI]
+  }
+
+  if (any(names(base.in) == "neg")) {
+    in.neg <- base.in$neg$neg
+    eaf.t <- base.in$neg$eaf.t
+    r.tag <- base.in$neg$r.tag
+    probs <- base.in$neg$probs
+    nhets <- base.in$neg$nhets
+
+
+    print("Running NB model")
+    ## get full posterior
+    stan.neg <- parallel::mclapply(in.neg, function(i) {
+      s <- run.stan(stan.negonly, data = i, pars = "bj", probs = probs)
+      return(s)
+    })
+    names(stan.neg) <- names(in.neg)
+
+    neg.sum <- stan.bt(x = stan.neg, y = NULL, rtag = r.tag, model = "NB", nhets = nhets, gene = gene, EAF = eaf.t, nfsnps = "NA", probs = probs)
+  }
+
+  if ((exists("full.sum") & exists("neg.sum")) | exists("neg.sum")) {
+    if (exists("full.sum")) {
+      neg.sum <- rbind(full.sum, neg.sum, fill = TRUE)
+    }
+
+    if (!is.null(prefix)) {
+      write.table(neg.sum, paste0(out, "/", prefix, ".GT.stan.summary.txt"), row.names = FALSE)
+    } else {
+      write.table(neg.sum, paste0(out, "/", gene, ".GT.stan.summary.txt"), row.names = FALSE)
+    }
+  }
+
+
+
+  if (exists("full.sum") & !exists("neg.sum")) {
+    if (!is.null(prefix)) {
+      write.table(full.sum, paste0(out, "/", prefix, ".GT.stan.summary.txt"), row.names = FALSE)
+    } else {
+      write.table(full.sum, paste0(out, "/", gene, ".GT.stan.summary.txt"), row.names = FALSE)
+    }
+  }
 }
-            
-            
-             
-        
-                
-                
-                
-        
