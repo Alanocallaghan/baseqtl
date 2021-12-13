@@ -30,7 +30,9 @@ LinkingTo:
     StanHeaders (>= 2.18.0)
 SystemRequirements: GNU make
 RoxygenNote: 7.1.2
-Remotes: Alanocallaghan/GUESSFM@groups
+Remotes:
+    Alanocallaghan/GUESSFM@groups,
+    gitlab:evigorito/addstrings
 Language: en-GB
 Suggests: 
     knitr,
