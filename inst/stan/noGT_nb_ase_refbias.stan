@@ -24,27 +24,19 @@ data {
   vector[k] aveP; // mean for prior Gaussians for eQTL effect prior
   vector[k] sdP; // sd for prior Gaussians for eQTL effect prior
   vector[k] mixP; // log of mixing proportions for eQTL effect prior
- 
-  
 }
-
 
 transformed data {
-
   int Max; // maximun number of elements in h2g
   Max = max(h2g);
-
 }
-
 
 parameters {
   vector[K] betas; // regression param
   real bj; // log fold change ASE
-  real<lower=0> phi; //overdipersion param for neg binom
-  real<lower=0> theta; //the overdispersion parameter for beta binomial
+  real<lower=1e-5> phi; //overdipersion param for neg binom
+  real<lower=1e-5> theta; //the overdispersion parameter for beta binomial
   vector[L] rai0; // random intercept AI
-  
-
 }
 
 model {
@@ -61,6 +53,11 @@ model {
   vector[L] esum0; // allelic imbalance proportion under the null
   vector[k] lps; // help for mixed gaussians
 
+  ebj = exp(bj);
+  lmu1 = cov[, 2:cols(cov)] * betas;
+  esum = inv_logit(rai0 + bj);
+  esum0 = inv_logit(rai0);
+
   //priors
   theta ~ gamma(1,0.1); //  based on stan code example
   phi ~ gamma(1,0.1);
@@ -69,8 +66,8 @@ model {
     betas[i] ~ cauchy(0,2.5);//prior for the slopes following Gelman 2008
   }
   for(i in 1:L) {
-     rai0[i] ~ normal(ai0[i], sdai0[i]);
-   }
+    rai0[i] ~ normal(ai0[i], sdai0[i]);
+  }
 
   // mixture of gaussians for bj:
   for(i in 1:k){
@@ -78,17 +75,11 @@ model {
   }
   target += log_sum_exp(lps);
 
-  
   // local variables and transformed parameters of no interest
   pos = 1;  // to advance on NB terms
   posl = 1; // to advance on ASE terms
   ase = rep_vector(0,Max);  // initialize ase vector to 0s to collect ase termns for each hap pair compatible with Gi=g */
   
-  ebj = exp(bj);
-  lmu1 = cov[,2:cols(cov)]*betas;
-  esum = inv_logit(rai0 + bj);
-  esum0 = inv_logit(rai0);
-
   for(i in 1:N){ // lmu for each individual default to GT=0
     //print("i = ", i);
     
@@ -97,31 +88,27 @@ model {
       lmu = lmu1[i];
 
       lmu = fabs(gNB[r])==1 ? lmu + log1p(ebj)-log(2) : lmu;
-
       lmu = gNB[r]==2 ? lmu + bj : lmu;
+      ltmp[r] = neg_binomial_2_log_lpmf(Y[i] | lmu, phi) + log(pNB[r]);
 
-      ltmp[r] = neg_binomial_2_lpmf(Y[i] | exp(lmu), phi) + log(pNB[r]);
+      if (ASEi[i, 1] == 1) {  // ASE info
+        //print( " ase info ");
+        for (x in 1:h2g[r]) {  // look at the haps compatibles with Gi=g
+          // print("x = ",x);
+          //print("gase = ", gase[posl], " ph = ", pH[posl], " m = ", m[ASEi[i,2]]);
+      
+          p = gase[posl]==1 ? esum[posl] : esum0[posl];
+          p = gase[posl]==-1 ? 1-esum[posl] : p;  // haplotype swap
+          ase[x] = beta_binomial_lpmf(n[posl] | m[ASEi[i,2]], p*theta, (1-p)*theta) + log(pH[posl]);
 
-
-	
-      if (ASEi[i,1] == 1){  // ASE info
-	//print( " ase info ");
-	 for (x in 1:h2g[r]){  // look at the haps compatibles with Gi=g
-	   // print("x = ",x);
-	   //print("gase = ", gase[posl], " ph = ", pH[posl], " m = ", m[ASEi[i,2]]);
-	    
-	  p= gase[posl]==1 ? esum[posl] : esum0[posl];
-	  p= gase[posl]==-1 ? 1-esum[posl] : p;  // haplotype swap
-	  ase[x] = beta_binomial_lpmf(n[posl] | m[ASEi[i,2]], p*theta, (1-p)*theta) + log(pH[posl]);
-
-	  posl += 1;
-	}
-	sAse = log_sum_exp(ase[1:h2g[r]]);
-	target +=  log_sum_exp(ltmp[r] , sAse );
-	
+          posl += 1;
+        }
+        sAse = log_sum_exp(ase[1:h2g[r]]);
+        target +=  log_sum_exp(ltmp[r] , sAse );
+        
       }
     }
-    if(ASEi[i,1] == 0){ // NO ASE, only NB terms for this ind
+    if(ASEi[i,1] == 0) { // NO ASE, only NB terms for this ind
       target += log_sum_exp(ltmp[pos:(pos+sNB[i]-1)]);
       //print("i = ", i, " no ase info");
     }
@@ -129,6 +116,3 @@ model {
     pos += sNB[i];
   }
 }
-
-  
-  

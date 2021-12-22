@@ -15,6 +15,10 @@ data {
   vector[k] mixP; // log of mixing proportions for eQTL effect prior
 }
 
+transformed data {
+  vector[G] log_pNB = log(pNB);
+  vector[G] abs_gNB = fabs(gNB);
+}
 
 parameters {
   vector[K] betas; // regression param
@@ -29,6 +33,7 @@ model {
   vector[G] ltmp; //  log NB likelihood
   real ebj; // reduce computation
   vector[k] lps; // help for mixed gaussians
+  real l1pebj = log1p(ebj) - log(2);
 
   //priors
   phi ~ gamma(1, 0.1);
@@ -44,19 +49,18 @@ model {
   target += log_sum_exp(lps);
   // local variables and transformed parameters of no interest
   pos = 1;  // to advance on NB terms
-
+  
   ebj = exp(bj);
-  lmu1 = cov[,2:cols(cov)]*betas;
+  lmu1 = cov[, 2:cols(cov)] * betas;
   for(i in 1:N) { // lmu for each individual default to GT=0
     
     for (r in pos:(pos+sNB[i]-1)) { // genotype level, Gi=g
       // print("gNB = ", gNB[r]," r = ", r);
       lmu = lmu1[i];
-      lmu = fabs(gNB[r])==1 ? lmu + log1p(ebj)-log(2) : lmu;
-      lmu = gNB[r]==2 ? lmu + bj : lmu;
+      lmu = abs_gNB[r] == 1 ? lmu + l1pebj : lmu;
+      lmu = gNB[r] == 2 ? lmu + bj : lmu;
 
-      ltmp[r] = neg_binomial_2_lpmf(Y[i] | exp(lmu), phi) + log(pNB[r]);
-  
+      ltmp[r] = neg_binomial_2_log_lpmf(Y[i] | lmu, phi) + log_pNB[r];
     }
     target += log_sum_exp(ltmp[pos:(pos+sNB[i]-1)]);
     pos += sNB[i];

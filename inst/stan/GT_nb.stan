@@ -15,16 +15,15 @@ data {
 
 parameters {
   vector[K] betas; // regression param
-  real <lower=-20,upper=20> bj; // log fold change ASE
+  real <lower=-10,upper=10> bj; // log fold change ASE
   // real bj; // log fold change ASE
   real <lower=1e-5> phi; //overdipersion param for neg binom
 }
 
+
 model {
   // include transformed parameters of no interest
   vector[k] lps; // help for mixed gaussians
-  real l1pebj = log1p(exp(bj)) - log(2);
-  vector[N] intercept = rep_vector(0, N); // the genetic effect; 0 if hom ref
 
   // Priors
   phi ~ gamma(1, 0.01);
@@ -44,10 +43,11 @@ model {
   // but they don't seem to be right now
   // target += log_sum_exp(lps + mixP);
   // target += log_mix(expMixP, lps);
-
+  real l1pebj = log1p(exp(bj)) - log(2);
+  vector[N] intercept = rep_vector(1e-5, N); // the genetic effect; 0 if hom ref
   for (i in 1:N) { // log1p(exp(b_j)) - log(2) if het or bj if hom
     if (fabs(g[i]) == 1) {
-      intercept[i] = l1pebj; // log1p(exp(b_afc)) - log(2) if het
+      intercept[i] = l1pebj; // log1p(exp(b_afc)) - log(2) if he
     }
     if (g[i] == 2) {
       intercept[i] = bj; // b_afc if hom alt
