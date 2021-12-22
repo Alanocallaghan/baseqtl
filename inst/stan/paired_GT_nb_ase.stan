@@ -26,31 +26,26 @@ parameters {
   real apso; // mean expression pso tissues
   real ba; // log average-fold change ASE
   real bd; // log difference-fold change ASE
-  real<lower=0> phi; //overdipersion param for neg binom
-  real<lower=0> theta; //the overdispersion parameter for beta binomial
+  real<lower=1e-5> phi; //overdipersion param for neg binom
+  real<lower=1e-5> theta; //the overdispersion parameter for beta binomial
   vector[K-1] betas; // regression parameters
   vector[N] ui; //random term NB
   vector[A] uasei; //random term ASE
-  real<lower=0> sdnb; //sd for random term in nb
-  real<lower=0> sdase; // sd for random ase term
-  
-  }
+  real<lower=1e-5> sdnb; //sd for random term in nb
+  real<lower=1e-5> sdase; // sd for random ase term
+}
 
 transformed parameters {
   real bp; // parameter of interest for psoriasis
   real bn; // parameter of interest for normal skin
-    
+
   bp = ba + bd;
-  bn = ba -bd;
-    
+  bn = ba - bd;
 }
 
 model {
   int pos; // to advance through NB terms (1-G)
-  int posl; // to advance through ASE terms (1-L)
-  vector[N] lmu1; // help to construct linear pred
-  real lmu; // help with linear predictor log scale
-  
+  int posl; // to advance through ASE terms (1-L)  
 
   real p; // ase proportion
   vector[L] ltmp;// log BB likelihood
@@ -59,27 +54,30 @@ model {
   vector[k] lpsa; // help for mixed gaussians for ba
   vector[k] lpsd; // help for mixed gaussians for bd
   
-  vector[K] betasN; //regression parameters for normal skin
-  vector[K] betasP; //regression parameters for pso skin
-  vector[N] lmuN; //help linear pred normal skin
-  vector[N] lmuP; //help linear pred pso skin
+  vector[N] intercept[2]; // NB intercept
+  vector[2] bj; // bp and bn
+  vector[2] l1pebj; // transformed bj
+  vector[K] betas_all[2]; // combination of treat-specific intercept & global betas
+  betas_all[1] = append_row(anorm, betas);
+  betas_all[2] = append_row(apso, betas);
+  bj[1] = bp;
+  bj[2] = bn;
+  l1pebj = log1p(exp(bj) - log(2));
 
-  
   //priors
-  theta ~ gamma(1,0.1); //  based on stan code example
-  phi ~ gamma(1,0.1);
-  anorm ~ normal(6,4); // mean expression normal skin, stan normal is mean and sd
-  apso ~ normal(6,4); // mean expression pso skin
-  for(i in 1:(K-1)){
-    betas[i] ~ cauchy(0,2.5);//prior for the covariates slopes following Gelman 2008
+  theta ~ gamma(1, 0.1); //  based on stan code example
+  phi ~ gamma(1, 0.1);
+  anorm ~ normal(6, 4); // mean expression normal skin, stan normal is mean and sd
+  apso ~ normal(6, 4); // mean expression pso skin
+  for(i in 1:(K - 1)){
+    betas[i] ~ cauchy(0, 2.5);//prior for the covariates slopes following Gelman 2008
   }
- 
+
   ui ~ normal(0, sdnb);
   uasei  ~ normal(0, sdase);
 
-  sdnb ~ cauchy(0,1);
-
-  sdase ~ cauchy(0,1);
+  sdnb ~ cauchy(0, 1);
+  sdase ~ cauchy(0, 1);
 
   // mixture of gaussians for ba and bd:
   for(i in 1:k){
@@ -89,64 +87,46 @@ model {
   target += log_sum_exp(lpsa);
   target += log_sum_exp(lpsd);
 
-
   // transformed parameters of no interest
   pos = 1; // to advance on ASE terms
   /* ase = rep_vector(0,Max);  // initialize ase vector to 0s to collect ase termns for each hap pair compatible with Gi=g *\/ */
-
-  betasN=append_row(anorm, betas); //betas for normal inds
-  betasP=append_row(apso, betas); // betas for pso inds
-  lmuN=cov[,2:cols(cov)]*betasN; // will be used for normal inds (based on indicator)
-  lmuP=cov[,2:cols(cov)]*betasP; // for pso inds
-  
-  for(i in 1:N){ //  for each individual
-
-    // go by treatment
-    for(t in 1:2){
-   
-    if(t == 1){ //first treatment: bp
-      
-      lmu = lmuP[i] + ui[i]; // G = 0
-      lmu = fabs(g[i])==1 ? lmu  + log1p(1+exp(bp))-log(2) : lmu;
-      lmu = g[i]==2 ? lmu + bp : lmu;
-
-      target += neg_binomial_2_lpmf(Y[i] | exp(lmu),phi);
-
-    } else { // second treatment
-      
-      lmu = lmuN[i] + ui[i]; // G = 0
-      lmu = fabs(g[i])==1 ? lmu  + log1p(1+exp(bn))-log(2) : lmu;
-      lmu = g[i]==2 ? lmu + bn : lmu;
-
-      target += neg_binomial_2_lpmf(Y[i] | exp(lmu),phi);
+  for (t in 1:2) {
+    intercept[t] = ui;
+    for (i in 1:N) { // log1p(exp(b_j)) - log(2) if het or bj if hom
+      if (fabs(g[i]) == 1) {
+        intercept[t][i] = l1pebj[t];
+      }
+      if (g[i] == 2) {
+        intercept[t][i] = bj[t];
+      }
     }
-    }}
-    
+    Y[, t] ~ neg_binomial_2_log_glm(
+      cov[, 2:cols(cov)],
+      intercept[t],
+      betas_all[t],
+      phi
+    );
+  }
 
-    pos=1;
+  pos=1;
     
-  for(i in 1:A){ //ASE
-
-    for (t in 1:2){
-      if(m[i,t]>0){
-	esum0=uasei[i];
-	if(t==1){ // first treament	
-	  esum=inv_logit(esum0 + bp);
-	} else {
-	  esum=inv_logit(esum0 + bn);
-	}			   	  
-	  p=gase[i]==1 ? esum : inv_logit(esum0);
-	  p=gase[i]==-1 ? 1-esum : p; //hap swap
-	  for(r in pos:(pos+s[i]-1)){	      	   
-	    ltmp[r]=beta_binomial_lpmf(n[r,t] | m[i,t],p*theta, (1-p)*theta) + log(pH[r]);
-	  }	    
-	target += log_sum_exp(ltmp[pos:(pos+s[i]-1)]);
+  for (i in 1:A) { //ASE
+    for (t in 1:2) {
+      if (m[i, t] > 0) {
+        esum0 = uasei[i];
+        if (t==1) { // first treament	
+          esum = inv_logit(esum0 + bp);
+        } else {
+          esum = inv_logit(esum0 + bn);
+        }			   	  
+        p = gase[i] == 1 ? esum : inv_logit(esum0);
+        p = gase[i] == -1 ? 1-esum : p; //hap swap
+        for (r in pos:(pos+s[i]-1)) {
+          ltmp[r] = beta_binomial_lpmf(n[r,t] | m[i,t], p * theta, (1 - p) * theta) + log(pH[r]);
+        }
+        target += log_sum_exp(ltmp[pos:(pos + s[i] - 1)]);
       }
     }
     pos=pos+s[i];
   }
-    
 }	     
-		   
-
-
