@@ -26,10 +26,10 @@ data {
 
 transformed data {
   int Max; // maximun number of elements in h2g
-  Max = max(h2g);
   vector[L] log_pH = log(pH);
   vector[G] log_pNB = log(pNB);
   vector[G] abs_gNB = fabs(gNB);
+  Max = max(h2g);
 }
 
 

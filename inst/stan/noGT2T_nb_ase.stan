@@ -27,9 +27,9 @@ data {
 
 transformed data {
   int Max; // maximun number of elements in h2g
-  Max = max(h2g);
   vector[G] log_pNB = log(pNB);
   vector[L] log_pH = log(pH);
+  Max = max(h2g);
 }
 
 parameters {
