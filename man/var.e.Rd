@@ -9,7 +9,7 @@ var.e(genes = NULL, path, pattern, noGT, le.file, hap.file)
 \arguments{
 \item{genes, }{character vector of genes to select inputs from, defaults to NULL to use all genes run by model}
 
-\item{path}{charcater vector with path to files with stan.input}
+\item{path}{character vector with path to files with stan.input}
 
 \item{pattern}{character vector with pattern to match}
 

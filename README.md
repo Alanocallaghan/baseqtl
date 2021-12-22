@@ -7,7 +7,7 @@
 suite of models to discover molecular QTLs combining between individual
 variation (modelled by a negative binomial distribution, NB) with allele
 specific expression (ASE modelled by a beta-binomial distribution). We
-descibe models for 4 scenarios:
+describe models for 4 scenarios:
 
 1.  eQTL analysis when DNA-seq and RNA-seq data are available (with
     genotypes).
@@ -23,7 +23,7 @@ descibe models for 4 scenarios:
     GNU make >= 3.82
     bcftools >= 1.3.1
 
-## Instalations
+## Installation
 
 ### bcftools can be downloaded from [htslib](http://www.htslib.org/download/)
 
@@ -51,8 +51,8 @@ as 2 minutes.
 ## Within R:
 install.packages("devtools") # if you don't already have the package
 library(devtools)
-devtools::install_git(url = "https://gitlab.com/evigorito/addstrings.git") 
-devtools::install_git(url = "https://gitlab.com/evigorito/baseqtl.git") 
+devtools::install_gitlab("evigorito/addstrings") 
+devtools::install_gitlab("evigorito/baseqtl")
 ```
 
 In its current form baseqtl depends on GUESSFM, to install GUESSFM do:
@@ -113,12 +113,12 @@ output from rule fSNP\_gene (fsnps output).
 for RNA-seq some exonic SNPs could be shared between genes making
 difficult to assess allele specific expression. In this case it is
 recommended to provide a list of exonic SNPs uniquely mapping genes. In
-this mode, e.snps will be used to imporve phasing accuracy and u.esnps
+this mode, e.snps will be used to improve phasing accuracy and u.esnps
 to compute allele specific expression, further deatails in
 [snakefile](https://gitlab.com/evigorito/baseqtl_pipeline/-/blob/master/input/Snakefile)
 output from rule fSNP\_gene (ufsnps output).
 
-*gene.coord*: full name to file with gene id, gene sart and gene end,
+*gene.coord*: full name to file with gene id, gene start and gene end,
 details in
 [snakefile](https://gitlab.com/evigorito/baseqtl_pipeline/-/blob/master/input/Snakefile)
 output from rule exon\_by\_gene.
@@ -138,17 +138,17 @@ panel.
 *population*: one of AFR AMR EAS EUR SAS ALL, defaults to EUR. Used to
 calculate EAF of eQTL SNP to include in output.
 
-*nhets*: minimun number of hetrozygous individuals for the eQTL SNP to
+*nhets*: minimum number of heterozygous individuals for the eQTL SNP to
 run model, defaults to 5.
 
-*min.ase*: minimun number of ASE counts for an individual to be included
-in the model, deaults to 5.
+*min.ase*: minimum number of ASE counts for an individual to be included
+in the model, defaults to 5.
 
-*min.ase.het*: minumun number of heterozygous individuals for the eQTL
+*min.ase.het*: minimum number of heterozygous individuals for the eQTL
 SNP with sufficient ASE counts in order to run the ASE component of the
 model, defaults to 5.
 
-*min.ase.n*: minimun number of individual (any genotype) with sufficient
+*min.ase.n*: minimum number of individual (any genotype) with sufficient
 ASE counts to run ASE model, defaults to 5.
 
 *tag.threshold*:
@@ -163,14 +163,14 @@ directory.
 *prefix*: prefix to add to output files, defaults to gene id.
 
 *model*: whether to run NB-ASE only (full model negative binomial and
-allele specific counts),NB (negat ive binomial only) or both (NB-ASE
-when sufficient information and NB for those associations with no ASE
+allele specific counts),NB (negative binomial only) or both (NB-ASE when
+sufficient information and NB for those associations with no ASE
 information), defaults to “both”.
 
 *stan.model*: optional parameter, defaults is to run built-in NB-ASE
 model. When AI\_estimate is provided (below) the model corrects for
 reference panel bias, otherwise id doesn’t. Alternatively, users can
-provide their alternative compiled stanmodel object, whcih should use
+provide their alternative compiled stanmodel object, which should use
 the same input data.
 
 *stan.negonly*: compiled stanmodel object with neg only side, deafults
@@ -184,7 +184,7 @@ learnt from external eQTL data.
 
 *ex.fsnps*: for sensitivity analysis it is possible to exclude selected
 exonic (feature) SNPs by proving a character vector with
-psoition:reference:alternative allele, defaults to NULL (no exlcusion).
+position:reference:alternative allele, defaults to NULL (no exclusion).
 
 *AI\_estimate*: full name to txt file with pre-computed allelic
 imbalance estimates for reference panel bias for exonic SNPs, details in
@@ -283,11 +283,11 @@ SNPs are identified by position:reference allele:alternative allele
 
 **ENSG00000159958.GT.excluded.rsnps.txt**
 
-The table details the SNPs that were excluded fron running NB and/or
+The table details the SNPs that were excluded from running NB and/or
 NB\_ASE models and the reason for exclusion.
 
   - Reasons for total exclusion are:
-    1.  Missing gentoypes in all samples or homozygous in all samples
+    1.  Missing genotypes in all samples or homozygous in all samples
     2.  Snp with zero variance
     3.  rsnp with less than ‘nhet’ het ind. ‘nhet’ is the nhet argument
         in baseqtl.gt
@@ -315,12 +315,10 @@ The summary file has the following information:
 
 ``` r
 names(results)
-#>  [1] "Gene_id"          "tag"              "log2_aFC_mean"    "log2_aFC_se_mean"
-#>  [5] "log2_aFC_sd"      "log2_aFC_0.5%"    "log2_aFC_2.5%"    "log2_aFC_25%"    
-#>  [9] "log2_aFC_50%"     "log2_aFC_75%"     "log2_aFC_97.5%"   "log2_aFC_99.5%"  
-#> [13] "log2_aFC_d"       "null.99"          "Signif"           "n_eff"           
-#> [17] "Rhat"             "model"            "nhets"            "ASE.hets"        
-#> [21] "tag.EAF"          "n.fsnps"          "PEP"              "min_AI"
+#>  [1] "Gene_id"          "tag"              "log2_aFC_mean"    "log2_aFC_se_mean" "log2_aFC_sd"      "log2_aFC_0.5%"   
+#>  [7] "log2_aFC_2.5%"    "log2_aFC_25%"     "log2_aFC_50%"     "log2_aFC_75%"     "log2_aFC_97.5%"   "log2_aFC_99.5%"  
+#> [13] "log2_aFC_d"       "null.99"          "Signif"           "n_eff"            "Rhat"             "model"           
+#> [19] "nhets"            "ASE.hets"         "tag.EAF"          "n.fsnps"          "PEP"              "min_AI"
 ```
 
   - Description:
@@ -344,23 +342,22 @@ names(results)
         from the closest quantile (0.5% or 99.5%) to the null. When eQTl
         effect is not significant is the width of the credible interval
       - n\_eff: effective sample size (see stan manual for more details)
-      - Rhat: R-hat statisitc (it is recommended only results if
+      - Rhat: R-hat statistic (it is recommended only results if
         *\(Rhat < 1.1\)*, see stan manual for more details)
       - model: whether NB or NB-ASE was run
-      - nhets: numbr of hets for rSNP
+      - nhets: number of hets for rSNP
       - ASE.hets: when running NB-ASE number of hets for rSNP with
         sufficient ASE counts, otherwise NA
       - tag.EAF/ SNP.EAF: EAF for rSNP based on the external reference
         panel for the population requested, NA if the rSNP is not in the
         reference panel
       - n.fsnps: number of exonic SNPs used in model, NA for NB model
-        \*PEP: posterior exclusion probablity based on 4000 posterior
+        \*PEP: posterior exclusion probability based on 4000 posterior
         draws. Gives the proportion of posterior draws of opposite sign
         to the posterior mean
-      - min\_AI: when using reference panel bias correcion gives the
+      - min\_AI: when using reference panel bias correction gives the
         most extreme allelic imbalance estimate for the exonic SNPs used
-        in model (no imbalance corresponds to 0.5), NA
-otherwise
+        in model (no imbalance corresponds to 0.5), NA otherwise
 
 | Gene\_id        | tag          | log2\_aFC\_mean | log2\_aFC\_se\_mean | log2\_aFC\_sd | log2\_aFC\_0.5% | log2\_aFC\_2.5% |
 | :-------------- | :----------- | --------------: | ------------------: | ------------: | --------------: | --------------: |
@@ -413,7 +410,7 @@ gene, values total read counts. “p.g” is a named list with each element
 a sample. For each sample there is an array with names genotypes (0,1,2)
 and values the genotype probabilities. For the “ase” list they are for
 elements: “m” numeric vector with total ASE counts per sample. “g” list
-with each element a sample and for each sample the genoptype of the cis
+with each element a sample and for each sample the genotype of the cis
 SNP coded as 0,1,2 and -1, with -1 indicating that the alternative
 allele is in haplotype 1. “p” has the same structure as “g” and
 indicates the probability for each genotype. “n” is similar to “g” and
@@ -485,10 +482,9 @@ results <- data.table::fread(system.file("extdata/output", "ENSG00000159958.noGT
 
 **ENSG00000159958.fsnps.het.fisher.test.txt**
 
-Table with feature SNP (exonic SNP) id (position:reference:altrnative
-allele), odds ratio (OR) and pvalue testing the frequencey of
-heterozygocity between sample and reference panel and ensembl gene
-id.
+Table with feature SNP (exonic SNP) id (position:reference:alternative
+allele), odds ratio (OR) and pvalue testing the frequency of
+heterozygocity between sample and reference panel and ensembl gene id.
 
 ``` r
 fsnps <- data.table::fread(system.file("extdata/output", "ENSG00000159958.fsnps.het.fisher.test.txt", package = "baseqtl", mustWork = TRUE))
@@ -504,12 +500,10 @@ The summary file has the following information:
 
 ``` r
 names(results)
-#>  [1] "Gene_id"          "tag"              "log2_aFC_mean"    "log2_aFC_se_mean"
-#>  [5] "log2_aFC_sd"      "log2_aFC_0.5%"    "log2_aFC_2.5%"    "log2_aFC_25%"    
-#>  [9] "log2_aFC_50%"     "log2_aFC_75%"     "log2_aFC_97.5%"   "log2_aFC_99.5%"  
-#> [13] "log2_aFC_d"       "null.99"          "Signif"           "n_eff"           
-#> [17] "Rhat"             "model"            "nhets"            "ASE.hets"        
-#> [21] "tag.EAF"          "info"             "n.fsnps"          "min.p.fsnp"      
+#>  [1] "Gene_id"          "tag"              "log2_aFC_mean"    "log2_aFC_se_mean" "log2_aFC_sd"      "log2_aFC_0.5%"   
+#>  [7] "log2_aFC_2.5%"    "log2_aFC_25%"     "log2_aFC_50%"     "log2_aFC_75%"     "log2_aFC_97.5%"   "log2_aFC_99.5%"  
+#> [13] "log2_aFC_d"       "null.99"          "Signif"           "n_eff"            "Rhat"             "model"           
+#> [19] "nhets"            "ASE.hets"         "tag.EAF"          "info"             "n.fsnps"          "min.p.fsnp"      
 #> [25] "PEP"              "min_AI"
 ```
 
@@ -517,8 +511,7 @@ names(results)
     except:
       - info: quality of imputation for rSNP.
       - min.p.fsnp: minumun pvalue for Fisher test of heterozygocity
-        across all fSNPs (exonic
-SNPS)
+        across all fSNPs (exonic SNPS)
 
 ## eQTL analysis with paired samples (two treatments on same samples) with genotypes.
 
@@ -604,26 +597,21 @@ The summary file has the following information:
 
 ``` r
 names(results)
-#>  [1] "Gene_id"              "tag"                  "log2_aFC_mean.ba"    
-#>  [4] "log2_aFC_se_mean.ba"  "log2_aFC_sd.ba"       "log2_aFC_0.5%.ba"    
-#>  [7] "log2_aFC_2.5%.ba"     "log2_aFC_25%.ba"      "log2_aFC_50%.ba"     
-#> [10] "log2_aFC_75%.ba"      "log2_aFC_97.5%.ba"    "log2_aFC_99.5%.ba"   
-#> [13] "n_eff.ba"             "Rhat.ba"              "Signif.ba"           
-#> [16] "PEP.ba"               "log2_aFC_mean.bd"     "log2_aFC_se_mean.bd" 
-#> [19] "log2_aFC_sd.bd"       "log2_aFC_0.5%.bd"     "log2_aFC_2.5%.bd"    
-#> [22] "log2_aFC_25%.bd"      "log2_aFC_50%.bd"      "log2_aFC_75%.bd"     
-#> [25] "log2_aFC_97.5%.bd"    "log2_aFC_99.5%.bd"    "n_eff.bd"            
-#> [28] "Rhat.bd"              "Signif.bd"            "PEP.bd"              
-#> [31] "log2_aFC_mean.bt1"    "log2_aFC_se_mean.bt1" "log2_aFC_sd.bt1"     
-#> [34] "log2_aFC_0.5%.bt1"    "log2_aFC_2.5%.bt1"    "log2_aFC_25%.bt1"    
-#> [37] "log2_aFC_50%.bt1"     "log2_aFC_75%.bt1"     "log2_aFC_97.5%.bt1"  
-#> [40] "log2_aFC_99.5%.bt1"   "n_eff.bt1"            "Rhat.bt1"            
-#> [43] "Signif.bt1"           "PEP.bt1"              "log2_aFC_mean.bt2"   
-#> [46] "log2_aFC_se_mean.bt2" "log2_aFC_sd.bt2"      "log2_aFC_0.5%.bt2"   
-#> [49] "log2_aFC_2.5%.bt2"    "log2_aFC_25%.bt2"     "log2_aFC_50%.bt2"    
-#> [52] "log2_aFC_75%.bt2"     "log2_aFC_97.5%.bt2"   "log2_aFC_99.5%.bt2"  
-#> [55] "n_eff.bt2"            "Rhat.bt2"             "Signif.bt2"          
-#> [58] "PEP.bt2"              "tag.EAF"              "n.fsnps"             
+#>  [1] "Gene_id"              "tag"                  "log2_aFC_mean.ba"     "log2_aFC_se_mean.ba" 
+#>  [5] "log2_aFC_sd.ba"       "log2_aFC_0.5%.ba"     "log2_aFC_2.5%.ba"     "log2_aFC_25%.ba"     
+#>  [9] "log2_aFC_50%.ba"      "log2_aFC_75%.ba"      "log2_aFC_97.5%.ba"    "log2_aFC_99.5%.ba"   
+#> [13] "n_eff.ba"             "Rhat.ba"              "Signif.ba"            "PEP.ba"              
+#> [17] "log2_aFC_mean.bd"     "log2_aFC_se_mean.bd"  "log2_aFC_sd.bd"       "log2_aFC_0.5%.bd"    
+#> [21] "log2_aFC_2.5%.bd"     "log2_aFC_25%.bd"      "log2_aFC_50%.bd"      "log2_aFC_75%.bd"     
+#> [25] "log2_aFC_97.5%.bd"    "log2_aFC_99.5%.bd"    "n_eff.bd"             "Rhat.bd"             
+#> [29] "Signif.bd"            "PEP.bd"               "log2_aFC_mean.bt1"    "log2_aFC_se_mean.bt1"
+#> [33] "log2_aFC_sd.bt1"      "log2_aFC_0.5%.bt1"    "log2_aFC_2.5%.bt1"    "log2_aFC_25%.bt1"    
+#> [37] "log2_aFC_50%.bt1"     "log2_aFC_75%.bt1"     "log2_aFC_97.5%.bt1"   "log2_aFC_99.5%.bt1"  
+#> [41] "n_eff.bt1"            "Rhat.bt1"             "Signif.bt1"           "PEP.bt1"             
+#> [45] "log2_aFC_mean.bt2"    "log2_aFC_se_mean.bt2" "log2_aFC_sd.bt2"      "log2_aFC_0.5%.bt2"   
+#> [49] "log2_aFC_2.5%.bt2"    "log2_aFC_25%.bt2"     "log2_aFC_50%.bt2"     "log2_aFC_75%.bt2"    
+#> [53] "log2_aFC_97.5%.bt2"   "log2_aFC_99.5%.bt2"   "n_eff.bt2"            "Rhat.bt2"            
+#> [57] "Signif.bt2"           "PEP.bt2"              "tag.EAF"              "n.fsnps"             
 #> [61] "model"                "nhets"                "ASE.hets"
 ```
 
@@ -631,26 +619,25 @@ names(results)
     
       - Similar output as baseqtl.gt, except that now we look at 4
         coefficients: ba, bd, bt1 and bt2.
-      - bt1 and bt2 corespond to the two treatments/condition
+      - bt1 and bt2 correspond to the two treatments/condition
         respectively, as ordered in counts.f and vcf inputs.
       - ba corresponds to the ‘addition’ coefficient, \(ba = bt1 + bt2\)
       - bd corresponds to the ‘difference’ coefficient,
         \(bd = bt1 - bt2\)
       - We evaluate ‘ba’ and ‘bd’ to look for a condition specific
         effect
-      - When ‘ba’ is significant implies a significant eQTL efect in one
-        or both treatments. If ‘bd’ is significant, there is evidence
-        for condition specific effect. The most common scenario is a
-        significant eQTL effect in only one condition, look at ‘bt1’ and
-        ‘bt2’.
+      - When ‘ba’ is significant implies a significant eQTL effect in
+        one or both treatments. If ‘bd’ is significant, there is
+        evidence for condition specific effect. The most common scenario
+        is a significant eQTL effect in only one condition, look at
+        ‘bt1’ and ‘bt2’.
       - If ‘ba’ is not significant but ‘bd’ is significant it could
         indicate eQTL effects in opposite directions, look at ‘bt1’ and
         ‘bt2’.
       - ASE.hets gives the number of hets individuals for the rSNP with
-        sufficient ASE counts for each treatment as
-‘14,10’
+        sufficient ASE counts for each treatment as ‘14,10’
 
-## eQTL analysis with samples from two conditions (diseases vs control) and unkown gentopyes.
+## eQTL analysis with samples from two conditions (diseases vs control) and unknown genotypes.
 
 In this example we are going to compare psoriasis vs normal skin,
 RNA-seqdata from [psoriasis](ftp://ftp.sra.ebi.ac.uk/vol1/fastq) We call
@@ -680,8 +667,8 @@ the same**
 *fishjoin* whether to run Fisher test for heterozygocity frequency
 between samples and reference panel fSNPs (ex.fsnp argument) jointly in
 all samples or by treatment, defaults to jointly but for QC purposes, to
-use the same fSNPs in ech treatment as the ones used when the treatments
-were run using independent models select NULL.
+use the same fSNPs in each treatment as the ones used when the
+treatments were run using independent models select NULL.
 
 ``` r
 ## Retrive input files for running baseqtl2T.nogt

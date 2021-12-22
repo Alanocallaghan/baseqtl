@@ -77,7 +77,7 @@ baseqtl.gt.paired(
 
 \item{stan.model}{compiled stanmodel object with stan model, defaults NULL which uses  built-in NB-ASE model. When AI_estimate is provided the model corrects for reference panel bias, otherwise id doesn't.}
 
-\item{stan.negonly}{compiled stanmodel object with neg only side, deafults to NULL which is built-in model.}
+\item{stan.negonly}{compiled stanmodel object with neg only side, defaults to NULL which is built-in model.}
 
 \item{prob}{number p∈(0,1) indicating the desired probability mass to include in the intervals, defaults to 0.99, 0.95 quantiles}
 

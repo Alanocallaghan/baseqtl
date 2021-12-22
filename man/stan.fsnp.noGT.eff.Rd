@@ -21,7 +21,7 @@ stan.fsnp.noGT.eff(
 
 \item{c.ase}{output from tot.ase for the rsnp id}
 
-\item{NB, }{whether to return NB element of output, defalts to "yes" as it is required for noGT, use "no" for GT input preparation}
+\item{NB, }{whether to return NB element of output, defualts to "yes" as it is required for noGT, use "no" for GT input preparation}
 
 \item{min.ase}{ase cut-off default is 5 counts, trecase default 5}
 
@@ -30,7 +30,7 @@ stan.fsnp.noGT.eff(
 \item{ai}{data table with AI estimates per SNP, defaults to NULL}
 }
 \value{
-list of 1) m= numeric with total ase counts. 2) n= list of matrices: each matrix has n.counts, rows samples, cols haplotypes compatible with the reference panel. 3) NB= data table summarizing samples with the haplotypes compatible with RP, to make NB input, 
+list of 1) m= numeric with total ase counts. 2) n= list of matrices: each matrix has n.counts, rows samples, cols haplotypes compatible with the reference panel. 3) NB= data table summarizing samples with the haplotypes compatible with RP, to make NB input,
 
 stan.fsnp.noGT.eff()
 }
