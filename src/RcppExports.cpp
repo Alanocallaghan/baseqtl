@@ -6,7 +6,15 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
 
+
+RcppExport SEXP _rcpp_module_boot_stan_fit4GT2T_nb_mod();
+RcppExport SEXP _rcpp_module_boot_stan_fit4GT2T_nb_ase_mod();
+RcppExport SEXP _rcpp_module_boot_stan_fit4GT2T_nb_ase_refbias_mod();
 RcppExport SEXP _rcpp_module_boot_stan_fit4GT_nb_mod();
 RcppExport SEXP _rcpp_module_boot_stan_fit4GT_nb_ase_mod();
 RcppExport SEXP _rcpp_module_boot_stan_fit4GT_nb_ase_refbias_mod();
@@ -20,6 +28,9 @@ RcppExport SEXP _rcpp_module_boot_stan_fit4paired_GT_nb_ase_mod();
 RcppExport SEXP _rcpp_module_boot_stan_fit4paired_GT_nb_ase_refbias_mod();
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_rcpp_module_boot_stan_fit4GT2T_nb_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4GT2T_nb_mod, 0},
+    {"_rcpp_module_boot_stan_fit4GT2T_nb_ase_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4GT2T_nb_ase_mod, 0},
+    {"_rcpp_module_boot_stan_fit4GT2T_nb_ase_refbias_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4GT2T_nb_ase_refbias_mod, 0},
     {"_rcpp_module_boot_stan_fit4GT_nb_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4GT_nb_mod, 0},
     {"_rcpp_module_boot_stan_fit4GT_nb_ase_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4GT_nb_ase_mod, 0},
     {"_rcpp_module_boot_stan_fit4GT_nb_ase_refbias_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4GT_nb_ase_refbias_mod, 0},
