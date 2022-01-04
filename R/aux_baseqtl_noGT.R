@@ -1,7 +1,5 @@
 ## Prepares inputs for running BaseQTL without genotypes
 
-options(mc.cores = parallel::detectCores())
-
 #' First aux function to prepare inputs to run baseqtl with or without known rsnp GT: check inputs
 #'
 #' This function allows you to check arguments with and without GT
@@ -204,7 +202,7 @@ aux.in2 <- function(gene, u.esnps, case, ex.fsnp = NULL, ai = NULL) {
 #' @return list with stan input
 #' aux.in3()
 
-aux.in3 <- function(gene, ai = NULL, case, rp.f, rp.r, f.ase, counts.g, covariates, min.ase = 5, min.ase.n = 5, info = 0.3, snps.ex, prefix = NULL, out = ".", save_input = FALSE) {
+aux.in3 <- function(gene, ai = NULL, case, rp.f, rp.r, f.ase, counts.g, covariates, min.ase = 5, min.ase.n = 5, info = 0.3, snps.ex, prefix = NULL, out = ".", save_input = FALSE, mc.cores = getOption("mc.cores", 1)) {
   stan.f <- fsnp.prep2(rp.f, f.ase, case, min.ase, min.ase.n, ai)
 
 
@@ -214,7 +212,7 @@ aux.in3 <- function(gene, ai = NULL, case, rp.f, rp.r, f.ase, counts.g, covariat
 
   stan.noGT <- parallel::mclapply(1:nrow(rp.r), function(i) {
     tmp <- stan.trecase.rna.noGT.eff2(counts.g, rp.1r = rp.r[i, , drop = FALSE], rp.f, stan.f)
-  })
+  }, mc.cores=mc.cores)
 
   names(stan.noGT) <- rownames(rp.r)
 

@@ -1,8 +1,6 @@
 ## Prepares inputs when running BaseQTL with genotypes
 
 
-options(mc.cores = parallel::detectCores())
-
 
 #' get gt.ase info given gene and snps
 #'
@@ -161,7 +159,7 @@ help.tags <- function(gene, tag.threshold, rs, prefix, rec.rs, out) {
 #' @export
 #' @return data.table with summary of gene-snp associations. Saves the summary table in "out" dir as /out/prefix.main.txt. When using tags, saves /out/prefix.tags.lookup.txt. Saves a table of excluded rsnps.
 
-baseqtl.gt.in <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, additional_cov = NULL, e.snps, u.esnps = NULL, gene.coord, vcf, le.file, h.file, population = c("EUR", "AFR", "AMR", "EAS", "SAS", "ALL"), nhets = 5, min.ase = 5, min.ase.het = 5, tag.threshold = .9, out = ".", prefix = NULL, model = c("both", "NB-ASE", "NB"), prob = NULL, prior = NULL, ex.fsnp = NULL, AI_estimate = NULL, pretotalReads = 100) {
+baseqtl.gt.in <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, additional_cov = NULL, e.snps, u.esnps = NULL, gene.coord, vcf, le.file, h.file, population = c("EUR", "AFR", "AMR", "EAS", "SAS", "ALL"), nhets = 5, min.ase = 5, min.ase.het = 5, tag.threshold = .9, out = ".", prefix = NULL, model = c("both", "NB-ASE", "NB"), prob = NULL, prior = NULL, ex.fsnp = NULL, AI_estimate = NULL, pretotalReads = 100, mc.cores = getOption("mc.cores", 1)) {
 
   ## check inputs and extract inputs for gene
   model <- tryCatch(match.arg(model), error = function(e) {
@@ -372,7 +370,7 @@ baseqtl.gt.in <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, 
 
                   counts <- unlist(counts.g) ## to avoid repeating in mclapply
 
-                  stan.in1 <- parallel::mclapply(rs.full$id, function(i) stan.trecase.eff2(counts, rp.1r = rp.r[i, , drop = FALSE], rp.f, f.ase, rs.hap = rs.full[id == i, ], rec.rsnp = rec.rs2[id == i, ], stan.f, min.ase, min.ase.het))
+                  stan.in1 <- parallel::mclapply(rs.full$id, function(i) stan.trecase.eff2(counts, rp.1r = rp.r[i, , drop = FALSE], rp.f, f.ase, rs.hap = rs.full[id == i, ], rec.rsnp = rec.rs2[id == i, ], stan.f, min.ase, min.ase.het), mc.cores=mc.cores)
 
                   names(stan.in1) <- rs.full$id
 

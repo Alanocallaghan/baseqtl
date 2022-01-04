@@ -1430,31 +1430,34 @@ run.stan <- function(mod, data, pars, probs, method = "sampling") {
     post <- rstan::optimizing(
         mod,
         data = data,
-        draws = 1000
+        draws = 1000,
         tol_obj = 1e-3,
         tol_rel_obj = 1e-5,
         tol_grad = 1e-10,
         init = list(theta = 1, phi = 1)
-    )
-    s <- posterior::summarise_draws(post)
+    )$theta_tilde
+    sum <- as.data.frame(posterior::summarise_draws(post, mean, sd, ~quantile(.x, probs = probs)))
+    rownames(sum) <- sum$variable
+    sum$variable <- NULL
+    sum <- sum[pars, ]
+    ex <- as.list(as.data.frame(post[, pars]))
   } else {
     if (method == "sampling") {
         post <- rstan::sampling(mod, data = data, cores = 1, refresh = 0, pars = pars)
     } else if (method == "vb") {
         post <- rstan::vb(mod, data = data, refresh = 0, pars = pars)
     }
-    s <- rstan::summary(post, pars = pars, use_cache = F, probs = probs)$summary
+    sum <- rstan::summary(post, pars = pars, use_cache = F, probs = probs)$summary
+    ex <- rstan::extract(post, pars = pars)
   }
 
-  e <- rstan::extract(post, pars = pars)
   ## calculate proportion of post <0
-  post.neg <- sapply(e, function(i) sum(i < 0) / length(i))
+  post.neg <- sapply(ex, function(i) sum(i < 0) / length(i))
 
-  ## add to s
-  s <- cbind(s[pars, , drop = F], post.prop.neg = post.neg)
+  ## add to sum
+  sum <- cbind(sum[pars, , drop = F], post.prop.neg = post.neg)
   # unload.ddl(mod) ##removing unnecessary dlls, when they reach 100 R gives error https://github.com/stan-dev/rstan/issues/448
-
-  return(s)
+  return(sum)
 }
 
 #' Format stan matrix output for paired design

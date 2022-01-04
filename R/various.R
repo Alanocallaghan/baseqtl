@@ -123,6 +123,14 @@ p.hap.pair.s <- function(h) {
 #' stan.bt()
 
 stan.bt <- function(x, y = "bj", rtag = NULL, model = "NB-ASE", nhets = NA, ASE.het = NA, gene, EAF = NULL, info = NULL, nfsnps = NULL, min.pval = NULL, probs = NULL) {
+  ind_error <- sapply(x, class) == "try-error"
+  if (any(ind_error)) {
+    x_rep <- x[[which(!ind_error)[[1]]]]
+    x_rep[] <- NA
+    x[ind_error] <- replicate(
+      sum(ind_error), x_rep, simplify = FALSE
+    )
+  }
   if (!is.null(y)) {
     l <- lapply(x, function(i) i[y, ])
   } else {
@@ -130,7 +138,7 @@ stan.bt <- function(x, y = "bj", rtag = NULL, model = "NB-ASE", nhets = NA, ASE.
   }
   DT <- data.table::data.table(do.call(rbind, l))
   ## convert to log2 all cols except n_eff and Rhat
-  cols.ex <- c("n_eff", "Rhat", "post.prop.neg")
+  cols.ex <- intersect(colnames(DT), c("n_eff", "Rhat", "post.prop.neg"))
   ## new version allowing extra probs cols
   DT2 <- DT[, lapply(.SD, function(i) i / log(2)), .SDcols = names(DT)[!names(DT) %in% cols.ex]]
   DT[, names(DT)[!names(DT) %in% cols.ex] := DT2]
@@ -222,6 +230,19 @@ stan.bt <- function(x, y = "bj", rtag = NULL, model = "NB-ASE", nhets = NA, ASE.
 #' stan.2T()
 
 stan.2T <- function(x, rtag = NULL, gene, EAF = NULL, info = NULL, nfsnps = NULL, min.pval = NULL, probs = NULL) {
+  ind_error <- sapply(x, class) == "try-error"
+  if (all(ind_error)) {
+    stop("No runs succeeded")
+  }
+  if (any(ind_error)) {
+    x_rep <- x[[which(!ind_error)[[1]]]]
+    x_rep[] <- NA
+    x[ind_error] <- replicate(
+      sum(ind_error), x_rep,
+      simplify = FALSE
+    )
+  }
+
   DT <- rbindlist(x)
   ## convert to log2
   cols <- unlist(lapply(c("mean", "sd", "%"), function(i) grep(i, names(DT), value = T)))

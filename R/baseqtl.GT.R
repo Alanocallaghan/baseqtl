@@ -1,9 +1,4 @@
 
-rstan::rstan_options(auto_write = TRUE)
-options(mc.cores = parallel::detectCores())
-
-
-
 #' Run BaseQTL with known rsnp GT, optional refbias correction
 #'
 #' This function allows you to run BaseQTL for one gene and multiple pre-selected snps. When there is no enough information to ASE counts or rSNP is not in the reference panel, the function will run bayesian negative binomial model only.
@@ -40,7 +35,8 @@ options(mc.cores = parallel::detectCores())
 
 baseqtl.gt <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, additional_cov = NULL, e.snps, u.esnps = NULL, gene.coord, vcf, le.file, h.file, population = c("EUR", "AFR", "AMR", "EAS", "SAS", "ALL"), nhets = 5, min.ase = 5, min.ase.het = 5, tag.threshold = .9, out = ".", prefix = NULL, model = c("both", "NB-ASE", "NB"), stan.model = NULL,
                        stan.negonly = NULL,
-                       prob = NULL, prior = NULL, ex.fsnp = NULL, AI_estimate = NULL, pretotalReads = 100, inference.method="sampling") {
+                       prob = NULL, prior = NULL, ex.fsnp = NULL, AI_estimate = NULL, pretotalReads = 100, inference.method="sampling",
+                       mc.cores=getOption("mc.cores", 1)) {
 
   ## check for valid stan models
   if (is.null(stan.model)) {
@@ -111,7 +107,7 @@ baseqtl.gt <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, add
     stan.full <- parallel::mclapply(stan.in2, function(i) {
       s <- run.stan(stan.model, data = i, pars = "bj", probs = probs, method = inference.method)
       return(s)
-    })
+    }, mc.cores=mc.cores)
     names(stan.full) <- names(stan.in2)
     full.sum <- stan.bt(x = stan.full, y = NULL, rtag = r.tag, model = "NB-ASE", nhets = nhets, ASE.het = ASE.hets, gene = gene, EAF = eaf.t, nfsnps = nfsnps, probs = probs)
 
@@ -132,7 +128,7 @@ baseqtl.gt <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, add
     stan.neg <- parallel::mclapply(in.neg, function(i) {
       s <- run.stan(stan.negonly, data = i, pars = "bj", probs = probs, method = inference.method)
       return(s)
-    })
+    }, mc.cores=mc.cores)
     names(stan.neg) <- names(in.neg)
 
     neg.sum <- stan.bt(x = stan.neg, y = NULL, rtag = r.tag, model = "NB", nhets = nhets, gene = gene, EAF = eaf.t, nfsnps = "NA", probs = probs)
@@ -159,4 +155,5 @@ baseqtl.gt <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, add
       write.table(full.sum, paste0(out, "/", gene, ".GT.stan.summary.txt"), row.names = FALSE)
     }
   }
+  full.sum
 }
