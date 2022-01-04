@@ -31,6 +31,9 @@ data {
 
 transformed data {
   int Max; // maximun number of elements in h2g
+  vector[G] abs_gNB = fabs(gNB);
+  vector[G] log_pNB = log(pNB);
+  vector[L] log_pH = log(pH);
   Max = max(h2g);
 }
 
@@ -40,12 +43,11 @@ parameters {
   real apso; // mean expression pso tissues
   real ba; // log average-fold change ASE
   real bd; // log difference-fold change ASE
-  real<lower=0> phi; //overdipersion param for neg binom
-  real<lower=0> theta; //the overdispersion parameter for beta binomial
+  real<lower=1e-5> phi; //overdipersion param for neg binom
+  real<lower=1e-5> theta; //the overdispersion parameter for beta binomial
   vector[K-1] betas; // regression parameters 
   vector[L] rai0; // random intercept AI
-  
-  }
+}
 
 transformed parameters {
   real bp; // parameter of interest for psoriasis
@@ -53,7 +55,6 @@ transformed parameters {
     
   bp = ba + bd;
   bn = ba -bd;
-    
 }
 
 model {
@@ -62,7 +63,6 @@ model {
   vector[N] lmu1; // help to construct linear pred
   vector[G] lmu; // linear predictor log scale
   vector[G] ltmp; //  log NB likelihood
-
 
   real p; // ase proportion
   vector[Max] ase; //beta-binom terms
@@ -81,126 +81,106 @@ model {
   /* real esum; // reduce computation inverse logit (la0 + bj) */
   
   //priors
-  theta ~ gamma(1,0.1); //  based on stan code example
-  phi ~ gamma(1,0.1);
-  anorm ~ normal(6,4); // mean expression normal skin, stan normal is mean and sd
-  apso ~ normal(6,4); // mean expression pso skin
-  for(i in 1:(K-1)){
-    betas[i] ~ cauchy(0,2.5);//prior for the covariates slopes following Gelman 2008
+  theta ~ gamma(1, 0.1); //  based on stan code example
+  phi ~ gamma(1, 0.1);
+  anorm ~ normal(6, 4); // mean expression normal skin, stan normal is mean and sd
+  apso ~ normal(6, 4); // mean expression pso skin
+  for(i in 1:(K-1)) {
+    betas[i] ~ cauchy(0, 2.5);//prior for the covariates slopes following Gelman 2008
   }
- 
+
   // allelic imbalance priors
   for(i in 1:L) {
-     rai0[i] ~ normal(ai0[i], sdai0[i]);
-   }
+    rai0[i] ~ normal(ai0[i], sdai0[i]);
+  }
 
-  
   // mixture of gaussians for ba and bd:
-  for(i in 1:k){
+  for(i in 1:k) {
     lpsa[i] = normal_lpdf(ba | aveP[i], sdP[i]) + mixP[i];
     lpsd[i] = normal_lpdf(bd | aveP[i], sdP[i]) + mixP[i];
   }
   target += log_sum_exp(lpsa);
   target += log_sum_exp(lpsd);
 
-
   // transformed parameters of no interest
   pos = 1; // to advance on NB terms
   posl = 1; // to advance on ASE terms
   ase = rep_vector(0,Max);  // initialize ase vector to 0s to collect ase termns for each hap pair compatible with Gi=g */
 
-  betasN=append_row(anorm, betas); //betas for normal inds
-  betasP=append_row(apso, betas); // betas for pso inds
-  lmuN=cov[,2:cols(cov)]*betasN; // will be used for normal inds (based on indicator)
-  lmuP=cov[,2:cols(cov)]*betasP; // for pso inds
-
+  betasN = append_row(anorm, betas); //betas for normal inds
+  betasP = append_row(apso, betas); // betas for pso inds
+  lmuN = cov[, 2:cols(cov)] * betasN; // will be used for normal inds (based on indicator)
+  lmuP = cov[, 2:cols(cov)] * betasP; // for pso inds
   
   esum0 = inv_logit(rai0);
   
-  for(i in 1:N){ // lmu for each individual
+  for (i in 1:N) { // lmu for each individual
     // check skin first
-    
-    if(I[i] == 1){ // psoriasis
+    if (I[i] == 1) { // psoriasis
 
       for (r in pos:(pos+sNB[i]-1)){ // then genotype
-	
-	lmu[r] = lmuP[i]; // G = 0
 
-	lmu[r] = fabs(gNB[r])==1 ? lmu[r] + log1p(1+exp(bp))-log(2) : lmu[r];
+        lmu[r] = lmuP[i]; // G = 0
+        lmu[r] = abs_gNB[r] == 1 ? lmu[r] + log1p(exp(bp)) - log(2) : lmu[r];
+        lmu[r] = gNB[r] == 2 ? lmu[r] + bp : lmu[r];
+        ltmp[r] = neg_binomial_2_log_lpmf(
+          Y[i] | exp(lmu[r]), phi
+        ) + log_pNB[r];
 
-	lmu[r] = gNB[r]==2 ? lmu[r] + bp : lmu[r];
-
-	ltmp[r] = neg_binomial_2_lpmf(Y[i] | exp(lmu[r]), phi) + log(pNB[r]);
-
-	if (ASEi[i,1] == 1) {  // ASE info
-	
-	 for (x in 1:h2g[r]){  // look at the haps compatibles with Gi=g
-
-	   esum = inv_logit(rai0[posl] + bp);
-	  
-	   p= gase[posl]==1 ? esum: esum0[posl];
-	   p= gase[posl]==-1 ? 1-esum : p;  // haplotype swap
-	   
-	   ase[x] = beta_binomial_lpmf(n[posl] | m[ASEi[i,2]], p*theta, (1-p)*theta) + log(pH[posl]);
-
-	   posl += 1;
-	}
-	sAse = log_sum_exp(ase[1:h2g[r]]);
-	
-	target +=  log_sum_exp(ltmp[r] , sAse );
-	
+        if (ASEi[i,1] == 1) {  // ASE info
+          for (x in 1:h2g[r]) {  // look at the haps compatibles with Gi=g
+            esum = inv_logit(rai0[posl] + bp);
+            p = gase[posl]==1 ? esum: esum0[posl];
+            p = gase[posl]==-1 ? 1-esum : p;  // haplotype swap
+            
+            ase[x] = beta_binomial_lpmf(
+              n[posl] | m[ASEi[i, 2]], p * theta, (1 - p) * theta
+            ) + log_pH[posl];
+            posl += 1;
+          }
+          sAse = log_sum_exp(ase[1:h2g[r]]);
+          target +=  log_sum_exp(ltmp[r], sAse);
+        }
       }
-	
-      }
-      if(ASEi[i,1] == 0){ // NO ASE, only NB terms for this ind
-	target += log_sum_exp(ltmp[pos:(pos+sNB[i]-1)]);
-      
+      if(ASEi[i,1] == 0) { // NO ASE, only NB terms for this ind
+        target += log_sum_exp(ltmp[pos:(pos+sNB[i]-1)]);
       }
 
       pos += sNB[i];
-       
+      
     } else {
-      for (r in pos:(pos+sNB[i]-1)){ //normal skin
-	
-	lmu[r] = lmuN[i]; // G = 0
+      for (r in pos:(pos+sNB[i]-1)) { //normal skin
+        
+        lmu[r] = lmuN[i]; // G = 0
+        lmu[r] = fabs(gNB[r])==1 ? lmu[r] + log1p(exp(bn)) - log(2) : lmu[r];
+        lmu[r] = gNB[r]==2 ? lmu[r] + bn : lmu[r];
+        ltmp[r] = neg_binomial_2_log_lpmf(
+          Y[i] | lmu[r], phi
+        ) + log_pNB[r];
 
-	lmu[r] = fabs(gNB[r])==1 ? lmu[r] + log1p(1+exp(bn))-log(2) : lmu[r];
-
-	lmu[r] = gNB[r]==2 ? lmu[r] + bn : lmu[r];
-
-	ltmp[r] = neg_binomial_2_lpmf(Y[i] | exp(lmu[r]), phi) + log(pNB[r]);
-
-	if (ASEi[i,1] == 1) {  // ASE info
-	  
-	  for (x in 1:h2g[r]){  // look at the haps compatibles with Gi=g
-	    
-	    esum = inv_logit(rai0[posl] + bn);
-	    
-	    p= gase[posl]==1 ? esum : esum0[posl];
-	    p= gase[posl]==-1 ? 1-esum : p;  // haplotype swap
-	    
-	    ase[x] = beta_binomial_lpmf(n[posl] | m[ASEi[i,2]], p*theta, (1-p)*theta) + log(pH[posl]);
-	    
-	    posl += 1;
-	  }
-	  	 
-	  sAse = log_sum_exp(ase[1:h2g[r]]);	 
-	  target +=  log_sum_exp(ltmp[r] , sAse );	  
-	
-	}
+        if (ASEi[i,1] == 1) {  // ASE info
+    
+          for (x in 1:h2g[r]) {  // look at the haps compatibles with Gi=g
+            
+            esum = inv_logit(rai0[posl] + bn);
+            p = gase[posl]==1 ? esum : esum0[posl];
+            p = gase[posl]==-1 ? 1-esum : p;  // haplotype swap
+            ase[x] = beta_binomial_lpmf(
+              n[posl] | m[ASEi[i, 2]], p * theta, (1 - p) * theta
+            ) + log_pH[posl];
+            
+            posl += 1;
+          }
+          sAse = log_sum_exp(ase[1:h2g[r]]);	 
+          target += log_sum_exp(ltmp[r], sAse);
+        }
       }
       
-      if(ASEi[i,1] == 0){ // NO ASE, only NB terms for this ind
-	target += log_sum_exp(ltmp[pos:(pos+sNB[i]-1)]);
+      if (ASEi[i, 1] == 0) { // NO ASE, only NB terms for this ind
+        target += log_sum_exp(ltmp[pos:(pos+sNB[i]-1)]);
       }
 
       pos += sNB[i];
-
-	
-      }
-       
+    }   
   }
- 
 }
-    
-

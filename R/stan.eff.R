@@ -1425,13 +1425,9 @@ add.prior <- function(prior, l) {
 #' or "vb" for ADVI.
 #' @param backend The type of stan backend to use. rstan uses the compiled stan code in the package, cmdstanr uses cmdstanr to compile the same model code with possibly more up-to-date stan backend. See cmdstanr::install_cmdstan().
 #' @return matrix with stan summary
+#' run.stan()
 
-run.stan <- function(
-    mod, data, pars, probs,
-    inference.method = c("sampling", "vb")
-    # , backend = c("rstan", "cmdstanr")
-  ) {
-
+run.stan <- function(mod, data, pars, probs, inference.method = "sampling") {
   inference.method <- match.arg(inference.method)
   backend <- match.arg(backend)
   # if (backend == "cmdstanr") {
@@ -1458,29 +1454,43 @@ run.stan <- function(
   #   ex <- fit$draws(variables = pars)
   #   ex <- lapply(pars, function(p) ex[, , p, drop = TRUE])
   # } else {
-  if (inference.method == "sampling") {
-    post <- sampling(mod, data = data, cores = 1, refresh = 0, pars = pars)
+
+  if (method == "optimizing") {
+    post <- rstan::optimizing(
+      mod,
+      data = data,
+      draws = 1000,
+      tol_obj = 1e-3,
+      tol_rel_obj = 1e-5,
+      tol_grad = 1e-10,
+      init = list(theta = 1, phi = 1)
+    )$theta_tilde
+    sum <- as.data.frame(posterior::summarise_draws(post, mean, sd, ~ quantile(.x, probs = probs)))
+    rownames(sum) <- sum$variable
+    sum$variable <- NULL
+    sum <- sum[pars, ]
+    ex <- as.list(as.data.frame(post[, pars]))
   } else {
-    post <- vb(mod, data = data, pars = pars)
+    if (method == "sampling") {
+      post <- rstan::sampling(mod, data = data, cores = 1, refresh = 0, pars = pars)
+    } else if (method == "vb") {
+      post <- rstan::vb(mod, data = data, refresh = 0, pars = pars)
+    }
+    sum <- rstan::summary(post, pars = pars, use_cache = F, probs = probs)$summary
+    ex <- rstan::extract(post, pars = pars)
   }
-  sum <- rstan::summary(post, pars = pars, use_cache = F, probs = probs)$summary
-  ex <- rstan::extract(post, pars = pars)
-  # }
+
   ## calculate proportion of post <0
   post.neg <- sapply(ex, function(i) sum(i < 0) / length(i))
 
-  ## add to s
+  ## add to sum
   sum <- cbind(sum[pars, , drop = F], post.prop.neg = post.neg)
   # unload.ddl(mod) ##removing unnecessary dlls, when they reach 100 R gives error https://github.com/stan-dev/rstan/issues/448
   return(sum)
 }
 
-sampling <- function(..., init = "random", chains = 1, iter = 2000) {
-  rstan::sampling(..., init = init, chains = chains, iter = iter)
-}
-
 vb <- function(..., init = "random", tol_rel_obj = 1e-2, iter = 10000,
-    algorithm = "meanfield") {
+               algorithm = "meanfield") {
   capture.output(x <- rstan::vb(..., init = init, iter = iter, tol_rel_obj = tol_rel_obj, algorithm = algorithm))
   x
 }

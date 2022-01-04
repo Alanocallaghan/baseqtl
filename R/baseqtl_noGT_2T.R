@@ -1,6 +1,3 @@
-rstan::rstan_options(auto_write = TRUE)
-options(mc.cores = parallel::detectCores())
-
 #' Run baseqtl for 2 treatments  in one model from different smples
 #' This function allows you to run baseqtl for one gene and multiple pre-selected snps.
 #' @param gene gene id for the gene to run
@@ -36,17 +33,14 @@ options(mc.cores = parallel::detectCores())
 #' @export
 #' @return Saves the summary table in "out" dir as /out/prefix.main.txt. When using tags, saves /out/prefix.tags.lookup.txt. Saves a table of rsnps that couldn't be run.
 
-baseqtl2T.nogt <- function(
-    gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, additional_cov = NULL,
-    e.snps, u.esnps = NULL, gene.coord, vcf, sample.file = NULL, le.file,
-    h.file, population = c("EUR", "AFR", "AMR", "EAS", "SAS", "ALL"),
-    maf = 0.05, min.ase = 5, min.ase.snp = 5, min.ase.n = 5, tag.threshold = .9,
-    info = 0.3, out = ".", prefix = NULL, model = NULL, prob = NULL,
-    prior = NULL, ex.fsnp = 0.01, AI_estimate = NULL, pretotalReads = 100,
-    treatments, fishjoin = "joint", mc.cores = getOption("mc.cores", 1L),
-    inference.method = c("sampling", "vb")
-  ) {
-
+baseqtl2T.nogt <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, additional_cov = NULL,
+                           e.snps, u.esnps = NULL, gene.coord, vcf, sample.file = NULL, le.file,
+                           h.file, population = c("EUR", "AFR", "AMR", "EAS", "SAS", "ALL"),
+                           maf = 0.05, min.ase = 5, min.ase.snp = 5, min.ase.n = 5, tag.threshold = .9,
+                           info = 0.3, out = ".", prefix = NULL, model = NULL, prob = NULL,
+                           prior = NULL, ex.fsnp = 0.01, AI_estimate = NULL, pretotalReads = 100,
+                           treatments, fishjoin = "joint", mc.cores = getOption("mc.cores", 1L),
+                           inference.method = c("sampling", "vb")) {
   if (is.null(model)) {
     ## check if ref panelbias correction
     if (is.null(AI_estimate)) {
@@ -108,14 +102,14 @@ baseqtl2T.nogt <- function(
 
 
   cat("Running stan for ", length(info.ok), " rSNPS")
-  browser()
   stan.full <- parallel::mclapply(
     1:length(stan2T),
     function(i) {
       s <- run.stan(model, data = stan2T[[i]], pars = c("ba", "bd", "bp", "bn"), probs = probs, inference.method = inference.method)
       dt.wide <- stan.paired.for(s, names(stan2T)[i])
       return(dt.wide)
-    }, mc.cores = mc.cores
+    },
+    mc.cores = mc.cores
   )
 
   ## get maf for tags run in model
@@ -127,7 +121,7 @@ baseqtl2T.nogt <- function(
     min.pval = het.f,
     probs = probs
   )
-  
+
   ## relabel "bp", "bn" to "bt1", "bt2"
   m <- mapply(relab,
     a = c("bp", "bn"),

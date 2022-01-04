@@ -34,16 +34,14 @@
 #' @export
 #' @return data.table with summary of gene-snp associations. Saves the summary table in "out" dir as /out/prefix.main.txt. When using tags, saves /out/prefix.tags.lookup.txt. Saves a table of excluded rsnps.
 
-baseqtl.nogt <- function(
-    gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, additional_cov = NULL,
-    e.snps, u.esnps = NULL, gene.coord, vcf, sample.file = NULL, le.file,
-    h.file, population = c("EUR", "AFR", "AMR", "EAS", "SAS", "ALL"),
-    maf = 0.05, min.ase = 5, min.ase.snp = 5, min.ase.n = 5, tag.threshold = .9,
-    info = 0.3, out = ".", prefix = NULL, model = NULL, model.negonly = NULL,
-    prob = NULL, prior = NULL, ex.fsnp = 0.01, AI_estimate = NULL,
-    pretotalReads = 100, save_input = FALSE,
-    mc.cores = getOption("mc.cores", 1L), inference.method = c("sampling", "vb")
-  ) {
+baseqtl.nogt <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, additional_cov = NULL,
+                         e.snps, u.esnps = NULL, gene.coord, vcf, sample.file = NULL, le.file,
+                         h.file, population = c("EUR", "AFR", "AMR", "EAS", "SAS", "ALL"),
+                         maf = 0.05, min.ase = 5, min.ase.snp = 5, min.ase.n = 5, tag.threshold = .9,
+                         info = 0.3, out = ".", prefix = NULL, model = NULL, model.negonly = NULL,
+                         prob = NULL, prior = NULL, ex.fsnp = 0.01, AI_estimate = NULL,
+                         pretotalReads = 100, save_input = FALSE,
+                         mc.cores = getOption("mc.cores", 1L), inference.method = c("sampling", "vb")) {
   inference.method <- match.arg(inference.method)
 
   ## check stan models
@@ -154,7 +152,8 @@ baseqtl.nogt <- function(
     function(i) {
       s <- run.stan(model2run, data = stan.noGT2[[i]], pars = "bj", probs = probs, inference.method = inference.method)
       return(s)
-    }, mc.cores = mc.cores
+    },
+    mc.cores = mc.cores
   )
   names(stan.full) <- names(stan.noGT2)
 

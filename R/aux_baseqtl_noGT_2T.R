@@ -1,7 +1,5 @@
 ## Prepares inputs for running BaseQTL withut genotypes with individuals from two conditions (healthy/diseased)
 
-# options(mc.cores = parallel::detectCores())
-
 #' convenient wrap for testing function per skin
 #'
 #' @param l list to test, list has dta tables and I am testing for rows>0 in both elements
@@ -42,11 +40,9 @@ list.err <- function(l, txt) {
 #' @return list with stan input
 #' aux.in()
 
-aux.in <- function(
-    gene, ai = NULL, case, rp.f, rp.r, f.ase, counts.g, covariates,
-    min.ase = 5, min.ase.n = 5, info = 0.3, snps.ex, prefix = NULL, out = ".",
-    prior = NULL, mc.cores = getOption("mc.cores", 1L)
-  ) {
+aux.in <- function(gene, ai = NULL, case, rp.f, rp.r, f.ase, counts.g, covariates,
+                   min.ase = 5, min.ase.n = 5, info = 0.3, snps.ex, prefix = NULL, out = ".",
+                   prior = NULL, mc.cores = getOption("mc.cores", 1L)) {
   if (!is.null(ai)) {
     stan.f <- mapply(function(a, b, c, d) fsnp.prep2(a, b, c, min.ase, min.ase.n, d),
       a = rp.f,
@@ -94,8 +90,11 @@ aux.in <- function(
             rp.f[[j]],
             stan.f[[j]]
           )
-        }, mc.cores = mc.cores)
-    })
+        },
+        mc.cores = mc.cores
+      )
+    }
+  )
 
   stan.noGT <- lapply(stan.noGT, setNames, rownames(rp.r))
 

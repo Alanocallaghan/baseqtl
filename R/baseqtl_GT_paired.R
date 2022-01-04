@@ -1,6 +1,3 @@
-rstan::rstan_options(auto_write = TRUE)
-options(mc.cores = parallel::detectCores())
-
 
 #' Run BaseQTL with known rsnp GT, paired treatments optional refbias correction
 #'
@@ -36,16 +33,14 @@ options(mc.cores = parallel::detectCores())
 #' @export
 #' @return Saves the summary table in "out" dir as /out/prefix.main.txt. When using tags, saves /out/prefix.tags.lookup.txt. Saves a table of excluded rsnps.
 
-baseqtl.gt.paired <- function(
-    gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, additional_cov = NULL,
-    e.snps, u.esnps = NULL, gene.coord, vcf, le.file, h.file,
-    population = c("EUR", "AFR", "AMR", "EAS", "SAS", "ALL"), nhets = 5,
-    min.ase = 5, min.ase.het = 5, tag.threshold = .9, out = ".", prefix = NULL,
-    model = c("both", "NB-ASE", "NB"), stan.model = NULL, stan.negonly = NULL,
-    prob = NULL, prior = NULL, ex.fsnp = NULL, AI_estimate = NULL,
-    pretotalReads = 100, mc.cores = getOption("mc.cores", 1L),
-    inference.method = c("sampling", "vb")
-  ) {
+baseqtl.gt.paired <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, additional_cov = NULL,
+                              e.snps, u.esnps = NULL, gene.coord, vcf, le.file, h.file,
+                              population = c("EUR", "AFR", "AMR", "EAS", "SAS", "ALL"), nhets = 5,
+                              min.ase = 5, min.ase.het = 5, tag.threshold = .9, out = ".", prefix = NULL,
+                              model = c("both", "NB-ASE", "NB"), stan.model = NULL, stan.negonly = NULL,
+                              prob = NULL, prior = NULL, ex.fsnp = NULL, AI_estimate = NULL,
+                              pretotalReads = 100, mc.cores = getOption("mc.cores", 1L),
+                              inference.method = c("sampling", "vb")) {
 
   ## check for valid stan models
   if (is.null(stan.model)) {
@@ -110,12 +105,16 @@ baseqtl.gt.paired <- function(
     r.tag <- base.in$nbase$r.tag
     minAI <- base.in$nbase$minAI
 
-    print("Running NB-ASE model")
-    stan.full <- parallel::mclapply(1:length(stan.in2), function(i) {
-      s <- run.stan(stan.model, data = stan.in2[[i]], pars = param, probs = probs, inference.method = inference.method)
-      dt.wide <- stan.paired.for(s, names(stan.in2)[i])
-      return(dt.wide)
-    }, mc.cores = mc.cores)
+    message("Running NB-ASE model")
+    stan.full <- parallel::mclapply(
+      1:length(stan.in2),
+      function(i) {
+        s <- run.stan(stan.model, data = stan.in2[[i]], pars = param, probs = probs, inference.method = inference.method)
+        dt.wide <- stan.paired.for(s, names(stan.in2)[i])
+        return(dt.wide)
+      },
+      mc.cores = mc.cores
+    )
 
     full.sum <- stan.2T(
       x = stan.full, rtag = r.tag, gene = gene, EAF = eaf.t,
@@ -145,11 +144,15 @@ baseqtl.gt.paired <- function(
 
     print("Running NB model")
 
-    stan.neg <- parallel::mclapply(1:length(in.neg), function(i) {
-      s <- run.stan(stan.negonly, data = in.neg[[i]], pars = param, probs = probs, inference.method = inference.method)
-      dt.wide <- stan.paired.for(s, names(in.neg)[i])
-      return(dt.wide)
-    }, mc.cores = mc.cores)
+    stan.neg <- parallel::mclapply(
+      1:length(in.neg),
+      function(i) {
+        s <- run.stan(stan.negonly, data = in.neg[[i]], pars = param, probs = probs, inference.method = inference.method)
+        dt.wide <- stan.paired.for(s, names(in.neg)[i])
+        return(dt.wide)
+      },
+      mc.cores = mc.cores
+    )
 
     neg.sum <- stan.2T(x = stan.neg, rtag = r.tag, gene = gene, EAF = eaf.t, nfsnps = "NA", probs = probs)
     neg.sum[, model := "NB"][, nhets := nhets]

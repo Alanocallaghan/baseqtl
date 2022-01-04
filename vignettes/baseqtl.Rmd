@@ -109,7 +109,11 @@ AI_estimate <- system.file("extdata/input", "AI_estimate.GT.txt", package = "bas
 ```
 
 
+<<<<<<< HEAD
 ```{r, eval = FALSE}
+=======
+``` {r, eval=FALSE}
+>>>>>>> 29a5ff89c1f287fcdd85364b9c64d995cc95d033
 ## Choose your output directory
 out <- "../baseqtl_output/"
 
