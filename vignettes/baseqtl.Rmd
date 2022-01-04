@@ -19,9 +19,9 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
-BaseQTL detects eQTLs combining between individual variation (modelled by a negative binomial distribution) with allele specific expression (ASE modelled by a beta-binomial distribution). To mitigate reference sequence mapping bias, a major source of bias that can lead to false positive calls when modelling ASE, we implemented a reference panel bias correction. To improve phasing accuracy for modelling ASE we adopted a Bayesian approach which allow us to exploit external reference genotype panel data to improve phasing accuracy. In addition, our Bayesian approach is ideally suited to incorporate information from existing large eQTL studies which allow us to shrink extreme fold change estimates and improve accuracy in a way analogous to moderation of variance estimates. Last, our Bayesian model is embeded within a standard Hamiltonian Monte Carlo environment which is run by stan, allowing researchers to develop flexible analytical approaches appropriate to their data.
+BaseQTL detects eQTLs combining between individual variation (modelled by a negative binomial distribution) with allele specific expression (ASE modelled by a beta-binomial distribution). To mitigate reference sequence mapping bias, a major source of bias that can lead to false positive calls when modelling ASE, we implemented a reference panel bias correction. To improve phasing accuracy for modelling ASE we adopted a Bayesian approach which allow us to exploit external reference genotype panel data to improve phasing accuracy. In addition, our Bayesian approach is ideally suited to incorporate information from existing large eQTL studies which allow us to shrink extreme fold change estimates and improve accuracy in a way analogous to moderation of variance estimates. Last, our Bayesian model is embedded within a standard Hamiltonian Monte Carlo environment which is run by stan, allowing researchers to develop flexible analytical approaches appropriate to their data.
 
-In this package and vignette we descibe models for 4 scenarios:
+In this package and vignette we describe models for 4 scenarios:
 
 1. eQTL analysis when DNA-seq and RNA-seq data are available (with genotypes).
 1. eQTL analysis when only RNA-seq is available (unknown genotypes).
@@ -49,7 +49,7 @@ The function to call is **baseqtl.gt**. It will test for eQTL effects in one spe
 
 *e.snps*: full name of txt file with a list of exonic SNPS across genes, details in **input4baseqtl**.
 
-*u.esnps*: optional argument, when strand information is not available for RNA-seq some exonic SNPs could be shared between genes making difficult to assess allele specific expression. In this case it is recommended to provide a list of exonic SNPs uniquely mapping genes. In this mode, e.snps will be used to imporve phasing accuracy and u.esnps to compute allele specific expression, further deatails in **input4baseqtl**.
+*u.esnps*: optional argument, when strand information is not available for RNA-seq some exonic SNPs could be shared between genes making difficult to assess allele specific expression. In this case it is recommended to provide a list of exonic SNPs uniquely mapping genes. In this mode, e.snps will be used to imporve phasing accuracy and u.esnps to compute allele specific expression, further details in **input4baseqtl**.
 
 *gene.coord*: full name to file with gene id, gene sart and gene end, details in **input4baseqtl**.
 
@@ -61,9 +61,9 @@ The function to call is **baseqtl.gt**. It will test for eQTL effects in one spe
 
 *population*: one of AFR AMR EAS EUR SAS ALL, defaults to EUR. Used to calculate EAF of eQTL SNP to include in output.
 
-*nhets*: minimun number of hetrozygous individuals for the eQTL SNP to run model, defaults to 5.
+*nhets*: minimun number of heterozygous individuals for the eQTL SNP to run model, defaults to 5.
 
-*min.ase*: minimun number of ASE counts for an individual to be included in the model, deaults to 5. 
+*min.ase*: minimun number of ASE counts for an individual to be included in the model, defaults to 5. 
 
 *min.ase.het*: minumun number of heterozygous individuals for the eQTL SNP with sufficient ASE counts in order to run the ASE component of the model, defaults to 5.
 
@@ -71,23 +71,22 @@ The function to call is **baseqtl.gt**. It will test for eQTL effects in one spe
 
 "tag.threshold": $r^2$ threshold for grouping SNPs to reduce the number of running test, recommended when running with cis-windows, defaults to 0.9. To disable, when running selected SNPS set to "no".
 
-*out*: path to output directory to write files, deafults to current directory.
+*out*: path to output directory to write files, defaults to current directory.
 
 *prefix*: prefix to add to output files, defaults to gene id.
 
-*model*: whether to run NB-ASE only (full model negative binomial and allele specific counts),NB (negat
-ive binomial only) or both (NB-ASE when sufficient information and NB for those associations with no ASE information), defaults to "both".
+*model*: whether to run NB-ASE only (full model negative binomial and allele specific counts),NB (negative binomial only) or both (NB-ASE when sufficient information and NB for those associations with no ASE information), defaults to "both".
 
-*stan.model*: optional parameter, defaults is to run built-in NB-ASE model. When AI_estimate is provided (below) the model corrects for reference panel bias, otherwise id doesn't. Alternatively, users can provide their alternative compiled stanmodel object, whcih should use the same input data.
+*stan.model*: optional parameter, defaults is to run built-in NB-ASE model. When AI_estimate is provided (below) the model corrects for reference panel bias, otherwise id doesn't. Alternatively, users can provide their alternative compiled stanmodel object, which should use the same input data.
 
-*stan.negonly*: compiled stanmodel object with neg only side, deafults to built-in model.
+*stan.negonly*: compiled stanmodel object with neg only side, defaults to built-in model.
 model.
 
 *prob*: number p∈(0,1) indicating the desired posterior probability mass to report, defaults to 0.99 -0.95 quantiles.
 
 *prior*: prior for eQTL effect. Defaults to a mixture of 2 Gaussians learnt from external eQTL data.
 
-*ex.fsnps*: for sensitivity analysis it is possible to exclude selected exonic (feature) SNPs by proving a character vector with psoition:reference:alternative allele, defaults to NULL (no exlcusion).
+*ex.fsnps*: for sensitivity analysis it is possible to exclude selected exonic (feature) SNPs by proving a character vector with psoition:reference:alternative allele, defaults to NULL (no exclusion).
 
 *AI_estimate*: full name to txt file  with pre-computed allelic imbalance estimates for reference panel bias for exonic SNPs, details in  **input4baseqtl**. Defaults to NULL for  no correction.
 
@@ -98,42 +97,44 @@ model.
 ```{r}
 ## Retrive input files for running baseqtl.gt
 ## Most of the files contain information for the selected gene only to minimise their size
-
 counts.f <- system.file("extdata/input", "counts.txt", package = "baseqtl", mustWork = TRUE)
 covariates <- system.file("extdata/input", "lbsize_gc.rds", package = "baseqtl", mustWork = TRUE)
-e.snps = system.file("extdata/input", "chr22.fSNPS.ENSG00000159958.txt", package = "baseqtl", mustWork = TRUE)
-u.snps = system.file("extdata/input", "chr22.unique.fSNPS.ENSG00000159958.txt", package = "baseqtl", mustWork = TRUE)
-gene.coord = system.file("extdata/input", "ENSG00000159958_data.txt", package = "baseqtl", mustWork = TRUE)
-vcf = system.file("extdata/input", "chr22GT.86GEU.vcf.gz", package = "baseqtl", mustWork = TRUE)
-le.file = system.file("extdata/input", "1000GP_Phase3_subset_chr22.legend.gz", package = "baseqtl", mustWork = TRUE)
-h.file = system.file("extdata/input", "1000GP_Phase3_subset_chr22.hap.gz", package = "baseqtl", mustWork = TRUE)
-AI_estimate = system.file("extdata/input", "AI_estimate.GT.txt", package = "baseqtl", mustWork = TRUE)
-
+e.snps <- system.file("extdata/input", "chr22.fSNPS.ENSG00000159958.txt", package = "baseqtl", mustWork = TRUE)
+u.snps <- system.file("extdata/input", "chr22.unique.fSNPS.ENSG00000159958.txt", package = "baseqtl", mustWork = TRUE)
+gene.coord <- system.file("extdata/input", "ENSG00000159958_data.txt", package = "baseqtl", mustWork = TRUE)
+vcf <- system.file("extdata/input", "chr22GT.86GEU.vcf.gz", package = "baseqtl", mustWork = TRUE)
+le.file <- system.file("extdata/input", "1000GP_Phase3_subset_chr22.legend.gz", package = "baseqtl", mustWork = TRUE)
+h.file <- system.file("extdata/input", "1000GP_Phase3_subset_chr22.hap.gz", package = "baseqtl", mustWork = TRUE)
+AI_estimate <- system.file("extdata/input", "AI_estimate.GT.txt", package = "baseqtl", mustWork = TRUE)
 ```
 
-``` {r, eval=FALSE}
+
+```{r, eval = FALSE}
 ## Choose your output directory
-out <- "path/to/output_dir"
+out <- "../baseqtl_output/"
 
 ## To minimise file sizes and computational load SNPs are within a 10^4 cis-window
 ## baseqtl is computational intense, it is recommended to be run with several cores
 ## cores are automatically detected by R
 
 ## Run baseqtl.gt:
-baseqtl.gt(gene = "ENSG00000159958",
-	   chr = 22,
-	   snps = 10^4,
-	   counts.f = counts.f,
-	   covariates = covariates,
-	   e.snps = e.snps,
-	   u.esnps = u.snps,
-	   gene.coord = gene.coord,
-	   vcf = vcf,
-	   le.file = le.file,
-	   h.file = h.file,
-	   out = out,
-	   AI_estimate = AI_estimate)
+baseqtl.gt(
+    gene = "ENSG00000159958",
+    chr = 22,
+    snps = 10^4,
+    counts.f = counts.f,
+    covariates = covariates,
+    e.snps = e.snps,
+    u.esnps = u.snps,
+    gene.coord = gene.coord,
+    vcf = vcf,
+    le.file = le.file,
+    h.file = h.file,
+    out = out,
+    AI_estimate = AI_estimate
+)
 ```
+
 * The following messages will appear on screen: 
 
 * max r2 is now0.894478527607361 ## relates to the tagging
@@ -168,10 +169,10 @@ knitr::kable(head(tags))
 
 **ENSG00000159958.GT.excluded.rsnps.txt**
 
-The table details the SNPs that were excluded fron running NB and/or NB_ASE models and the reason for exclusion.
+The table details the SNPs that were excluded from running NB and/or NB_ASE models and the reason for exclusion.
 
 * Reasons for total exclusion are:
-    1. Missing gentoypes in all samples or homozygous in all samples
+    1. Missing genotypes in all samples or homozygous in all samples
     1. Snp with zero variance
     1. rsnp with less than 'nhet' het ind. 'nhet' is the nhet argument in baseqtl.gt
 * Reasons to exclude from NB_ASE, if model = "both" those SNPs will be run with NB model
@@ -204,14 +205,14 @@ names(results)
     * Signif: "no" if 0 falls within 99% of the eQTL effect posterior distribution, "yes" otherwise
     * log2_aFC_d: when eQTL effect is significant is the distance from the closest quantile (0.5% or 99.5%) to the null. When eQTl effect is not significant is the width of the credible interval
     * n_eff: effective sample size (see stan manual for more details)
-    * Rhat: R-hat statisitc (it is recommended only results if *$Rhat < 1.1$*, see stan manual for more details)
+    * Rhat: R-hat statistic (it is recommended only results if *$Rhat < 1.1$*, see stan manual for more details)
     * model: whether NB or NB-ASE was run
     * nhets: numbr of hets for rSNP
     * ASE.hets: when running NB-ASE number of hets for rSNP with sufficient ASE counts, otherwise NA
     * tag.EAF/ SNP.EAF: EAF for rSNP based on the external reference panel for the population requested, NA if the rSNP is not in the reference panel
     * n.fsnps: number of exonic SNPs used in model, NA for NB model
-    *PEP: posterior exclusion probablity based on 4000 posteriror draws. Gives the proportion of posterior draws of opposite sign to the posterior mean
-    * min_AI: when using reference panel bias correcion gives the most extreme allelic imbalance estimate for the exonic SNPs used in model (no imbalance corresponds to 0.5), NA otherwise
+    *PEP: posterior exclusion probablity based on 4000 posterior draws. Gives the proportion of posterior draws of opposite sign to the posterior mean
+    * min_AI: when using reference panel bias correction gives the most extreme allelic imbalance estimate for the exonic SNPs used in model (no imbalance corresponds to 0.5), NA otherwise
 
 
 ```{r, echo=FALSE, results='asis'} 
@@ -253,7 +254,7 @@ AI_estimate <- system.file("extdata/input", "AI_estimate.noGT.txt", package = "b
 ```
 
 
-``` {r, eval=FALSE}
+```{r, eval=FALSE}
 ## Choose your output directory
 out <- "path/to/output_dir"
 
@@ -263,19 +264,19 @@ out <- "path/to/output_dir"
 
 ## Run baseqtl.nogt:
 baseqtl.nogt(gene = "ENSG00000159958",
-	   chr = 22,
-	   snps = 10^4,
-	   counts.f = counts.f,
-	   covariates = covariates,
-	   e.snps = e.snps,
-	   u.esnps = u.snps,
-	   gene.coord = gene.coord,
-	   vcf = vcf,
-	   sample.f=sample.f,
-	   le.file = le.file,
-	   h.file = h.file,
-	   out = out,
-	   AI_estimate = AI_estimate)
+    chr = 22,
+    snps = 10^4,
+    counts.f = counts.f,
+    covariates = covariates,
+    e.snps = e.snps,
+    u.esnps = u.snps,
+    gene.coord = gene.coord,
+    vcf = vcf,
+    sample.f=sample.f,
+    le.file = le.file,
+    h.file = h.file,
+    out = out,
+    AI_estimate = AI_estimate)
 ```
 
 
@@ -296,7 +297,7 @@ results <- data.table::fread(system.file("extdata/output", "ENSG00000159958.noGT
 
 **ENSG00000159958.fsnps.het.fisher.test.txt**
 
-Table with feature SNP (exonic SNP) id (position:reference:altrnative allele), odds ratio (OR) and pvalue testing the frequencey of heterozygocity between sample and reference panel and ensembl gene id.
+Table with feature SNP (exonic SNP) id (position:reference:alternative allele), odds ratio (OR) and pvalue testing the frequency of heterozygosity between sample and reference panel and ensembl gene id.
 
 ```{r}
 fsnps <- data.table::fread(system.file("extdata/output", "ENSG00000159958.fsnps.het.fisher.test.txt", package = "baseqtl", mustWork = TRUE))
@@ -397,16 +398,16 @@ names(results)
 * **Description**
 
     1. Similar output as baseqtl.gt, except that now we look at 4 coefficients: ba, bd, bt1 and bt2.
-    1. bt1 and bt2 corespond to the two treatments/condition, as ordered in counts.f and vcf inputs.
+    1. bt1 and bt2 correspond to the two treatments/condition, as ordered in counts.f and vcf inputs.
     1. ba corresponds to the 'addition' coefficient, $ba = bt1 + bt2$
     1. bd corresponds to the 'difference' coefficient, $bd = bt1 - bt2$
     1. We evaluate ba and bd to look for a condition specific effect
-    1. When ba significant implies a significant eQTl efect in one or both treatments. If bd is significant, there is evidence for condition specific effect, likely the eQTL effect is detected in one condition only.
+    1. When ba significant implies a significant eQTl effect in one or both treatments. If bd is significant, there is evidence for condition specific effect, likely the eQTL effect is detected in one condition only.
     1. If ba is not significant but bd is significant it could indicate eQTL effects in opposite directions.
     1. ASE.hets gives the number of hets individuals for the rSNP with sufficient ASE counts for each treatment as '14,10'
 
 
-## eQTL analysis with samples from two conditions (diseases vs control) and unkown gentopyes.
+## eQTL analysis with samples from two conditions (diseases vs control) and unknown genotypes.
 
 In this example we are going to compare psoriasis vs normal skin, RNA-seqdata from [psoriasis](ftp://ftp.sra.ebi.ac.uk/vol1/fastq)
 We call **baseqtl2T.nogt**. I will describe below the arguments that differ from baseqtl.nogt.
@@ -423,7 +424,7 @@ We call **baseqtl2T.nogt**. I will describe below the arguments that differ from
 
 **File order in counts.f, covariates, vcf and treatment names must be the same**
 
-*fishjoin* whether to run Fisher test for heterozygocity frequency between samples and reference panel fSNPs (ex.fsnp argument) jointly in all samples or by treatment, defaults to jointly but  for QC purposes, to use the same fSNPs in ech treatment as the ones used  when the treatments were run using independent models select  NULL.
+*fishjoin* whether to run Fisher test for heterozygocity frequency between samples and reference panel fSNPs (ex.fsnp argument) jointly in all samples or by treatment, defaults to jointly but  for QC purposes, to use the same fSNPs in each treatment as the ones used  when the treatments were run using independent models select  NULL.
 
 ```{r}
 ## Retrive input files for running baseqtl2T.nogt

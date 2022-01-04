@@ -10,7 +10,7 @@ cor2(x)
 \item{x}{matrix (example haplotypes for the snps, cols snps, rows samples)}
 }
 \value{
-matrix of correlatons
+matrix of correlations
 cor2
 }
 \description{

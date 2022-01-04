@@ -40,14 +40,14 @@ parameters {
   real<lower=0> theta; //the overdispersion parameter for beta binomial
   vector[K-1] betas; // regression parameters 
   
-  }
+}
 
 transformed parameters {
   real bp; // parameter of interest for psoriasis
   real bn; // parameter of interest for normal skin
     
   bp = ba + bd;
-  bn = ba -bd;
+  bn = ba - bd;
     
 }
 
@@ -104,41 +104,40 @@ model {
   for(i in 1:N){ // lmu for each individual
     // check skin first
     
-    if(I[i] == 1){ // psoriasis
+    if (I[i] == 1) { // psoriasis
 
-      for (r in pos:(pos+sNB[i]-1)){ // then genotype
+      for (r in pos:(pos+sNB[i]-1)) { // then genotype
+        
+        lmu[r] = lmuP[i]; // G = 0
+
+        lmu[r] = fabs(gNB[r])==1 ? lmu[r] + log1p(1+exp(bp))-log(2) : lmu[r];
+
+        lmu[r] = gNB[r]==2 ? lmu[r] + bp : lmu[r];
+
+        ltmp[r] = neg_binomial_2_lpmf(Y[i] | exp(lmu[r]), phi) + log(pNB[r]);
+
+        if (ASEi[i,1] == 1) {  // ASE info
+        
+        for (x in 1:h2g[r]){  // look at the haps compatibles with Gi=g
+
+          esum = inv_logit( bp);
+          
+          p= gase[posl]==1 ? esum : 0.5;
+          p= gase[posl]==-1 ? 1-esum : p;  // haplotype swap
+          
+          ase[x] = beta_binomial_lpmf(n[posl] | m[ASEi[i,2]], p*theta, (1-p)*theta) + log(pH[posl]);
+
+          posl += 1;
+        }
+	      sAse = log_sum_exp(ase[1:h2g[r]]);
 	
-	lmu[r] = lmuP[i]; // G = 0
-
-	lmu[r] = fabs(gNB[r])==1 ? lmu[r] + log1p(1+exp(bp))-log(2) : lmu[r];
-
-	lmu[r] = gNB[r]==2 ? lmu[r] + bp : lmu[r];
-
-	ltmp[r] = neg_binomial_2_lpmf(Y[i] | exp(lmu[r]), phi) + log(pNB[r]);
-
-	if (ASEi[i,1] == 1) {  // ASE info
-	
-	 for (x in 1:h2g[r]){  // look at the haps compatibles with Gi=g
-
-	   esum = inv_logit( bp);
-	  
-	   p= gase[posl]==1 ? esum : 0.5;
-	   p= gase[posl]==-1 ? 1-esum : p;  // haplotype swap
-	   
-	   ase[x] = beta_binomial_lpmf(n[posl] | m[ASEi[i,2]], p*theta, (1-p)*theta) + log(pH[posl]);
-
-	   posl += 1;
-	}
-	sAse = log_sum_exp(ase[1:h2g[r]]);
-	
-	target +=  log_sum_exp(ltmp[r] , sAse );
-	
-      }
+	      target +=  log_sum_exp(ltmp[r] , sAse );
 	
       }
+	
+    }
       if(ASEi[i,1] == 0){ // NO ASE, only NB terms for this ind
-	target += log_sum_exp(ltmp[pos:(pos+sNB[i]-1)]);
-      
+	      target += log_sum_exp(ltmp[pos:(pos+sNB[i]-1)]);
       }
 
       pos += sNB[i];
@@ -146,45 +145,37 @@ model {
     } else {
       for (r in pos:(pos+sNB[i]-1)){ //normal skin
 	
-	lmu[r] = lmuN[i]; // G = 0
+        lmu[r] = lmuN[i]; // G = 0
 
-	lmu[r] = fabs(gNB[r])==1 ? lmu[r] + log1p(1+exp(bn))-log(2) : lmu[r];
+        lmu[r] = fabs(gNB[r])==1 ? lmu[r] + log1p(1+exp(bn))-log(2) : lmu[r];
 
-	lmu[r] = gNB[r]==2 ? lmu[r] + bn : lmu[r];
+        lmu[r] = gNB[r]==2 ? lmu[r] + bn : lmu[r];
 
-	ltmp[r] = neg_binomial_2_lpmf(Y[i] | exp(lmu[r]), phi) + log(pNB[r]);
+        ltmp[r] = neg_binomial_2_lpmf(Y[i] | exp(lmu[r]), phi) + log(pNB[r]);
 
-	if (ASEi[i,1] == 1) {  // ASE info
-	  
-	  for (x in 1:h2g[r]){  // look at the haps compatibles with Gi=g
-	    
-	    esum = inv_logit(bn);
-	    
-	    p= gase[posl]==1 ? esum : 0.5;
-	    p= gase[posl]==-1 ? 1-esum : p;  // haplotype swap
-	    
-	    ase[x] = beta_binomial_lpmf(n[posl] | m[ASEi[i,2]], p*theta, (1-p)*theta) + log(pH[posl]);
-	    
-	    posl += 1;
-	  }
-	  	 
-	  sAse = log_sum_exp(ase[1:h2g[r]]);	 
-	  target +=  log_sum_exp(ltmp[r] , sAse );	  
-	
-	}
+        if (ASEi[i,1] == 1) {  // ASE info
+          
+          for (x in 1:h2g[r]){  // look at the haps compatibles with Gi=g
+            
+            esum = inv_logit(bn);
+            
+            p = gase[posl]==1 ? esum : 0.5;
+            p = gase[posl]==-1 ? 1-esum : p;  // haplotype swap
+            
+            ase[x] = beta_binomial_lpmf(n[posl] | m[ASEi[i,2]], p*theta, (1-p)*theta) + log(pH[posl]);
+            
+            posl += 1;
+          }
+          sAse = log_sum_exp(ase[1:h2g[r]]);	 
+          target +=  log_sum_exp(ltmp[r] , sAse );	   
+        }
       }
-      
       if(ASEi[i,1] == 0){ // NO ASE, only NB terms for this ind
-	target += log_sum_exp(ltmp[pos:(pos+sNB[i]-1)]);
+	      target += log_sum_exp(ltmp[pos:(pos+sNB[i]-1)]);
       }
-
-      pos += sNB[i];
-
-	
-      }
-       
+      pos += sNB[i];	
+    }       
   }
- 
 }
     
 

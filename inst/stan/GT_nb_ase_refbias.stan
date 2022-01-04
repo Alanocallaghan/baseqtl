@@ -27,8 +27,8 @@ data {
 parameters {
   vector[K] betas; // regression param
   real bj; // log fold change ASE
-  real<lower=0> phi; //overdipersion param for neg binom
-  real<lower=0> theta; //the overdispersion parameter for beta binomial
+  real<lower=1e-5> phi; //overdipersion param for neg binom
+  real<lower=1e-5> theta; //the overdispersion parameter for beta binomial
   vector[L] rai0; // random intercept AI
 }
 
@@ -42,54 +42,55 @@ model {
   vector[L] esum; // reduce computation inverse logit (rai0 + bj)
   vector[L] esum0; // allelic imbalance proportion under the null
   vector[k] lps; // help for mixed gaussians
+  vector[N] intercept = rep_vector(0, N); // the genetic effect
+  real l1pebj;
 
   // Priors
   theta ~ gamma(1,0.1); //  mean 10 
   phi ~ gamma(1,0.1);  // mean 10
 
   // mixture of gaussians for bj:
-  for(i in 1:k){
+  for(i in 1:k) {
     lps[i] = normal_lpdf(bj | aveP[i], sdP[i]) + mixP[i];
   }
   target += log_sum_exp(lps);
   
   // mean expression and covariates
-  betas[1] ~ normal(6,4); // stan normal is mean and sd
-  for(i in 2:K){
-    betas[i] ~ cauchy(0,2.5);//prior for the slopes following Gelman 2008   
+  betas[1] ~ normal(6, 4); // stan normal is mean and sd
+  for(i in 2:K) {
+    betas[i] ~ cauchy(0, 2.5);//prior for the slopes following Gelman 2008   
   }
-  for(i in 1:L) {
-     rai0[i] ~ normal(ai0[i], sdai0[i]);
-   }
+  rai0 ~ normal(ai0, sdai0);
 
   // Likelihood
   ebj=exp(bj); // avoid repeating same calculation
+  l1pebj = log1p(ebj) - log(2);
 
-  lmu = cov[,2:cols(cov)]*betas;
-  for(i in 1:N){ // neg binomial
-    lmu[i] = fabs(g[i])==1 ? lmu[i] + log1p(ebj)-log(2) : lmu[i];
-    lmu[i] = g[i]==2 ? lmu[i] + bj : lmu[i];
-    target += neg_binomial_2_lpmf(Y[i] | exp(lmu[i]),phi);
+  // Likelihood
+  for (i in 1:N) { // log1p(exp(b_j)) - log(2) if het or bj if hom
+    if (fabs(g[i]) == 1) {
+      intercept[i] = l1pebj;
+    }
+    if (g[i] == 2) {
+      intercept[i] = bj;
+    }
   }
-  
+  Y ~ neg_binomial_2_log_glm(cov[, 2:cols(cov)], intercept, betas, phi);
+
+
   pos = 1;
   esum = inv_logit(rai0 + bj);
   esum0 = inv_logit(rai0);
   
-  for(i in 1:A){ // ASE
-     for (r in pos:(pos+s[i]-1)){
+  for(i in 1:A) { // ASE
+    for (r in pos:(pos+s[i]-1)) {
        
-       p[r]= gase[i]==1 ? esum[r] : esum0[r];
-       p[r]= gase[i]==-1 ? 1-esum[r] : p[r];  // haplotype swap
+      p[r]= gase[i]==1 ? esum[r] : esum0[r];
+      p[r]= gase[i]==-1 ? 1-esum[r] : p[r];  // haplotype swap
        
-       ltmp[r]=beta_binomial_lpmf(n[r] | m[i], p[r]*theta , (1-p[r])*theta) + log(pH[r]);
-     }
-     target += log_sum_exp(ltmp[pos:(pos+s[i]-1)]);
-     pos=pos+s[i];
- 
+      ltmp[r]=beta_binomial_lpmf(n[r] | m[i], p[r]*theta , (1-p[r])*theta) + log(pH[r]);
+    }
+    target += log_sum_exp(ltmp[pos:(pos+s[i]-1)]);
+    pos=pos + s[i];
   }
 }
-
-
-
-
