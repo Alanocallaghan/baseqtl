@@ -39,7 +39,7 @@ baseqtl.gt.paired <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates =
                               min.ase = 5, min.ase.het = 5, tag.threshold = .9, out = ".", prefix = NULL,
                               model = c("both", "NB-ASE", "NB"), stan.model = NULL, stan.negonly = NULL,
                               prob = NULL, prior = NULL, ex.fsnp = NULL, AI_estimate = NULL,
-                              pretotalReads = 100, mc.cores = getOption("mc.cores", 1L),
+                              pretotalReads = 100, mc.cores = getOption("mc.cores", parallel::detectCores()),
                               inference.method = c("sampling", "vb")) {
 
   ## check for valid stan models

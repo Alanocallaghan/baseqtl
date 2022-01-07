@@ -17,7 +17,7 @@ parameters {
   vector[K] betas; // regression param
   real <lower=-10,upper=10> bj; // log fold change ASE
   // real bj; // log fold change ASE
-  real <lower=1e-5> phi; //overdipersion param for neg binom
+  real <lower=1e-5,upper=1e5> phi; //overdipersion param for neg binom
 }
 
 

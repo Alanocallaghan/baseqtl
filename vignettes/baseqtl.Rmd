@@ -109,13 +109,9 @@ AI_estimate <- system.file("extdata/input", "AI_estimate.GT.txt", package = "bas
 ```
 
 
-<<<<<<< HEAD
 ```{r, eval = FALSE}
-=======
-``` {r, eval=FALSE}
->>>>>>> 29a5ff89c1f287fcdd85364b9c64d995cc95d033
 ## Choose your output directory
-out <- "../baseqtl_output/"
+out <- "../baseqtl_output/GT"
 
 ## To minimise file sizes and computational load SNPs are within a 10^4 cis-window
 ## baseqtl is computational intense, it is recommended to be run with several cores
@@ -260,14 +256,15 @@ AI_estimate <- system.file("extdata/input", "AI_estimate.noGT.txt", package = "b
 
 ```{r, eval=FALSE}
 ## Choose your output directory
-out <- "path/to/output_dir"
+out <- "../baseqtl-output/noGT"
 
 ## To minimise file sizes and computational load SNPs are within a 10^4 cis-window
 ## baseqtl is computational intense, it is recommended to be run with several cores
 ## cores are automatically detected by R
 
 ## Run baseqtl.nogt:
-baseqtl.nogt(gene = "ENSG00000159958",
+baseqtl.nogt(
+    gene = "ENSG00000159958",
     chr = 22,
     snps = 10^4,
     counts.f = counts.f,
@@ -276,11 +273,12 @@ baseqtl.nogt(gene = "ENSG00000159958",
     u.esnps = u.snps,
     gene.coord = gene.coord,
     vcf = vcf,
-    sample.f=sample.f,
+    sample.f = sample.f,
     le.file = le.file,
     h.file = h.file,
     out = out,
-    AI_estimate = AI_estimate)
+    AI_estimate = AI_estimate
+)
 ```
 
 
@@ -354,28 +352,30 @@ AI_estimate = system.file("extdata/input", "AI_estimate.GT.txt", package = "base
 
 ```
 
-``` {r, eval=FALSE}
+```{r, eval=FALSE}
 ## Choose your output directory
-out <- "path/to/output_dir"
+out <- "../baseqtl-output/GT-paired"
 
 ## To minimise file sizes and computational load SNPs are within a 10^4 cis-window
 ## baseqtl is computational intense, it is recommended to be run with several cores
 ## cores are automatically detected by R
 
 ## Run baseqtl.gt.paired:
-baseqtl.gt.paired(gene = "ENSG00000159958",
-	   chr = 22,
-	   snps = 10^4,
-	   counts.f = counts.f,
-	   covariates = covariates,
-	   e.snps = e.snps,
-	   u.esnps = u.snps,
-	   gene.coord = gene.coord,
-	   vcf = vcf,
-	   le.file = le.file,
-	   h.file = h.file,
-	   out = out,
-	   AI_estimate = AI_estimate)
+baseqtl.gt.paired(
+    gene = "ENSG00000159958",
+    chr = 22,
+    snps = 10^4,
+    counts.f = counts.f,
+    covariates = covariates,
+    e.snps = e.snps,
+    u.esnps = u.snps,
+    gene.coord = gene.coord,
+    vcf = vcf,
+    le.file = le.file,
+    h.file = h.file,
+    out = out,
+    AI_estimate = AI_estimate
+)
 ```
 
 **Output files**
@@ -452,9 +452,9 @@ AI_estimate <- system.file("extdata/input", "AI_estimate.psoriasis.txt", package
 
 ```
 
-``` {r, eval=FALSE}
+```{r, eval=FALSE}
 ## Choose your output directory
-out <- "path/to/output_dir"
+out <- "../baseqtl-output"
 
 ## To minimise file sizes and computational load SNPs are within a 10^4 cis-window
 ## baseqtl is computational intense, it is recommended to be run with several cores
@@ -462,20 +462,21 @@ out <- "path/to/output_dir"
 
 ## Run baseqtl.n2Togt:
 baseqtl2T.nogt(gene = "ENSG00000178372",
-	   chr = 10,
-	   snps = 10^4,
-	   counts.f = counts.f,
-	   covariates = covariates,
-	   e.snps = e.snps,
-	   u.esnps = u.snps,
-	   gene.coord = gene.coord,
-	   vcf = vcf,
-	   sample.f=sample.f,
-	   le.file = le.file,
-	   h.file = h.file,
-	   out = out,
-	   treatment=c("Psoriasis_skin","normal_skin"),
-	   AI_estimate = AI_estimate)
+    chr = 10,
+    snps = 10^4,
+    counts.f = counts.f,
+    covariates = covariates,
+    e.snps = e.snps,
+    u.esnps = u.snps,
+    gene.coord = gene.coord,
+    vcf = vcf,
+    sample.f = sample.f,
+    le.file = le.file,
+    h.file = h.file,
+    out = out,
+    treatment = c("Psoriasis_skin", "normal_skin"),
+    AI_estimate = AI_estimate
+)
 ```
 
 

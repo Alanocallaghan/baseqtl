@@ -18,10 +18,10 @@ parameters {
   real apso; // mean expression pso tissues
   real ba; // log average-fold change ASE
   real bd; // log difference-fold change ASE
-  real<lower=1e-5> phi; //overdipersion param for neg binom
+  real<lower=1e-5,upper=1e5> phi; //overdipersion param for neg binom
   vector[K-1] betas; // regression parameters 
   vector[N] ui; //random term NB
-  real<lower=1e-5> sdnb; //sd for random term in nb
+  real<lower=1e-5,upper=1e5> sdnb; //sd for random term in nb
 }
 
 transformed parameters {

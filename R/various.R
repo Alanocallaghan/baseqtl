@@ -124,6 +124,9 @@ p.hap.pair.s <- function(h) {
 
 stan.bt <- function(x, y = "bj", rtag = NULL, model = "NB-ASE", nhets = NA, ASE.het = NA, gene, EAF = NULL, info = NULL, nfsnps = NULL, min.pval = NULL, probs = NULL) {
   ind.error <- sapply(x, class) == "try-error"
+  if (all(ind.error)) {
+    stop("No runs succeeded")
+  }
   if (any(ind.error)) {
     x_rep <- x[[which(!ind.error)[[1]]]]
     x_rep[] <- NA

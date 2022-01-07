@@ -41,11 +41,8 @@ baseqtl.nogt <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, a
                          info = 0.3, out = ".", prefix = NULL, model = NULL, model.negonly = NULL,
                          prob = NULL, prior = NULL, ex.fsnp = 0.01, AI_estimate = NULL,
                          pretotalReads = 100, save_input = FALSE,
-                         mc.cores = getOption("mc.cores", 1L), inference.method = c("sampling", "vb")) {
-  inference.method <- match.arg(inference.method)
-
+                         mc.cores = getOption("mc.cores", parallel::detectCores()), inference.method = "sampling") {
   ## check stan models
-
   if (is.null(model)) {
     ## check if ref panelbias correction
     if (is.null(AI_estimate)) {

@@ -39,7 +39,7 @@ baseqtl2T.nogt <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1,
                            maf = 0.05, min.ase = 5, min.ase.snp = 5, min.ase.n = 5, tag.threshold = .9,
                            info = 0.3, out = ".", prefix = NULL, model = NULL, prob = NULL,
                            prior = NULL, ex.fsnp = 0.01, AI_estimate = NULL, pretotalReads = 100,
-                           treatments, fishjoin = "joint", mc.cores = getOption("mc.cores", 1L),
+                           treatments, fishjoin = "joint", mc.cores = getOption("mc.cores", parallel::detectCores()),
                            inference.method = c("sampling", "vb")) {
   if (is.null(model)) {
     ## check if ref panelbias correction

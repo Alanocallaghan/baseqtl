@@ -201,7 +201,7 @@ aux.in2 <- function(gene, u.esnps, case, ex.fsnp = NULL, ai = NULL) {
 #' @return list with stan input
 #' aux.in3()
 
-aux.in3 <- function(gene, ai = NULL, case, rp.f, rp.r, f.ase, counts.g, covariates, min.ase = 5, min.ase.n = 5, info = 0.3, snps.ex, prefix = NULL, out = ".", save_input = FALSE, mc.cores = getOption("mc.cores", 1)) {
+aux.in3 <- function(gene, ai = NULL, case, rp.f, rp.r, f.ase, counts.g, covariates, min.ase = 5, min.ase.n = 5, info = 0.3, snps.ex, prefix = NULL, out = ".", save_input = FALSE, mc.cores = getOption("mc.cores", parallel::detectCores())) {
   stan.f <- fsnp.prep2(rp.f, f.ase, case, min.ase, min.ase.n, ai)
 
 

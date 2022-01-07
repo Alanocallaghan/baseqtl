@@ -1427,9 +1427,10 @@ add.prior <- function(prior, l) {
 #' @return matrix with stan summary
 #' run.stan()
 
-run.stan <- function(mod, data, pars, probs, inference.method = "sampling") {
+run.stan <- function(mod, data, pars, probs, tries = 5, inference.method = c("sampling", "vb", "optimizing")) {
   inference.method <- match.arg(inference.method)
-  backend <- match.arg(backend)
+  
+  # backend <- match.arg(backend)
   # if (backend == "cmdstanr") {
   #   model <- system.file(paste0("stan/", mod@model_name, ".stan"), package = "baseqtl")
   #   model <- cmdstanr::cmdstan_model(model)
@@ -1455,26 +1456,39 @@ run.stan <- function(mod, data, pars, probs, inference.method = "sampling") {
   #   ex <- lapply(pars, function(p) ex[, , p, drop = TRUE])
   # } else {
 
-  if (method == "optimizing") {
-    post <- rstan::optimizing(
-      mod,
-      data = data,
-      draws = 1000,
-      tol_obj = 1e-3,
-      tol_rel_obj = 1e-5,
-      tol_grad = 1e-10,
-      init = list(theta = 1, phi = 1)
-    )$theta_tilde
+  try <- 0
+  if (inference.method == "optimizing") {
+    while (try < tries) {
+      post <- try(
+        rstan::optimizing(
+          mod,
+          data = data,
+          draws = 1000,
+          tol_obj = 1e-3,
+          tol_rel_obj = 1e-5,
+          tol_grad = 1e-10,
+          init = list(theta = 1, phi = 1)
+        )$theta_tilde,
+        silent = TRUE
+      )
+      if (!inherits(post, "try-error")) break
+      try <- try + 1
+    }
+
     sum <- as.data.frame(posterior::summarise_draws(post, mean, sd, ~ quantile(.x, probs = probs)))
     rownames(sum) <- sum$variable
     sum$variable <- NULL
     sum <- sum[pars, ]
     ex <- as.list(as.data.frame(post[, pars]))
   } else {
-    if (method == "sampling") {
+    if (inference.method == "sampling") {
       post <- rstan::sampling(mod, data = data, cores = 1, refresh = 0, pars = pars)
     } else if (method == "vb") {
-      post <- rstan::vb(mod, data = data, refresh = 0, pars = pars)
+        while (try < tries) {
+          post <- try(rstan::vb(mod, data = data, refresh = 0, pars = pars), silent = TRUE)
+          if (!inherits(post, "try-error")) break
+          try <- try + 1
+        }
     }
     sum <- rstan::summary(post, pars = pars, use_cache = F, probs = probs)$summary
     ex <- rstan::extract(post, pars = pars)

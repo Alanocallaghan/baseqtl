@@ -37,13 +37,8 @@ parameters {
   vector[K] betas; // regression param
 
   real <lower=-20,upper=20> bj; // log fold change ASE
-  real<lower=1e-5> phi; //overdipersion param for neg binom
-  real<lower=1e-5> theta; //the overdispersion parameter for beta binomial
-
-  // real bj; // log fold change ASE
-  // real<lower=0> phi; //overdipersion param for neg binom
-  // real<lower=0> theta; //the overdispersion parameter for beta binomial
-
+  real<lower=1e-5,upper=1e5> phi; //overdipersion param for neg binom
+  real<lower=1e-5,upper=1e5> theta; //the overdispersion parameter for beta binomial
 }
 
 model {

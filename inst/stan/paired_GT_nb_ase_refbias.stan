@@ -43,8 +43,8 @@ parameters {
   real apso; // mean expression pso tissues
   real ba; // log average-fold change ASE
   real bd; // log difference-fold change ASE
-  real<lower=1e-5> phi; //overdipersion param for neg binom
-  real<lower=1e-5> theta; //the overdispersion parameter for beta binomial
+  real<lower=1e-5,upper=1e5> phi; //overdipersion param for neg binom
+  real<lower=1e-5,upper=1e5> theta; //the overdispersion parameter for beta binomial
   vector[K-1] betas; // regression parameters 
   matrix[L,2] rai0; // random intercept AI, easy way to access array columns 
   vector[N] ui; //random term NB
