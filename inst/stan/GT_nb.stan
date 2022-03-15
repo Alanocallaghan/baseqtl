@@ -35,17 +35,22 @@ model {
     betas[i] ~ cauchy(0, 2.5); //prior for the slopes following Gelman 2008   
   }
 
-  // mixture of gaussians for bj:
-  for(i in 1:k) {
-    lps[i] = normal_lpdf(bj | aveP[i], sdP[i]) + mixP[i];
-    // lps[i] = normal_lpdf(bj | aveP[i], sdP[i]);
+  if (k == 1) {
+    bj ~ normal(aveP, sdP);
+  } else {
+    // mixture of gaussians for bj:
+    for(i in 1:k) {
+      lps[i] = normal_lpdf(bj | aveP[i], sdP[i]) + mixP[i];
+      // lps[i] = normal_lpdf(bj | aveP[i], sdP[i]);
+    }
+    target += log_sum_exp(lps);
+    // suggestion from stan team discussions that one of these should be faster,
+    // but they don't seem to be right now
+    // target += log_sum_exp(lps + mixP);
+    // target += log_mix(expMixP, lps);
   }
-  target += log_sum_exp(lps);
-  // suggestion from stan team discussions that one of these should be faster,
-  // but they don't seem to be right now
-  // target += log_sum_exp(lps + mixP);
-  // target += log_mix(expMixP, lps);
   
+
   for (i in 1:N) { // log1p(exp(b_j)) - log(2) if het or bj if hom
     if (fabs(g[i]) == 1) {
       intercept[i] = l1pebj; // log1p(exp(b_afc)) - log(2) if he

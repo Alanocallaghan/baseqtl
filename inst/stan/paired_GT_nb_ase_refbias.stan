@@ -52,7 +52,7 @@ parameters {
   real<lower=1e-5> sdnb; //sd for random term in nb
   real<lower=1e-5> sdase; // sd for random ase term
   
-  }
+}
 
 transformed parameters {
   real bp; // parameter of interest for psoriasis
@@ -107,13 +107,20 @@ model {
   sdase ~ cauchy(0,1);
 
   // mixture of gaussians for ba and bd:
-  for(i in 1:k){
-    lpsa[i] = normal_lpdf(ba | aveP[i], sdP[i]) + mixP[i];
-    lpsd[i] = normal_lpdf(bd | aveP[i], sdP[i]) + mixP[i];
-  }
-  target += log_sum_exp(lpsa);
-  target += log_sum_exp(lpsd);
+  if (k == 1) {
+    ba ~ normal(aveP, sdP);
+    bd ~ normal(aveP, sdP);
+  } else {
 
+    // mixture of gaussians for bj:
+    for(i in 1:k) {
+      lpsa[i] = normal_lpdf(ba | aveP[i], sdP[i]) + mixP[i];
+      lpsd[i] = normal_lpdf(bd | aveP[i], sdP[i]) + mixP[i];
+    }
+    target += log_sum_exp(lpsa);
+    target += log_sum_exp(lpsd);
+  }
+  
   // transformed parameters of no interest
   pos = 1; // to advance on ASE terms
   /* ase = rep_vector(0,Max);  // initialize ase vector to 0s to collect ase termns for each hap pair compatible with Gi=g *\/ */

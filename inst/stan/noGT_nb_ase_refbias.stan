@@ -69,11 +69,15 @@ model {
     rai0[i] ~ normal(ai0[i], sdai0[i]);
   }
 
-  // mixture of gaussians for bj:
-  for(i in 1:k){
-    lps[i] = normal_lpdf(bj | aveP[i], sdP[i]) + mixP[i];
+  if (k == 1) {
+    bj ~ normal(aveP, sdP);
+  } else {
+    // mixture of gaussians for bj:
+    for(i in 1:k) {
+      lps[i] = normal_lpdf(bj | aveP[i], sdP[i]) + mixP[i];
+    }
+    target += log_sum_exp(lps);
   }
-  target += log_sum_exp(lps);
 
   // local variables and transformed parameters of no interest
   pos = 1;  // to advance on NB terms

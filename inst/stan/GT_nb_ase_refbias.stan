@@ -49,12 +49,16 @@ model {
   theta ~ gamma(1,0.1); //  mean 10 
   phi ~ gamma(1,0.1);  // mean 10
 
-  // mixture of gaussians for bj:
-  for(i in 1:k) {
-    lps[i] = normal_lpdf(bj | aveP[i], sdP[i]) + mixP[i];
+  if (k == 1) {
+    bj ~ normal(aveP, sdP);
+  } else {
+    // mixture of gaussians for bj:
+    for(i in 1:k) {
+      lps[i] = normal_lpdf(bj | aveP[i], sdP[i]) + mixP[i];
+    }
+    target += log_sum_exp(lps);
   }
-  target += log_sum_exp(lps);
-  
+
   // mean expression and covariates
   betas[1] ~ normal(6, 4); // stan normal is mean and sd
   for(i in 2:K) {

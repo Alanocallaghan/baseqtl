@@ -80,12 +80,19 @@ model {
   sdase ~ cauchy(0, 1);
 
   // mixture of gaussians for ba and bd:
-  for(i in 1:k){
-    lpsa[i] = normal_lpdf(ba | aveP[i], sdP[i]) + mixP[i];
-    lpsd[i] = normal_lpdf(bd | aveP[i], sdP[i]) + mixP[i];
+  if (k == 1) {
+    ba ~ normal(aveP, sdP);
+    bd ~ normal(aveP, sdP);
+  } else {
+
+    // mixture of gaussians for bj:
+    for(i in 1:k) {
+      lpsa[i] = normal_lpdf(ba | aveP[i], sdP[i]) + mixP[i];
+      lpsd[i] = normal_lpdf(bd | aveP[i], sdP[i]) + mixP[i];
+    }
+    target += log_sum_exp(lpsa);
+    target += log_sum_exp(lpsd);
   }
-  target += log_sum_exp(lpsa);
-  target += log_sum_exp(lpsd);
 
   // transformed parameters of no interest
   pos = 1; // to advance on ASE terms

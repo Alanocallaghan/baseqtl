@@ -64,12 +64,17 @@ model {
   for(i in 2:K) {
     betas[i] ~ cauchy(0, 2.5);//prior for the slopes following Gelman 2008   
   }
-  // mixture of gaussians for bj:
-  for(i in 1:k) {
-    lps[i] = normal_lpdf(bj | aveP[i], sdP[i]) + mixP[i];
+
+  if (k == 1) {
+    bj ~ normal(aveP, sdP);
+  } else {
+    // mixture of gaussians for bj:
+    for(i in 1:k) {
+      lps[i] = normal_lpdf(bj | aveP[i], sdP[i]) + mixP[i];
+    }
+    target += log_sum_exp(lps);
   }
-  target += log_sum_exp(lps);
- 
+
   // transformed parameters of no interest
   pos = 1;
   posl = 1; // to advance on ASE terms

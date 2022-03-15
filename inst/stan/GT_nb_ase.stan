@@ -51,12 +51,16 @@ model {
   theta ~ gamma(1,0.1); //  mean 10 
   phi ~ gamma(1,0.1);  // mean 10
 
-  // mixture of gaussians for bj:
-  for(i in 1:k) {
-    lps[i] = normal_lpdf(bj | aveP[i], sdP[i]) + mixP[i];
+  if (k == 1) {
+    bj ~ normal(aveP, sdP);
+  } else {
+    // mixture of gaussians for bj:
+    for(i in 1:k) {
+      lps[i] = normal_lpdf(bj | aveP[i], sdP[i]) + mixP[i];
+    }
+    target += log_sum_exp(lps);
   }
-  target += log_sum_exp(lps);
-  
+
   // mean expression and covariates
   betas[1] ~ normal(6, 4); // stan normal is mean and sd
   for(i in 2:K) {
@@ -82,12 +86,12 @@ model {
   for(i in 1:A) { // ASE
     for (r in pos:(pos+s[i]-1)) {
       
-      p[r] = gase[i]==1 ? esum[r] : esum0[r];
-      p[r] = gase[i]==-1 ? 1-esum[r] : p[r];  // haplotype swap
+      p[r] = gase[i]== 1 ? esum[r] : esum0[r];
+      p[r] = gase[i]== -1 ? 1-esum[r] : p[r];  // haplotype swap
       
       ltmp[r]=beta_binomial_lpmf(n[r] | m[i], p[r] * theta, (1 - p[r]) * theta) + logpH[r];
     }
     target += log_sum_exp(ltmp[pos:(pos+s[i]-1)]);
-    pos=pos + s[i];
+    pos += s[i];
   }
 }
