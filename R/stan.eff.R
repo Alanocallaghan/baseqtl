@@ -1429,33 +1429,6 @@ add.prior <- function(prior, l) {
 
 run.stan <- function(mod, data, pars, probs, tries = 5, inference.method = c("sampling", "vb", "optimizing")) {
   inference.method <- match.arg(inference.method)
-  
-  # backend <- match.arg(backend)
-  # if (backend == "cmdstanr") {
-  #   model <- system.file(paste0("stan/", mod@model_name, ".stan"), package = "baseqtl")
-  #   model <- cmdstanr::cmdstan_model(model)
-  #   if (inference.method == "sampling") {
-  #     fit <- model$sample(data = data, chains = 1, refresh = 0)
-  #   } else {
-  #     fit <- model$variational(data = data)
-  #   }
-  #   sum <- fit$summary(variables = pars,
-  #     mean = mean,
-  #     se_mean = posterior::mcse_mean,
-  #     sd = sd,
-  #     rhat = posterior::rhat,
-  #     ess_bulk = posterior::ess_bulk,
-  #     ess_tail = posterior::ess_tail,
-  #     ~quantile(.x, probs = probs)
-  #   )
-  #   colnames(sum) <- gsub("`", "", colnames(sum))
-  #   sum <- as.data.frame(sum)
-  #   rownames(sum) <- sum$variable
-  #   sum$variable <- NULL
-  #   ex <- fit$draws(variables = pars)
-  #   ex <- lapply(pars, function(p) ex[, , p, drop = TRUE])
-  # } else {
-
   try <- 0
   if (inference.method == "optimizing") {
     while (try < tries) {
@@ -1483,9 +1456,24 @@ run.stan <- function(mod, data, pars, probs, tries = 5, inference.method = c("sa
   } else {
     if (inference.method == "sampling") {
       post <- rstan::sampling(mod, data = data, cores = 1, refresh = 0, pars = pars)
-    } else if (method == "vb") {
+    } else if (inference.method == "vb") {
         while (try < tries) {
-          post <- try(rstan::vb(mod, data = data, refresh = 0, pars = pars), silent = TRUE)
+          capture.output(
+            post <- try({
+                rstan::vb(
+                  mod, data = data, refresh = 0, pars = pars,
+                  iter = 20000,
+                  tol_rel_obj = 1e-3
+                  # ,
+                  # eval_elbo = 50
+                  # ,
+                  # grad_samples = 10,
+                  # elbo_samples = 500
+                )
+              },
+              silent = TRUE
+            )
+          )
           if (!inherits(post, "try-error")) break
           try <- try + 1
         }

@@ -106,13 +106,11 @@ baseqtl.gt <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, add
 
 
     message("Running NB_ASE model")
-    browser()
     stan.full <- parallel::mclapply(stan.in2,
       function(i) {
         s <- run.stan(stan.model, data = i, pars = "bj", probs = probs, inference.method = inference.method)
         return(s)
-      },
-      mc.cores = mc.cores
+      }, mc.cores = mc.cores
     )
     names(stan.full) <- names(stan.in2)
     full.sum <- stan.bt(x = stan.full, y = NULL, rtag = r.tag, model = "NB-ASE", nhets = nhets, ASE.het = ASE.hets, gene = gene, EAF = eaf.t, nfsnps = nfsnps, probs = probs)
