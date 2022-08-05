@@ -32,7 +32,7 @@ baseqtl2Tnogt.in(
   prob = NULL,
   AI_estimate = NULL,
   pretotalReads = 100,
-  skin,
+  treatments,
   fishjoin = "joint"
 )
 }
@@ -43,9 +43,9 @@ baseqtl2Tnogt.in(
 
 \item{snps}{either cis-window or character vector with pos:ref:alt allele for each snp, defaults to cis-window}
 
-\item{counts.f}{path to files with filtered counts: rows genes, first col gene_id followed by samples, prepared in inputs.R}
+\item{counts.f}{path to file with filtered counts: rows genes, first col gene_id followed by samples, prepared in inputs.R}
 
-\item{covariates}{path to matrixes of covariates prepared in inputs.R. If using gc correction (each gene diffrent value), the matrix has rownames= genes and cols=samples plus extra columns if other covariates are added. If only using lib size or gene independent covariates, rows are samples and columns are covariates. If no covariates, covariates =1, default}
+\item{covariates}{path to matrix of covariates prepared in inputs.R. If using gc correction (each gene different value), the matrix has rownames= genes and cols=samples plus extra columns if other covariates are added. If only using lib size or gene independent covariates, rows are samples and columns are covariates. If no covariates, covariates =1, default}
 
 \item{additional_cov}{full name to file with first column sample names and additional columns gene independent covariates, defaults to NULL}
 
@@ -55,7 +55,7 @@ baseqtl2Tnogt.in(
 
 \item{gene.coord}{path to file listing gene coordinates and exons, prepared in input.R}
 
-\item{vcf}{path to vcfs file with ASE and GT for the exonic snps for the chromosome where the gene is}
+\item{vcf}{path to vcf file with ASE and GT for the chromosome where the gene is}
 
 \item{sample.file}{sample file for the reference panel (sample description), to be used if ex.fsnp test is required and populatios is not the whole reference panel}
 
@@ -63,41 +63,40 @@ baseqtl2Tnogt.in(
 
 \item{h.file}{path to gz haplotpe file for the chromosome of interest for the reference panel (haplotypes for all samples in reference panel)}
 
-\item{population}{ethnicity to set a cut-off for maf: AFR AMR EAS EUR SAS ALL, defaults to EUR}
+\item{population}{ethnicity to get EAF for rsnp: AFR AMR EAS EUR SAS ALL, defaults to EUR. It is also used to exclude fSNPs if frequency is different from reference panel when using no GT and selecting ex.fsnps argument, except if population=ALL}
 
 \item{maf}{cut-off for maf, defaults to 0.05}
 
-\item{min.ase}{minimun number of ASE counts for an individual in order to be included, defaults to 5}
+\item{min.ase}{minimum number of ASE counts for an individual in order to be included, defaults to 5}
 
-\item{min.ase.snp}{minum number of ASE counts for a single snp to be considered, for a particular individual}
+\item{min.ase.snp}{minimum number of ASE counts for a single snp to be considered, for a particular individual}
 
-\item{min.ase.n}{minimun number individuals with the minimun of ASE counts, defaults to 5.}
+\item{min.ase.n}{minimum number individuals with the minimum of ASE counts, defaults to 5.}
 
 \item{tag.threshold}{numeric with r2 threshold (0-1) for grouping snps to reduce the number of running tests, to disable use "no"}
 
 \item{info}{numeric cut-off for var(E(G))/var(G), var(E(G)) is the expected variance for input and var(G) for reference panel, similar to info score in impute2, defaults to 0.3. rsnps with lower info wont be run by stan.}
 
-\item{out}{path to save outputs, default to current}
+\item{out}{path to save outputs, default to current directory}
 
-\item{prefix}{optional prefix for saving files, if NULL gene_id will be used}
+\item{prefix}{optional prefix for saving tables, if NULL gene_id will be used}
 
-\item{prior}{named list: mean= vector with the mean of Gaussians, sd= vector with Gaussians sd for eQTL effect prior, mix=vector with mixing proportions. Defaults to NULL, mixture of 3 components with mean (0,0,0) ;sd  c( 0.0436992,  0.3492696, 0.4920049); and mixing proportions  c(0.9478807,0.05142192, 0.0006974015).}
+\item{prior}{named list: mean= vector with the mean of Gaussians, sd= vector with Gaussians sd for eQTL effect prior, mix=vector with mixing proportions. Defaults to NULL, mixture of 2 components with mean (0,0); sd  c( 0.0309, 0.3479); and mixing proportions  c(0.97359164, 0.02640836).}
 
-\item{ex.fsnp, }{if character: vector with pos:ref:alt for fsnps to exclude, if numeric  p-value cut-off for fSNPs to exclude,  if  NULL none of the fsnps is excluded. Defaults to 0.01.}
+\item{ex.fsnp}{character vector with pos:ref:alt for fsnps to exclude,  defaults to NULL which corresponds to no exclusions}
 
-\item{prob}{number p∈(0,1) indicating the desired probability mass to include in the intervals, defaults includes 0.99 and 0.95}
+\item{prob}{number p∈(0,1) indicating the desired probability mass to include in the intervals, defaults to 0.99 and 0.95 quantiles}
 
 \item{AI_estimate}{full name to data table with AI estimates for reference panel bias for fSNPs, defaults to NULL}
 
 \item{pretotalReads}{numeric indicating a cut-off for total initial reads to consider AI estimates, defaults to 100}
 
-\item{skin}{character vector with the 2 Tissues to study}
+\item{treatments}{character vector with the 2 treatments (tissues, diseases) to study, sam order as counts.f, covariates and vcf}
 
-\item{fishjoin}{whether to run Fisher test jointly in all samples or by skin, defaults to joint. For QC purposes for comparing with 1T model set to NULL (by treatment)}
+\item{fishjoin}{whether to run Fisher test jointly in all samples or by treatment, defaults to jointly but  for QC purposes, to use the same fSNPs in ech treatment as the ones used  when the treatments were run using independent models select  NULL}
 }
 \value{
 list with 1)c.ase and 2)stan.noGT object
-baseqtl2Tnogt.in()
 }
 \description{
 This function allows you to get inputs for baseqtl for one gene and multiple pre-selected snps.

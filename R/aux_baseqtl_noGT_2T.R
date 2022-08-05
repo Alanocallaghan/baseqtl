@@ -230,40 +230,11 @@ aux.in <- function(gene, ai = NULL, case, rp.f, rp.r, f.ase, counts.g, covariate
 #' Prepare inputs for baseqtl with 2 treatments in different samples  with unknown rsnp GT and missing values for GT fsnps with optional reference panel bias correction
 #'
 #' This function allows you to get inputs for baseqtl for one gene and multiple pre-selected snps.
-#' @param gene gene id for the gene to run
-#' @param chr chromosome where the gene is, example chr=22
-#' @param snps either cis-window or character vector with pos:ref:alt allele for each snp, defaults to cis-window
-#' @param counts.f path to files with filtered counts: rows genes, first col gene_id followed by samples, prepared in inputs.R
-#' @param covariates path to matrixes of covariates prepared in inputs.R. If using gc correction (each gene diffrent value), the matrix has rownames= genes and cols=samples plus extra columns if other covariates are added. If only using lib size or gene independent covariates, rows are samples and columns are covariates. If no covariates, covariates =1, default
-#' @param additional_cov full name to file with first column sample names and additional columns gene independent covariates, defaults to NULL
-#' @param e.snps path to file listing exonic snps for the chromosome where the gene is, prepared in input.R
-#' @param u.esnps whether to use unique exonic snps per gene, defaults to NULL when it is not necessary if strand info is known
-#' @param gene.coord path to file listing gene coordinates and exons, prepared in input.R
-#' @param vcf path to vcfs file with ASE and GT for the exonic snps for the chromosome where the gene is
-#' @param sample.file sample file for the reference panel (sample description), to be used if ex.fsnp test is required and populatios is not the whole reference panel
-#' @param le.file path to gz legend file (legend.gz) for the chromosome of interest for the reference panel (snp description)
-#' @param h.file path to gz haplotpe file for the chromosome of interest for the reference panel (haplotypes for all samples in reference panel)
-#' @param population ethnicity to set a cut-off for maf: AFR AMR EAS EUR SAS ALL, defaults to EUR
-#' @param maf cut-off for maf, defaults to 0.05
-#' @param min.ase minimun number of ASE counts for an individual in order to be included, defaults to 5
-#' @param min.ase.snp minum number of ASE counts for a single snp to be considered, for a particular individual
-#' @param min.ase.n minimun number individuals with the minimun of ASE counts, defaults to 5.
-#' @param tag.threshold numeric with r2 threshold (0-1) for grouping snps to reduce the number of running tests, to disable use "no"
-#' @param info numeric cut-off for var(E(G))/var(G), var(E(G)) is the expected variance for input and var(G) for reference panel, similar to info score in impute2, defaults to 0.3. rsnps with lower info wont be run by stan.
-#' @param out path to save outputs, default to current
-#' @param prefix optional prefix for saving files, if NULL gene_id will be used
-#' @param prior named list: mean= vector with the mean of Gaussians, sd= vector with Gaussians sd for eQTL effect prior, mix=vector with mixing proportions. Defaults to NULL, mixture of 3 components with mean (0,0,0) ;sd  c( 0.0436992,  0.3492696, 0.4920049); and mixing proportions  c(0.9478807,0.05142192, 0.0006974015).
-#' @param ex.fsnp, if character: vector with pos:ref:alt for fsnps to exclude, if numeric  p-value cut-off for fSNPs to exclude,  if  NULL none of the fsnps is excluded. Defaults to 0.01.
-#' @param prob  number p∈(0,1) indicating the desired probability mass to include in the intervals, defaults includes 0.99 and 0.95
-#' @param AI_estimate full name to data table with AI estimates for reference panel bias for fSNPs, defaults to NULL
-#' @param pretotalReads numeric indicating a cut-off for total initial reads to consider AI estimates, defaults to 100
-#' @param skin character vector with the 2 Tissues to study
-#' @param fishjoin whether to run Fisher test jointly in all samples or by skin, defaults to joint. For QC purposes for comparing with 1T model set to NULL (by treatment)
+#' @inheritParams baseqtl2T.nogt
 #' @export
 #' @return list with 1)c.ase and 2)stan.noGT object
-#' baseqtl2Tnogt.in()
 
-baseqtl2Tnogt.in <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, additional_cov = NULL, e.snps, u.esnps = NULL, gene.coord, vcf, sample.file = NULL, le.file, h.file, population = c("EUR", "AFR", "AMR", "EAS", "SAS", "ALL"), maf = 0.05, min.ase = 5, min.ase.snp = 5, min.ase.n = 5, tag.threshold = .9, info = 0.3, out = ".", prefix = NULL, prior = NULL, ex.fsnp = 0.01, prob = NULL, AI_estimate = NULL, pretotalReads = 100, skin, fishjoin = "joint") {
+baseqtl2Tnogt.in <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, additional_cov = NULL, e.snps, u.esnps = NULL, gene.coord, vcf, sample.file = NULL, le.file, h.file, population = c("EUR", "AFR", "AMR", "EAS", "SAS", "ALL"), maf = 0.05, min.ase = 5, min.ase.snp = 5, min.ase.n = 5, tag.threshold = .9, info = 0.3, out = ".", prefix = NULL, prior = NULL, ex.fsnp = 0.01, prob = NULL, AI_estimate = NULL, pretotalReads = 100, treatments, fishjoin = "joint") {
 
   ## check inputs and extract inputs for gene
 
@@ -334,7 +305,7 @@ baseqtl2Tnogt.in <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 
   }
 
 
-  names(ingene) <- skin
+  names(ingene) <- treatments
 
   ## get inputs for counts, covariates and probs to use later
   counts.g <- lapply(ingene, function(i) i$counts)
@@ -375,9 +346,9 @@ baseqtl2Tnogt.in <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 
 
   ## get fsnps and extract GT and ASE, remove non-informative snps (missing or hom in all samples)
   fsnps.window <- c(min(fsnps$V2), max(fsnps$V2))
-  ## get by skin
+  ## get by treatments
   gt.as <- lapply(vcf, function(i) vcf_w(i, chr, st = fsnps.window[1], end = fsnps.window[2], exclude = "yes"))
-  names(gt.as) <- skin
+  names(gt.as) <- treatments
 
   if (any(sapply(gt.as, is.character))) stop(gt.as[sapply(gt.as, is.character)])
 
@@ -473,7 +444,7 @@ baseqtl2Tnogt.in <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 
   rp.f <- rp[rownames(rp) %in% unique(unlist(lapply(f.ase, function(i) i$id))), , drop = FALSE] ## exonic snps to work with
 
 
-  ## Compute Fisher test, either jointly or by skin
+  ## Compute Fisher test, either jointly or by treatments
 
   if (!is.null(ex.fsnp)) {
     if (is.numeric(ex.fsnp)) {
@@ -640,7 +611,7 @@ baseqtl2Tnogt.in <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 
           message("Preparing stan inputs")
           ## ai <- if(is.null(AI_estimate)) NULL else ai[id %in% f.ase$id,.(id,  NREF_post, NALT_post, Total_post, AI_post)]
           if (!is.null(ai)) {
-            ## make all inputs with the same fSNPS, by skin
+            ## make all inputs with the same fSNPS, by treatments
             ai <- lapply(f.ase, function(i) ai[id %in% i$id, .(id, NREF_post, NALT_post, Total_post, AI_post)])
             c.ase <- mapply(function(a, b) a[, unlist(lapply(b$id, function(i) grep(i, colnames(a), value = T)))],
               a = c.ase,
