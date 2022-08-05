@@ -24,13 +24,50 @@
 #' @param model  whether to run NB-ASE (full model negative binomial and allele specific counts),NB (negative binomial only) or both (NB-ASE and NB for those associations with no ASE information)
 #' @param stan.model compiled stanmodel object with stan model, defaults NULL to use  built-in NB-ASE model. When AI_estimate argument (below) is provided the model corrects for reference panel bias, otherwise it doesn't.
 #' @param stan.negonly compiled stanmodel object with neg only side, deafults to NULL to use built-in model.
-#' @param prob  number p∈(0,1) indicating the desired probability mass to include in the intervals, defaults to 0.99 -0.95 quantiles
+#' @param prob  number p∈(0,1) indicating the desired probability mass to include in the intervals, defaults to 0.99,0.95 quantiles
 #' @param prior named list: mean= vector with the mean of Gaussians, sd= vector with Gaussians sd for eQTL effect prior, mix=vector with mixing proportions. Defaults to NULL, mixture of 2 components with mean (0,0); sd  c( 0.0309, 0.3479); and mixing proportions  c(0.97359164, 0.02640836).
 #' @param ex.fsnp, character vector with pos:ref:alt for fsnps to exclude,  defaults to NULL which corresponds to no exclusions
 #' @param AI_estimate full name to data table with AI estimates for reference panel bias for fSNPs, defaults to NULL with no correction
 #' @param pretotalReads numeric indicating a cut-off for total initial reads to consider AI estimates, defaults to 100
-#' @export
+#' @param inference.method The inference method to use with Stan. Options are \code{c("sampling", "vb", "optimizing")}
+#' @param snps.list A list of SNPs to restrict the number of tests performed. Useful for screening a specific subset of SNPs.
+#' @param screen.method The method to used to perform screening with approximate inference.
+#' @param screen.prob The probability threshold to use for screening with approximate inference.
+#' @param mc.cores The number of parallel cores to use when performing tests.
+#' 
+#' @examples
+#' ## example inputs saved in package directory
+#' counts.f <- system.file("extdata/input", "counts.txt", package = "baseqtl", mustWork = TRUE)
+#' covariates <- system.file("extdata/input", "lbsize_gc.rds", package = "baseqtl", mustWork = TRUE)
+#' e.snps <- system.file("extdata/input", "chr22.fSNPS.ENSG00000159958.txt", package = "baseqtl", mustWork = TRUE)
+#' u.snps <- system.file("extdata/input", "chr22.unique.fSNPS.ENSG00000159958.txt", package = "baseqtl", mustWork = TRUE)
+#' gene.coord <- system.file("extdata/input", "ENSG00000159958_data.txt", package = "baseqtl", mustWork = TRUE)
+#' vcf <- system.file("extdata/input", "chr22GT.86GEU.vcf.gz", package = "baseqtl", mustWork = TRUE)
+#' le.file <- system.file("extdata/input", "1000GP_Phase3_subset_chr22.legend.gz", package = "baseqtl", mustWork = TRUE)
+#' h.file <- system.file("extdata/input", "1000GP_Phase3_subset_chr22.hap.gz", package = "baseqtl", mustWork = TRUE)
+#' AI_estimate <- system.file("extdata/input", "AI_estimate.GT.txt", package = "baseqtl", mustWork = TRUE)
+#' 
+#' ## output dir
+#' out <- tempdir()
+#' 
+#' baseqtl.gt(
+#'     gene = "ENSG00000159958",
+#'     chr = 22,
+#'     snps = 10^4,
+#'     counts.f = counts.f,
+#'     covariates = covariates,
+#'     e.snps = e.snps,
+#'     u.esnps = u.snps,
+#'     gene.coord = gene.coord,
+#'     vcf = vcf,
+#'     le.file = le.file,
+#'     h.file = h.file,
+#'     out = out,
+#'     AI_estimate = AI_estimate
+#' )
+#' 
 #' @return Saves the summary table in "out" dir as /out/prefix.main.txt. When using tags, saves /out/prefix.tags.lookup.txt. Saves a table of excluded rsnps from model.
+#' @export
 
 baseqtl.gt <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, additional_cov = NULL,
                        e.snps, u.esnps = NULL, gene.coord, vcf, le.file, h.file,
@@ -39,8 +76,25 @@ baseqtl.gt <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, add
                        model = c("both", "NB-ASE", "NB"), stan.model = NULL, stan.negonly = NULL,
                        prob = NULL, prior = NULL, ex.fsnp = NULL, AI_estimate = NULL,
                        pretotalReads = 100, inference.method = "sampling",
+                       snps.list = NULL,
+                       screen.method = NULL, screen.prob = 0.5,
                        # backend = c("rstan", "cmdstanr"),
                        mc.cores = getOption("mc.cores", parallel::detectCores())) {
+
+  if (!is.null(screen.method)) {
+    screen.method <- match.arg(screen.method, choices = "vb")
+    call <- match.call()
+    call[["inference.method"]] <- call[["screen.method"]]
+    call[["screen.method"]] <- NULL
+    call[["prob"]] <- screen.prob
+    screen.results <- eval(call, parent.frame())
+    sig <- screen.results[[sprintf("null.%s", screen.prob)]] == "no"
+    # assocs.test <- screen.results[sig, c("Gene_id", "tag")]
+    # snps.list <- screen.results[sig, c("Gene_id", "tag")]
+    snps.list <- screen.results[["tag"]][sig]
+  } else {
+    screen.results <- NULL
+  }
   ## check for valid stan models
   if (is.null(stan.model)) {
     ## check if ref panelbias correction
@@ -94,6 +148,15 @@ baseqtl.gt <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, add
 
   if (is.character(base.in)) stop(base.in)
 
+  if (!is.null(snps.list) & length(snps.list)) {
+    nbase.snps <- names(base.in$nbase$stanIn)
+    nb.snps <- names(base.in$nbase$neg)
+    if (!all(snps.list) %in% c(nbase.snps, nb.snps)) {
+      stop("snp.list must be a list of SNPs that could be tested.")
+    }
+    base.in$nbase$stanIn <- base.in$nbase$stanIn[intersect(snps.list, nbase.snps)]
+    base.in$nbase$neg <- base.in$nbase$neg[intersect(snps.list, nb.snps)]
+  }
   ## get inputs
   if (any(names(base.in) == "nbase")) { ## proceed with full model
     stan.in2 <- base.in$nbase$stanIn
@@ -103,7 +166,7 @@ baseqtl.gt <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, add
     nhets <- base.in$nbase$nhets
     nfsnps <- base.in$nbase$nfsnps
     r.tag <- base.in$nbase$r.tag
-
+    
 
     message("Running NB_ASE model")
     stan.full <- parallel::mclapply(stan.in2,
@@ -142,7 +205,10 @@ baseqtl.gt <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, add
 
   if ((exists("full.sum") & exists("neg.sum")) | exists("neg.sum")) {
     if (exists("full.sum")) {
-      neg.sum <- rbind(full.sum, neg.sum, fill = TRUE)
+      neg.sum <- rbind(full.sum, neg.sum, screen.results, fill = TRUE)
+    }
+    if (!is.null(screen.results)) {
+      neg.sum$test.type <- c(rep("full", nrow(neg.sum) - nrow(screen.results)), rep("screen", nrow(screen.results)))
     }
 
     if (!is.null(prefix)) {
@@ -152,6 +218,11 @@ baseqtl.gt <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, add
     }
   }
   if (exists("full.sum") & !exists("neg.sum")) {
+    if (!is.null(screen.results)) {
+      full.sum <- rbind(full.sum, screen.results, fill = TRUE)
+      full.sum$test.type <- c(rep("full", nrow(full.sum) - nrow(screen.results)), rep("screen", nrow(screen.results)))
+    }
+
     if (!is.null(prefix)) {
       write.table(full.sum, paste0(out, "/", prefix, ".GT.stan.summary.txt"), row.names = FALSE)
     } else {

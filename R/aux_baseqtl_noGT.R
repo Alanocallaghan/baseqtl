@@ -79,7 +79,7 @@ aux.in1 <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, additi
   }
 
   ## set default quantile for stan posterior to get 99 and 95 CI
-  probs <- if (is.null(prob)) c(0.005, 0.025, 0.25, 0.50, 0.75, 0.975, 0.995) else c((1 - prob) / 2, 0.25, 0.5, 0.75, (1 + prob) / 2)
+  probs <- if (is.null(prob)) c(0.005, 0.025, 0.25, 0.50, 0.75, 0.975, 0.995) else unique(c((1 - prob) / 2, 0.25, 0.5, 0.75, (1 + prob) / 2))
 
   ## Extract inputs for gene
 
@@ -197,6 +197,7 @@ aux.in2 <- function(gene, u.esnps, case, ex.fsnp = NULL, ai = NULL) {
 #' @param prefix character with prefix to add for saving files, defaults to NULL
 #' @param out path to save outputs, default to current directory
 #' @param save_input whether to save input to stan model for QC purposes, defaults to FALSE to save disk space. Object ending with "noGT.stan.input.rds" is a named list with each element the inputs for a cis-SNP. For each cis-SNP there is a list of 2 elements: "NB" and "ase". "NB" is a list with elements "counts" and "p.g". "Counts" is a data.table with columns sample names and one row corresponding to the gene, values total read counts. "p.g" is a named list with each element a sample. For each sample there is an array with names genotypes (0,1,2) and values the genotype probabilities. For the "ase" list they are for elements: "m" numeric vector with  total ASE counts per sample. "g" list with each element a sample and for each sample the genoptype of the cis SNP coded as 0,1,2 and -1, with -1 indicating that the alternative allele is in haplotype 1. "p" has the same structure as "g" and indicates the probability for each genotype. "n"  is similar to "g" and "p" but contains the mapped reads to haplotype 2. The file ending with "noGT.fsnps.counts.rds is a matrix with rows samples and columns fSNPS. When a fSNPs ends with ".n" correspond to the counts matching the alternative allele and ".m" indicates the total counts matching the SNP.
+#' @param mc.cores The number of parallel cores to use.
 #' @export
 #' @return list with stan input
 #' aux.in3()
