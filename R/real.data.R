@@ -225,9 +225,8 @@ vcf.gt.qc <- function(gt.ase, exclude = c("snps", "samples"), vcf.path, path = "
 #' @keywords command line bcftools query cis window
 #' @export
 #' @return vector with start and end of cis-window for the selected gene
-#' cl_coord()
 
-cl_coord <- function(file, chr, chrCol = 2, gene, stCol = 4, endCol = 5, cw = 500000) {
+cl_coord <- function(file, chr, gene, cw = 500000) {
 
   ## cat(x) check if command looks ok then run with system, copy cat(x) output to shell and check if it works
 
@@ -385,11 +384,10 @@ tot.ase_counts <- function(x, y = NULL, z = NULL) {
 #' Recode GT from (0,1,-1,2) scale  to GUESSFM scale 0 M, 1 hom ref, 2 het, 3 hom alt
 #'
 #' This function allows you to recode GT for input in tag function from GUESSFM
-#' @param DT1 data table GT coded in trecase scale, rows SNPS, cols samples plus additionals
+#' @param DT data table GT coded in trecase scale, rows SNPS, cols samples plus additionals
 #' @keywords recode GUESSFM
 #' @export
 #' @return matrix with rows samples and cols SNPS
-#' rec.guess()
 
 rec.guess <- function(DT) {
   M <- t(as.matrix(DT[, grep("_GT", names(DT), value = T), with = F]))
@@ -689,13 +687,12 @@ info.cut <- function(stan.noGT, rp.r, info) {
 #' Test of proportions for fsnps
 #'
 #' This function tests equality of the proportion of hets for fsnps in 2 populations, sample and reference panel
-#' @param DT data table with fsnps and GT for samples (f.ase), cols for GT must end with "_GT"
-#' @param matrix with rownames fsnps and col haplotypes of fsnps
+#' @param f.ase data table with fsnps and GT for samples (f.ase), cols for GT must end with "_GT"
+#' @param rp.f with rownames fsnps and col haplotypes of fsnps
 #' @param gene character with gene_id
 #' @keywords test hets proportion
 #' @export
 #' @return matrix with rownames fsnps and colnames OR (odds ratio) and pvalue for Fisher's exact test
-#' prop_het ()
 
 prop_het <- function(f.ase, rp.f, gene) {
   ## get sample GT, count hets and totals

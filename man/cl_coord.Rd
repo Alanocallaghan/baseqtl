@@ -4,7 +4,7 @@
 \alias{cl_coord}
 \title{get start and end of cis-window per gene to make a bcftools query from a vcf file}
 \usage{
-cl_coord(file, chr, chrCol = 2, gene, stCol = 4, endCol = 5, cw = 5e+05)
+cl_coord(file, chr, gene, cw = 5e+05)
 }
 \arguments{
 \item{file}{full path to file with gene coordinates, as prepared in inputs.R}
@@ -17,7 +17,6 @@ cl_coord(file, chr, chrCol = 2, gene, stCol = 4, endCol = 5, cw = 5e+05)
 }
 \value{
 vector with start and end of cis-window for the selected gene
-cl_coord()
 }
 \description{
 This function allows you to write the command to extract GT and ASE for a region of a vcf

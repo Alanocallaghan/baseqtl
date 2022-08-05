@@ -1,40 +1,19 @@
 #' Run BaseQTL with known rsnp GT, optional refbias correction
 #'
 #' This function allows you to run BaseQTL for one gene and multiple pre-selected snps. When there is no enough information to ASE counts or rSNP is not in the reference panel, the function will run bayesian negative binomial model only.
-#' @param gene gene id for the gene to run
-#' @param chr chromosome where the gene is, example chr=22
-#' @param snps either cis-window or character vector with pos:ref:alt allele for each snp, defaults to cis-window
-#' @param counts.f path to file with filtered counts: rows genes, first col gene_id followed by samples, prepared in inputs.R
-#' @param covariates path to matrix of covariates prepared in inputs.R, if no covariates, covariates =1, default
-#' @param additional_cov full name to file with first column sample names and additional columns gene independent covariates, defaults to NULL
-#' @param e.snps path to file listing exonic snps for the chromosome where the gene is, prepared in input.R
-#' @param u.esnps whether to use unique exonic snps per gene, defaults to NULL when it is not necessary if strand info is known
-#' @param gene.coord path to file listing gene coordinates and exons, prepared in input.R
-#' @param vcf path to vcf file with ASE and GT for the chromosome where the gene is
-#' @param le.file path to gz legend file (legend.gz) for the chromosome of interest for the reference panel (snp description)
-#' @param h.file path to gz haplotpe file for the chromosome of interest for the reference panel (haplotypes for all samples in reference panel)
-#' @param population ethnicity to get EAF for rsnp: AFR AMR EAS EUR SAS ALL, defaults to EUR
-#' @param nhets minimum number of het individuals in order to run the minumn model (NB only), defaults to NULL
-#' @param min.ase minimum number of ASE counts for an individual in order to be included, defaults to 5
-#' @param min.ase.het minimum number of het individuals with the minimum of ASE counts in order to run the ASE side of the model, defaults to NULL
-#' @param min.ase.n minimum number individuals with the minimum of ASE counts, defaults to NULL
-#' @param tag.threshold numeric with r2 threshold (0-1) for grouping snps to reduce the number of running tests, to disable use "no"
-#' @param out path to save outputs, default to current directory
 #' @param prefix optional prefix for saving tables, if NULL gene_id will be used
 #' @param model  whether to run NB-ASE (full model negative binomial and allele specific counts),NB (negative binomial only) or both (NB-ASE and NB for those associations with no ASE information)
 #' @param stan.model compiled stanmodel object with stan model, defaults NULL to use  built-in NB-ASE model. When AI_estimate argument (below) is provided the model corrects for reference panel bias, otherwise it doesn't.
 #' @param stan.negonly compiled stanmodel object with neg only side, deafults to NULL to use built-in model.
-#' @param prob  number p∈(0,1) indicating the desired probability mass to include in the intervals, defaults to 0.99,0.95 quantiles
 #' @param prior named list: mean= vector with the mean of Gaussians, sd= vector with Gaussians sd for eQTL effect prior, mix=vector with mixing proportions. Defaults to NULL, mixture of 2 components with mean (0,0); sd  c( 0.0309, 0.3479); and mixing proportions  c(0.97359164, 0.02640836).
-#' @param ex.fsnp, character vector with pos:ref:alt for fsnps to exclude,  defaults to NULL which corresponds to no exclusions
-#' @param AI_estimate full name to data table with AI estimates for reference panel bias for fSNPs, defaults to NULL with no correction
-#' @param pretotalReads numeric indicating a cut-off for total initial reads to consider AI estimates, defaults to 100
+#' @param ex.fsnp character vector with pos:ref:alt for fsnps to exclude,  defaults to NULL which corresponds to no exclusions
 #' @param inference.method The inference method to use with Stan. Options are \code{c("sampling", "vb", "optimizing")}
 #' @param snps.list A list of SNPs to restrict the number of tests performed. Useful for screening a specific subset of SNPs.
 #' @param screen.method The method to used to perform screening with approximate inference.
 #' @param screen.prob The probability threshold to use for screening with approximate inference.
 #' @param mc.cores The number of parallel cores to use when performing tests.
 #' 
+#' @inheritParams aux.in1
 #' @examples
 #' ## example inputs saved in package directory
 #' counts.f <- system.file("extdata/input", "counts.txt", package = "baseqtl", mustWork = TRUE)

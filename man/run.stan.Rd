@@ -4,7 +4,14 @@
 \alias{run.stan}
 \title{Run stan model}
 \usage{
-run.stan(mod, data, pars, probs)
+run.stan(
+  mod,
+  data,
+  pars,
+  probs,
+  tries = 5,
+  inference.method = c("sampling", "vb", "optimizing")
+)
 }
 \arguments{
 \item{mod}{compiled stan model}
@@ -14,10 +21,14 @@ run.stan(mod, data, pars, probs)
 \item{pars}{character with the name of parameters to extract}
 
 \item{probs}{quantiles to report eQTl effect}
+
+\item{tries}{The number of times to retry if inference initially fails.}
+
+\item{inference.method}{The inference method to use. Can be "sampling" for HMC
+or "vb" for ADVI.}
 }
 \value{
 matrix with stan summary
-run.stan()
 }
 \description{
 This functions run stan and extract posterior summary for specified quantiles for reporting

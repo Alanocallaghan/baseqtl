@@ -15,12 +15,12 @@ stan.ase(M, M.cond, s.M, n.mat, ai0.mat = NULL, vai0.mat = NULL)
 
 \item{n.mat}{matrix with hap for fsnps and ase counts, output from fsnp.prep or stan.fsnp.noGT}
 
-\item{ai0.mat}{matrix with estimates for allelic imbnalance for reference bias correction, defaults to NULL
-@param vai0.mat matrix with variance estimates for allelic imbnalance for reference bias correction, defaults to NULL}
+\item{ai0.mat}{matrix with estimates for allelic imbnalance for reference bias correction, defaults to NULL}
+
+\item{vai0.mat}{matrix with variance estimates for allelic imbnalance for reference bias correction, defaults to NULL}
 }
 \value{
 list of stan input: list of 1) list with vectors of n.counts, 2) list of vectors of  p(H(f+r)|Gf) , 3) list of vectors of possible genotype rsnp in scale 0,1,-1,2, each vector one sample, 4)optional list with AI reference bias estimates
-stan.ase()
 }
 \description{
 This function allows you to format input for stan ASE per individual: adapted from stan.rsnp.noGT.eff

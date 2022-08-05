@@ -31,7 +31,12 @@ baseqtl.gt(
   prior = NULL,
   ex.fsnp = NULL,
   AI_estimate = NULL,
-  pretotalReads = 100
+  pretotalReads = 100,
+  inference.method = "sampling",
+  snps.list = NULL,
+  screen.method = NULL,
+  screen.prob = 0.5,
+  mc.cores = getOption("mc.cores", parallel::detectCores())
 )
 }
 \arguments{
@@ -43,7 +48,7 @@ baseqtl.gt(
 
 \item{counts.f}{path to file with filtered counts: rows genes, first col gene_id followed by samples, prepared in inputs.R}
 
-\item{covariates}{path to matrix of covariates prepared in inputs.R, if no covariates, covariates =1, default}
+\item{covariates}{path to matrix of covariates prepared in inputs.R. If using gc correction (each gene different value), the matrix has rownames= genes and cols=samples plus extra columns if other covariates are added. If only using lib size or gene independent covariates, rows are samples and columns are covariates. If no covariates, covariates =1, default}
 
 \item{additional_cov}{full name to file with first column sample names and additional columns gene independent covariates, defaults to NULL}
 
@@ -59,13 +64,13 @@ baseqtl.gt(
 
 \item{h.file}{path to gz haplotpe file for the chromosome of interest for the reference panel (haplotypes for all samples in reference panel)}
 
-\item{population}{ethnicity to get EAF for rsnp: AFR AMR EAS EUR SAS ALL, defaults to EUR}
+\item{population}{ethnicity to get EAF for rsnp: AFR AMR EAS EUR SAS ALL, defaults to EUR. It is also used to exclude fSNPs if frequency is different from reference panel when using no GT and selecting ex.fsnps argument, except if population=ALL}
 
-\item{nhets}{minimun number of het individuals in order to run the minumn model (NB only), defaults to NULL}
+\item{nhets}{minimum number of het individuals in order to run the minumn model (NB only), defaults to 5}
 
-\item{min.ase}{minimun number of ASE counts for an individual in order to be included, defaults to 5}
+\item{min.ase}{minimum number of ASE counts for an individual in order to be included, defaults to 5}
 
-\item{min.ase.het}{minimun number of het individuals with the minimun of ASE counts in order to run the ASE side of the model, defaults to NULL}
+\item{min.ase.het}{minimum number of het individuals with the minimum of ASE counts in order to run the ASE side of the model, defaults to 5.}
 
 \item{tag.threshold}{numeric with r2 threshold (0-1) for grouping snps to reduce the number of running tests, to disable use "no"}
 
@@ -79,21 +84,61 @@ baseqtl.gt(
 
 \item{stan.negonly}{compiled stanmodel object with neg only side, deafults to NULL to use built-in model.}
 
-\item{prob}{number p∈(0,1) indicating the desired probability mass to include in the intervals, defaults to 0.99 -0.95 quantiles}
+\item{prob}{number p∈(0,1) indicating the desired probability mass to include in the intervals, defaults to 0.99 and 0.95 quantiles}
 
 \item{prior}{named list: mean= vector with the mean of Gaussians, sd= vector with Gaussians sd for eQTL effect prior, mix=vector with mixing proportions. Defaults to NULL, mixture of 2 components with mean (0,0); sd  c( 0.0309, 0.3479); and mixing proportions  c(0.97359164, 0.02640836).}
 
-\item{ex.fsnp, }{character vector with pos:ref:alt for fsnps to exclude,  defaults to NULL which corresponds to no exclusions}
+\item{ex.fsnp}{character vector with pos:ref:alt for fsnps to exclude,  defaults to NULL which corresponds to no exclusions}
 
-\item{AI_estimate}{full name to data table with AI estimates for reference panel bias for fSNPs, defaults to NULL with no correction}
+\item{AI_estimate}{full name to data table with AI estimates for reference panel bias for fSNPs, defaults to NULL}
 
 \item{pretotalReads}{numeric indicating a cut-off for total initial reads to consider AI estimates, defaults to 100}
 
-\item{min.ase.n}{minimun number individuals with the minimun of ASE counts, defaults to NULL}
+\item{inference.method}{The inference method to use with Stan. Options are \code{c("sampling", "vb", "optimizing")}}
+
+\item{snps.list}{A list of SNPs to restrict the number of tests performed. Useful for screening a specific subset of SNPs.}
+
+\item{screen.method}{The method to used to perform screening with approximate inference.}
+
+\item{screen.prob}{The probability threshold to use for screening with approximate inference.}
+
+\item{mc.cores}{The number of parallel cores to use when performing tests.}
 }
 \value{
 Saves the summary table in "out" dir as /out/prefix.main.txt. When using tags, saves /out/prefix.tags.lookup.txt. Saves a table of excluded rsnps from model.
 }
 \description{
 This function allows you to run BaseQTL for one gene and multiple pre-selected snps. When there is no enough information to ASE counts or rSNP is not in the reference panel, the function will run bayesian negative binomial model only.
+}
+\examples{
+## example inputs saved in package directory
+counts.f <- system.file("extdata/input", "counts.txt", package = "baseqtl", mustWork = TRUE)
+covariates <- system.file("extdata/input", "lbsize_gc.rds", package = "baseqtl", mustWork = TRUE)
+e.snps <- system.file("extdata/input", "chr22.fSNPS.ENSG00000159958.txt", package = "baseqtl", mustWork = TRUE)
+u.snps <- system.file("extdata/input", "chr22.unique.fSNPS.ENSG00000159958.txt", package = "baseqtl", mustWork = TRUE)
+gene.coord <- system.file("extdata/input", "ENSG00000159958_data.txt", package = "baseqtl", mustWork = TRUE)
+vcf <- system.file("extdata/input", "chr22GT.86GEU.vcf.gz", package = "baseqtl", mustWork = TRUE)
+le.file <- system.file("extdata/input", "1000GP_Phase3_subset_chr22.legend.gz", package = "baseqtl", mustWork = TRUE)
+h.file <- system.file("extdata/input", "1000GP_Phase3_subset_chr22.hap.gz", package = "baseqtl", mustWork = TRUE)
+AI_estimate <- system.file("extdata/input", "AI_estimate.GT.txt", package = "baseqtl", mustWork = TRUE)
+
+## output dir
+out <- tempdir()
+
+baseqtl.gt(
+    gene = "ENSG00000159958",
+    chr = 22,
+    snps = 10^4,
+    counts.f = counts.f,
+    covariates = covariates,
+    e.snps = e.snps,
+    u.esnps = u.snps,
+    gene.coord = gene.coord,
+    vcf = vcf,
+    le.file = le.file,
+    h.file = h.file,
+    out = out,
+    AI_estimate = AI_estimate
+)
+
 }

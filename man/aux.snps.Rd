@@ -15,9 +15,9 @@ aux.snps(gene, chr, snps, gcoord, gene.coord, vcf, rsnps.ex)
 
 \item{gcoord}{data table from reading gene.coord}
 
-\item{gene.coord}{full name to file listing gene coordinates and exons, prepared in input.R}
+\item{gene.coord}{path to file listing gene coordinates and exons, prepared in input.R}
 
-\item{vcf}{path to vcf files with ASE and GT for the chromosome where the gene is, for each treatment, same order as counts.f}
+\item{vcf}{path to vcf file with ASE and GT for the chromosome where the gene is}
 
 \item{rsnps.ex}{data table with id and reason column to exclude rsnps from analysis}
 }

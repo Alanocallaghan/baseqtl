@@ -36,9 +36,9 @@ list.err <- function(l, txt) {
 #' @param prefix character with prefix to add for saving files, defaults to NULL
 #' @param out path to save outputs, default to current directory
 #' @param prior named list: mean= vector with the mean of Gaussians, sd= vector with Gaussians sd for eQTL effect prior, mix=vector with mixing proportions. Defaults to NULL, mixture of 3 components with mean (0,0,0) ;sd  c( 0.0436992,  0.3492696, 0.4920049); and mixing proportions  c(0.955, 2*0.015, 0.015).
+#' @param mc.cores The number of parallel cores to use.
 #' @export
 #' @return list with stan input
-#' aux.in()
 
 aux.in <- function(gene, ai = NULL, case, rp.f, rp.r, f.ase, counts.g, covariates,
                    min.ase = 5, min.ase.n = 5, info = 0.3, snps.ex, prefix = NULL, out = ".",
@@ -258,7 +258,7 @@ aux.in <- function(gene, ai = NULL, case, rp.f, rp.r, f.ase, counts.g, covariate
 #' @param AI_estimate full name to data table with AI estimates for reference panel bias for fSNPs, defaults to NULL
 #' @param pretotalReads numeric indicating a cut-off for total initial reads to consider AI estimates, defaults to 100
 #' @param skin character vector with the 2 Tissues to study
-#' @param fishjoint whether to run Fisher test jointly in all samples or by skin, defaults to joint. For QC purposes for comparing with 1T model set to NULL (by treatment)
+#' @param fishjoin whether to run Fisher test jointly in all samples or by skin, defaults to joint. For QC purposes for comparing with 1T model set to NULL (by treatment)
 #' @export
 #' @return list with 1)c.ase and 2)stan.noGT object
 #' baseqtl2Tnogt.in()

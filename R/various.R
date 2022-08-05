@@ -108,9 +108,9 @@ p.hap.pair.s <- function(h) {
 #' @param x list of summaries
 #' @param y parameter to extract from summary, NULL if already extracted
 #' @param rtag optional argument,whether snps were grouped using tag function
-#' @param model, character vector indicating which model was run: full or neg.only
-#' @param nhets, vector with the number of hets  for each rsnp
-#' @param ASE.hets, vector with the number of hets with sufficient ASE counts for each rsnp
+#' @param model character vector indicating which model was run: full or neg.only
+#' @param nhets vector with the number of hets  for each rsnp
+#' @param ASE.het vector with the number of hets with sufficient ASE counts for each rsnp
 #' @param gene gene id of gene under study
 #' @param EAF, data table with snp and eaf for tag snps, output from snp.eaf (real.data.R), defaults to NULL
 #' @param info, named vector with info type score for tag snp, names snp_id, defaults to NULL

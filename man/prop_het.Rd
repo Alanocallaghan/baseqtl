@@ -7,15 +7,14 @@
 prop_het(f.ase, rp.f, gene)
 }
 \arguments{
+\item{f.ase}{data table with fsnps and GT for samples (f.ase), cols for GT must end with "_GT"}
+
+\item{rp.f}{with rownames fsnps and col haplotypes of fsnps}
+
 \item{gene}{character with gene_id}
-
-\item{DT}{data table with fsnps and GT for samples (f.ase), cols for GT must end with "_GT"}
-
-\item{matrix}{with rownames fsnps and col haplotypes of fsnps}
 }
 \value{
 matrix with rownames fsnps and colnames OR (odds ratio) and pvalue for Fisher's exact test
-prop_het ()
 }
 \description{
 This function tests equality of the proportion of hets for fsnps in 2 populations, sample and reference panel

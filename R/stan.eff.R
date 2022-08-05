@@ -647,16 +647,11 @@ fsnp.prep <- function(rp.f, f.ase, c.ase, min.ase = 5, min.ase.n = 5) {
 #' @param counts.g data table 1 row with total gene counts of gene per sample
 #' @param rp.1r numeric of haplotypes from reference panel for 1 rsnp
 #' @param rp.f matrix of haplotypes from reference panel for fsnps, rows=snps, cols samples from reference panel
-#' @param f.ase data.table with GT and ASE for fSNPs, output from gt.as, same fsnps in same order as rp.f
-#' @param c.ase output from tot.ase for the rsnp id
-#' @param min.ase ase cut-off default is 5 counts, trecase default 5
-#' @param min.ase.n minimun number of individuals with suffiicent ase counts
 #' @param stan.f list with information for fsnps per sample, output from snp.prep
 #' @keywords stan input
 #' @export
 #' @return list of 1) data table with total counts (y) and genotype rsnp (g) 2) data.table with data for ASE: genotype rsnp (g) and total ase counts (m). 3) list of vectors n: each vector with ase n.counts compatible with each haplotype pair for 1 individual. 4) list of vectors p: each vector with p for each haplotype corresponding to n. The first haplotype pair corresponds to {h1,h2}, the "true" one.
 #'
-#' stan.trecase.rna.noGT.eff2()
 
 stan.trecase.rna.noGT.eff2 <- function(counts.g, rp.1r, rp.f, stan.f) {
 
@@ -856,13 +851,11 @@ in.neg.beta.noGT.eff2 <- function(x, covar = 1) {
 #' Aux function to sort ase according by ascending genotype order (based on NB genotype)
 #'
 #' @param a list to sort
-#' @param ind list with indexes
+#' @param b Vector of indices to sort a by.
 #' @keywords sort ase by Gi=g
 #' @export
 #' @return vector to input for stan
 #'
-#' aux.sort()
-
 aux.sort <- function(a, b) {
   tmp <- unlist(mapply(function(x, y) x[y], x = a, y = b, SIMPLIFY = F, USE.NAMES = F))
   return(tmp)
@@ -948,7 +941,7 @@ stan.fsnp.noGT.eff <- function(rp.f, f.ase, c.ase, NB = "yes", min.ase = 5, min.
     }
 
     ## summary by unique(haplotype) indicating in which samples are found and in the row of M that the hap pair is found
-    u.haps.all <- sum.g(h.short.all)
+    u.haps.all <- sum_geno(h.short.all)
     ## recode to sample names instead of M row
   }
 
@@ -1017,7 +1010,7 @@ stan.fsnp.noGT.eff <- function(rp.f, f.ase, c.ase, NB = "yes", min.ase = 5, min.
 
 
   ## to make it faster: get inputs for unique(haplotypes) and then expand it to all samples
-  u.haps.dt <- sum.haps(h.short)
+  u.haps.dt <- sum_haps(h.short)
 
   ## make hap1 and hap2 character columns if they arent
 
@@ -1191,9 +1184,8 @@ stan.fsnp.noGT.eff <- function(rp.f, f.ase, c.ase, NB = "yes", min.ase = 5, min.
 #' @export
 #' @return data table with columns: hap1, hap2, g.fsnps (GT fsnp), ind: row number from h.short for the individuals that have that hap combination, hap1.2, hap1 and hap2 separated by ",", row.M row number in which that hap combination is found in input M
 #'
-#' sum.haps()
 
-sum.haps <- function(h.short) {
+sum_haps <- function(h.short) {
   ## summary by unique(haplotype) indicating in which samples are found
   hap.s <- Reduce(cbind, h.short)
   colnames(hap.s) <- c("hap1", "hap2")
@@ -1229,9 +1221,8 @@ sum.haps <- function(h.short) {
 #' @export
 #' @return data table with columns: hap1, hap2, g.fsnps (GT fsnp), ind: row number from h.short for the individuals that have that hap combination, hap1.2, hap1 and hap2 separated by ",", row.M row number in which that hap combination is found in input M
 #'
-#' sum.g()
 
-sum.g <- function(h.short) {
+sum_geno <- function(h.short) {
   ## summary by unique(haplotype) indicating in which samples are found
   if (is.numeric(h.short[[1]])) {
     g.s <- Reduce("+", h.short)
@@ -1318,11 +1309,11 @@ stan.nb <- function(counts.g, M, M.cond, NB) {
 #' @param s.M named vector with names rownames(M) and value swapped rownames(M), to identify swaps, done in stan.rsnp.noGT.eff
 #' @param n.mat matrix with hap for fsnps and ase counts, output from fsnp.prep or stan.fsnp.noGT
 #' @param ai0.mat matrix with estimates for allelic imbnalance for reference bias correction, defaults to NULL
-#'  @param vai0.mat matrix with variance estimates for allelic imbnalance for reference bias correction, defaults to NULL
+#' @param vai0.mat matrix with variance estimates for allelic imbnalance for reference bias correction, defaults to NULL
 #' @keywords stan input rsnp
 #' @export
 #' @return list of stan input: list of 1) list with vectors of n.counts, 2) list of vectors of  p(H(f+r)|Gf) , 3) list of vectors of possible genotype rsnp in scale 0,1,-1,2, each vector one sample, 4)optional list with AI reference bias estimates
-#' stan.ase()
+
 
 stan.ase <- function(M, M.cond, s.M, n.mat, ai0.mat = NULL, vai0.mat = NULL) {
 
@@ -1414,6 +1405,8 @@ add.prior <- function(prior, l) {
   return(l)
 }
 
+## #' @param backend The type of stan backend to use. rstan uses the compiled stan code in the package, cmdstanr uses cmdstanr to compile the same model code with possibly more up-to-date stan backend. See cmdstanr::install_cmdstan().
+
 #' Run stan model
 #'
 #' This functions run stan and extract posterior summary for specified quantiles for reporting
@@ -1421,12 +1414,10 @@ add.prior <- function(prior, l) {
 #' @param data input data to run mod
 #' @param pars character with the name of parameters to extract
 #' @param probs quantiles to report eQTl effect
+#' @param tries The number of times to retry if inference initially fails.
 #' @param inference.method The inference method to use. Can be "sampling" for HMC
 #' or "vb" for ADVI.
-#' @param backend The type of stan backend to use. rstan uses the compiled stan code in the package, cmdstanr uses cmdstanr to compile the same model code with possibly more up-to-date stan backend. See cmdstanr::install_cmdstan().
 #' @return matrix with stan summary
-#' run.stan()
-
 run.stan <- function(mod, data, pars, probs, tries = 5, inference.method = c("sampling", "vb", "optimizing")) {
   inference.method <- match.arg(inference.method)
   try <- 0

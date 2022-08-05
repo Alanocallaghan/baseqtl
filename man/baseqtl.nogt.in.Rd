@@ -44,7 +44,7 @@ baseqtl.nogt.in(
 
 \item{counts.f}{path to file with filtered counts: rows genes, first col gene_id followed by samples, prepared in inputs.R}
 
-\item{covariates}{path to matrix of covariates prepared in inputs.R. If using gc correction (each gene diffrent value), the matrix has rownames= genes and cols=samples plus extra columns if other covariates are added. If only using lib size or gene independent covariates, rows are samples and columns are covariates. If no covariates, covariates =1, default}
+\item{covariates}{path to matrix of covariates prepared in inputs.R. If using gc correction (each gene different value), the matrix has rownames= genes and cols=samples plus extra columns if other covariates are added. If only using lib size or gene independent covariates, rows are samples and columns are covariates. If no covariates, covariates =1, default}
 
 \item{additional_cov}{full name to file with first column sample names and additional columns gene independent covariates, defaults to NULL}
 
@@ -54,7 +54,7 @@ baseqtl.nogt.in(
 
 \item{gene.coord}{path to file listing gene coordinates and exons, prepared in input.R}
 
-\item{vcf}{path to vcf file with ASE and GT for the exonic snps for the chromosome where the gene is}
+\item{vcf}{path to vcf file with ASE and GT for the chromosome where the gene is}
 
 \item{sample.file}{sample file for the reference panel (sample description), to be used if ex.fsnp test is required and populatios is not the whole reference panel}
 
@@ -62,15 +62,15 @@ baseqtl.nogt.in(
 
 \item{h.file}{path to gz haplotpe file for the chromosome of interest for the reference panel (haplotypes for all samples in reference panel)}
 
-\item{population}{ethnicity to set a cut-off for maf: AFR AMR EAS EUR SAS ALL, defaults to EUR}
+\item{population}{ethnicity to get EAF for rsnp: AFR AMR EAS EUR SAS ALL, defaults to EUR. It is also used to exclude fSNPs if frequency is different from reference panel when using no GT and selecting ex.fsnps argument, except if population=ALL}
 
 \item{maf}{cut-off for maf, defaults to 0.05}
 
-\item{min.ase}{minimun number of ASE counts for an individual in order to be included, defaults to 5}
+\item{min.ase}{minimum number of ASE counts for an individual in order to be included, defaults to 5}
 
-\item{min.ase.snp}{minum number of ASE counts for a single snp to be considered, for a particular individual}
+\item{min.ase.snp}{minimum number of ASE counts for a single snp to be considered, for a particular individual}
 
-\item{min.ase.n}{minimun number individuals with the minimun of ASE counts, defaults to 5.}
+\item{min.ase.n}{minimum number individuals with the minimum of ASE counts, defaults to 5.}
 
 \item{tag.threshold}{numeric with r2 threshold (0-1) for grouping snps to reduce the number of running tests, to disable use "no"}
 
@@ -80,7 +80,9 @@ baseqtl.nogt.in(
 
 \item{model}{GT: whether to run NB-ASE (full model negative binomial and allele specific counts),NB (negative binomial only) or both (NB-ASE and NB for those associations with no ASE information), noGT NULL, defaults to NULL}
 
-\item{ex.fsnp, }{if character: vector with pos:ref:alt for fsnps to exclude, if numeric  p-value cut-off for fSNPs to exclude,  defaults to NULL}
+\item{prefix}{optional prefix for saving tables, if NULL gene_id will be used}
+
+\item{ex.fsnp}{character vector with pos:ref:alt for fsnps to exclude,  defaults to NULL which corresponds to no exclusions}
 
 \item{prob}{number p∈(0,1) indicating the desired probability mass to include in the intervals, defaults to 0.99 and 0.95 quantiles}
 

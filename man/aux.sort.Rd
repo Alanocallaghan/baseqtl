@@ -9,12 +9,10 @@ aux.sort(a, b)
 \arguments{
 \item{a}{list to sort}
 
-\item{ind}{list with indexes}
+\item{b}{Vector of indices to sort a by.}
 }
 \value{
 vector to input for stan
-
-aux.sort()
 }
 \description{
 Aux function to sort ase according by ascending genotype order (based on NB genotype)

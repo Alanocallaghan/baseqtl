@@ -43,7 +43,7 @@ aux.in1(
 
 \item{counts.f}{path to file with filtered counts: rows genes, first col gene_id followed by samples, prepared in inputs.R}
 
-\item{covariates}{path to matrix of covariates prepared in inputs.R, if no covariates, covariates =1, default}
+\item{covariates}{path to matrix of covariates prepared in inputs.R. If using gc correction (each gene different value), the matrix has rownames= genes and cols=samples plus extra columns if other covariates are added. If only using lib size or gene independent covariates, rows are samples and columns are covariates. If no covariates, covariates =1, default}
 
 \item{additional_cov}{full name to file with first column sample names and additional columns gene independent covariates, defaults to NULL}
 
@@ -65,11 +65,15 @@ aux.in1(
 
 \item{maf}{cut-off for maf, defaults to NULL as only used with noGT}
 
-\item{nhets}{minimun number of het individuals in order to run the minumn model (NB only), defaults to 5}
+\item{nhets}{minimum number of het individuals in order to run the minumn model (NB only), defaults to 5}
 
-\item{min.ase}{minimun number of ASE counts for an individual in order to be included, defaults to 5}
+\item{min.ase}{minimum number of ASE counts for an individual in order to be included, defaults to 5}
 
-\item{min.ase.het}{minimun number of het individuals with the minimun of ASE counts in order to run the ASE side of the model, defaults to 5.}
+\item{min.ase.het}{minimum number of het individuals with the minimum of ASE counts in order to run the ASE side of the model, defaults to 5.}
+
+\item{min.ase.snp}{minimum number of ASE counts for a single SNP in order to be considered, for a particular individual}
+
+\item{min.ase.n}{minimun number individuals with the minimun of ASE counts, defaults to NULL}
 
 \item{tag.threshold}{numeric with r2 threshold (0-1) for grouping snps to reduce the number of running tests, to disable use "no"}
 
@@ -84,12 +88,9 @@ aux.in1(
 \item{AI_estimate}{full name to data table with AI estimates for reference panel bias for fSNPs, defaults to NULL}
 
 \item{pretotalReads}{numeric indicating a cut-off for total initial reads to consider AI estimates, defaults to 100}
-
-\item{prefix}{optional prefix for saving tables, if NULL gene_id.eqtl will be used}
 }
 \value{
 list with counts, covariates and probs argument to prepare inputs
-aux.in1()
 }
 \description{
 This function allows you to check arguments with and without GT

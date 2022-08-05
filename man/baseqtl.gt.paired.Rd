@@ -31,7 +31,9 @@ baseqtl.gt.paired(
   prior = NULL,
   ex.fsnp = NULL,
   AI_estimate = NULL,
-  pretotalReads = 100
+  pretotalReads = 100,
+  mc.cores = getOption("mc.cores", parallel::detectCores()),
+  inference.method = c("sampling", "vb")
 )
 }
 \arguments{
@@ -41,9 +43,9 @@ baseqtl.gt.paired(
 
 \item{snps}{either cis-window or character vector with pos:ref:alt allele for each snp, defaults to cis-window}
 
-\item{counts.f}{path to files with filtered counts for each treament: rows genes, first col gene_id followed by samples, prepared in inputs.R, for each treatment}
+\item{counts.f}{path to file with filtered counts: rows genes, first col gene_id followed by samples, prepared in inputs.R}
 
-\item{covariates}{path to matrix of covariates prepared in inputs.R, if no covariates, covariates =1, default}
+\item{covariates}{path to matrix of covariates prepared in inputs.R. If using gc correction (each gene different value), the matrix has rownames= genes and cols=samples plus extra columns if other covariates are added. If only using lib size or gene independent covariates, rows are samples and columns are covariates. If no covariates, covariates =1, default}
 
 \item{additional_cov}{full name to file with first column sample names and additional columns gene independent covariates, defaults to NULL}
 
@@ -53,43 +55,45 @@ baseqtl.gt.paired(
 
 \item{gene.coord}{path to file listing gene coordinates and exons, prepared in input.R}
 
-\item{vcf}{path to vcf files with ASE and GT for the chromosome where the gene is, for each treat,ment, same order as counts.f}
+\item{vcf}{path to vcf file with ASE and GT for the chromosome where the gene is}
 
 \item{le.file}{path to gz legend file (legend.gz) for the chromosome of interest for the reference panel (snp description)}
 
 \item{h.file}{path to gz haplotpe file for the chromosome of interest for the reference panel (haplotypes for all samples in reference panel)}
 
-\item{population}{ethnicity to get EAF for rsnp: AFR AMR EAS EUR SAS ALL, defaults to EUR}
+\item{population}{ethnicity to get EAF for rsnp: AFR AMR EAS EUR SAS ALL, defaults to EUR. It is also used to exclude fSNPs if frequency is different from reference panel when using no GT and selecting ex.fsnps argument, except if population=ALL}
 
-\item{nhets}{minimun number of het individuals in order to run the minumn model (NB only), defaults to NULL}
+\item{nhets}{minimum number of het individuals in order to run the minumn model (NB only), defaults to 5}
 
-\item{min.ase}{minimun number of ASE counts for an individual in order to be included, defaults to 5}
+\item{min.ase}{minimum number of ASE counts for an individual in order to be included, defaults to 5}
 
-\item{min.ase.het}{minimun number of het individuals with the minimun of ASE counts in order to run the ASE side of the model, defaults to NULL}
+\item{min.ase.het}{minimum number of het individuals with the minimum of ASE counts in order to run the ASE side of the model, defaults to 5.}
 
 \item{tag.threshold}{numeric with r2 threshold (0-1) for grouping snps to reduce the number of running tests, to disable use "no"}
 
 \item{out}{path to save outputs, default to current directory}
 
-\item{prefix}{optional prefix for saving tables, if NULL gene_id.eqtl will be used}
+\item{prefix}{optional prefix for saving tables, if NULL gene_id will be used}
 
 \item{model}{whether to run NB-ASE (full model negative binomial and allele specific counts),NB (negative binomial only) or both (NB-ASE and NB for those associations with no ASE information)}
 
-\item{stan.model}{compiled stanmodel object with stan model, defaults NULL which uses  built-in NB-ASE model. When AI_estimate is provided the model corrects for reference panel bias, otherwise id doesn't.}
+\item{stan.model}{compiled stanmodel object with stan model, defaults NULL to use  built-in NB-ASE model. When AI_estimate argument (below) is provided the model corrects for reference panel bias, otherwise it doesn't.}
 
-\item{stan.negonly}{compiled stanmodel object with neg only side, defaults to NULL which is built-in model.}
+\item{stan.negonly}{compiled stanmodel object with neg only side, deafults to NULL to use built-in model.}
 
-\item{prob}{number p∈(0,1) indicating the desired probability mass to include in the intervals, defaults to 0.99, 0.95 quantiles}
+\item{prob}{number p∈(0,1) indicating the desired probability mass to include in the intervals, defaults to 0.99 and 0.95 quantiles}
 
-\item{prior}{named list: mean= vector with the mean of Gaussians, sd= vector with Gaussians sd for eQTL effect prior, mix=vector with mixing proportions. Defaults to NULL, mixture of 3 components with mean (0,0,0) ;sd  c( 0.0436992,  0.3492696, 0.4920049); and mixing proportions  c(0.955, 2*0.015, 0.015).}
+\item{prior}{named list: mean= vector with the mean of Gaussians, sd= vector with Gaussians sd for eQTL effect prior, mix=vector with mixing proportions. Defaults to NULL, mixture of 2 components with mean (0,0); sd  c( 0.0309, 0.3479); and mixing proportions  c(0.97359164, 0.02640836).}
 
-\item{ex.fsnp, }{if character: vector with pos:ref:alt for fsnps to exclude,  defaults to NULL}
+\item{ex.fsnp}{character vector with pos:ref:alt for fsnps to exclude,  defaults to NULL which corresponds to no exclusions}
 
 \item{AI_estimate}{full name to data table with AI estimates for reference panel bias for fSNPs, defaults to NULL}
 
 \item{pretotalReads}{numeric indicating a cut-off for total initial reads to consider AI estimates, defaults to 100}
 
-\item{min.ase.n}{minimun number individuals with the minimun of ASE counts, defaults to NULL}
+\item{mc.cores}{The number of parallel cores to use when performing tests.}
+
+\item{inference.method}{The inference method to use with Stan. Options are \code{c("sampling", "vb", "optimizing")}}
 }
 \value{
 Saves the summary table in "out" dir as /out/prefix.main.txt. When using tags, saves /out/prefix.tags.lookup.txt. Saves a table of excluded rsnps.

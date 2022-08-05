@@ -93,7 +93,7 @@ baseqtl2Tnogt.in(
 
 \item{skin}{character vector with the 2 Tissues to study}
 
-\item{fishjoint}{whether to run Fisher test jointly in all samples or by skin, defaults to joint. For QC purposes for comparing with 1T model set to NULL (by treatment)}
+\item{fishjoin}{whether to run Fisher test jointly in all samples or by skin, defaults to joint. For QC purposes for comparing with 1T model set to NULL (by treatment)}
 }
 \value{
 list with 1)c.ase and 2)stan.noGT object

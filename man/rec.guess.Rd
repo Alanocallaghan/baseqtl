@@ -7,11 +7,10 @@
 rec.guess(DT)
 }
 \arguments{
-\item{DT1}{data table GT coded in trecase scale, rows SNPS, cols samples plus additionals}
+\item{DT}{data table GT coded in trecase scale, rows SNPS, cols samples plus additionals}
 }
 \value{
 matrix with rows samples and cols SNPS
-rec.guess()
 }
 \description{
 This function allows you to recode GT for input in tag function from GUESSFM

@@ -26,9 +26,11 @@ stan.bt(
 
 \item{rtag}{optional argument,whether snps were grouped using tag function}
 
-\item{model, }{character vector indicating which model was run: full or neg.only}
+\item{model}{character vector indicating which model was run: full or neg.only}
 
-\item{nhets, }{vector with the number of hets  for each rsnp}
+\item{nhets}{vector with the number of hets  for each rsnp}
+
+\item{ASE.het}{vector with the number of hets with sufficient ASE counts for each rsnp}
 
 \item{gene}{gene id of gene under study}
 
@@ -41,8 +43,6 @@ stan.bt(
 \item{min.pval}{data table with cols fsnp_id, OR (odds ratio), pvalue, gene_id, output from porp.het, for each gene selects the min(pvalue) and add it to output}
 
 \item{probs}{extremes for the posterior probability mass, defaults to 2.5 and 97.5}
-
-\item{ASE.hets, }{vector with the number of hets with sufficient ASE counts for each rsnp}
 }
 \value{
 DT with formatted data

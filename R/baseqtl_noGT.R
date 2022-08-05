@@ -1,66 +1,70 @@
+## #' @param inference.method The inference method to use with Stan. Options are \code{c("sampling", "vb", "optimizing")}
+## #' @param mc.cores The number of parallel cores to use.
+## #' @param gene gene id for the gene to run
+## #' @param chr chromosome where the gene is, example chr=22
+## #' @param snps either cis-window or character vector with pos:ref:alt allele for each snp, defaults to cis-window
+## #' @param counts.f path to file with filtered counts: rows genes, first col gene_id followed by samples, prepared in inputs.R
+## #' @param additional_cov full name to file with first column sample names and additional columns gene independent covariates, defaults to NULL
+## #' @param e.snps path to file listing exonic snps for the chromosome where the gene is, prepared in input.R
+## #' @param u.esnps whether to use unique exonic snps per gene, defaults to NULL when it is not necessary if strand info is known
+## #' @param gene.coord path to file listing gene coordinates and exons, prepared in input.R
+## #' @param vcf path to vcf file with ASE and GT for the exonic snps for the chromosome where the gene is
+## #' @param le.file path to gz legend file (legend.gz) for the chromosome of interest for the reference panel (snp description)
+## #' @param h.file path to gz haplotpe file for the chromosome of interest for the reference panel (haplotypes for all samples in reference panel)
+## #' @param min.ase minimum number of ASE counts for an individual in order to be included, defaults to 5
+## #' @param min.ase.n minimum number individuals with the minimum of ASE counts, defaults to 5.
+## #' @param tag.threshold numeric with r2 threshold (0-1) for grouping snps to reduce the number of running tests, to disable use "no"
+## #' @param out path to save outputs, default to current directory
+## #' @param prefix optional prefix for saving files, if NULL gene_id.eqtl will be used
+## #' @param stan.model compiled stanmodel object with stan model, defaults NULL which uses  built-in NB-ASE model. When AI_estimate is provided the model corrects for reference panel bias, otherwise id doesn't.
+## #' @param stan.negonly compiled stanmodel object with neg only side, defaults to NULL which is built-in model.
+## #' @param prob  number p∈(0,1) indicating the desired probability mass to include in the intervals, defaults to 0.99 and 0.95 quantiles
+## #' @param prior named list: mean= vector with the mean of Gaussians, sd= vector with Gaussians sd for eQTL effect prior, mix=vector with mixing proportions. Defaults to NULL, mixture of 2 components with mean (0,0) ;sd  c( 0.0309, 0.3479); and mixing proportions  c(0.97359164, 0.02640836).
+## #' @param ex.fsnp if character: vector with pos:ref:alt for fsnps to exclude, if numeric  p-value cut-off for fSNPs to exclude based on fisher test for suspected genotype error based on comparing the proportion of hets in the sample and reference panel,  defaults to 0.01. If NULL no fSNP will be excluded.
+## #' @param AI_estimate full name to data table with AI estimates for reference panel bias for fSNPs, if NULL no reference panel bias correction is applied
+## #' @param pretotalReads numeric indicating a cut-off for total initial reads to consider AI estimates, defaults to 100
+
+
 #' Run baseqtl with unknown rsnp GT and missing values for GT fsnps with optional  reference panel bias correction
 #'
 #' This function allows you to run baseqtl for one gene and multiple pre-selected snps.
-#' @param gene gene id for the gene to run
-#' @param chr chromosome where the gene is, example chr=22
-#' @param snps either cis-window or character vector with pos:ref:alt allele for each snp, defaults to cis-window
-#' @param counts.f path to file with filtered counts: rows genes, first col gene_id followed by samples, prepared in inputs.R
-#' @param covariates path to matrix of covariates prepared in inputs.R. If using gc correction (each gene different value), the matrix has rownames= genes and cols=samples plus extra columns if other covariates are added. If only using lib size or gene independent covariates, rows are samples and columns are covariates. If no covariates, covariates =1, default
-#' @param additional_cov full name to file with first column sample names and additional columns gene independent covariates, defaults to NULL
-#' @param e.snps path to file listing exonic snps for the chromosome where the gene is, prepared in input.R
-#' @param u.esnps whether to use unique exonic snps per gene, defaults to NULL when it is not necessary if strand info is known
-#' @param gene.coord path to file listing gene coordinates and exons, prepared in input.R
-#' @param vcf path to vcf file with ASE and GT for the exonic snps for the chromosome where the gene is
-#' @param sample.file sample file for the reference panel (sample description), to be used if ex.fsnp test is required and population is not the whole reference panel
-#' @param le.file path to gz legend file (legend.gz) for the chromosome of interest for the reference panel (snp description)
-#' @param h.file path to gz haplotpe file for the chromosome of interest for the reference panel (haplotypes for all samples in reference panel)
-#' @param population ethnicity to set a cut-off for maf: AFR AMR EAS EUR SAS ALL, and for testing fSNPs to exclude (ex.fsnp below) if applicable, defaults to EUR
 #' @param maf cut-off for maf, defaults to 0.05
-#' @param min.ase minimun number of ASE counts for an individual in order to be included, defaults to 5
-#' @param min.ase.snp minum number of ASE counts for a single snp to be considered, for a particular individual
-#' @param min.ase.n minimun number individuals with the minimun of ASE counts, defaults to 5.
-#' @param tag.threshold numeric with r2 threshold (0-1) for grouping snps to reduce the number of running tests, to disable use "no"
+#' @param sample.file sample file for the reference panel (sample description), to be used if ex.fsnp test is required and populatios is not the whole reference panel
+#' @param min.ase.snp minimum number of ASE counts for a single snp to be considered, for a particular individual
+#' @param min.ase.n minimum number individuals with the minimum of ASE counts, defaults to 5.
 #' @param info numeric cut-off for var(E(G))/var(G), var(E(G)) is the expected variance for input and var(G) for reference panel, similar to info score in impute2, defaults to 0.3. rsnps with lower info wont be run by stan.
-#' @param out path to save outputs, default to current directory
-#' @param prefix optional prefix for saving files, if NULL gene_id.eqtl will be used
-#' @param model compiled stanmodel object with stan model, defaults NULL which uses  built-in NB-ASE model. When AI_estimate is provided the model corrects for reference panel bias, otherwise id doesn't.
-#' @param model.negonly compiled stanmodel object with neg only side, defaults to NULL which is built-in model.
-#' @param prob  number p∈(0,1) indicating the desired probability mass to include in the intervals, defaults to 0.99 and 0.95 quantiles
-#' @param prior named list: mean= vector with the mean of Gaussians, sd= vector with Gaussians sd for eQTL effect prior, mix=vector with mixing proportions. Defaults to NULL, mixture of 2 components with mean (0,0) ;sd  c( 0.0309, 0.3479); and mixing proportions  c(0.97359164, 0.02640836).
-#' @param ex.fsnp if character: vector with pos:ref:alt for fsnps to exclude, if numeric  p-value cut-off for fSNPs to exclude based on fisher test for suspected genotype error based on comparing the proportion of hets in the sample and reference panel,  defaults to 0.01. If NULL no fSNP will be excluded.
-#' @param AI_estimate full name to data table with AI estimates for reference panel bias for fSNPs, if NULL no reference panel bias correction is applied
-#' @param pretotalReads numeric indicating a cut-off for total initial reads to consider AI estimates, defaults to 100
 #' @param save_input whether to save input to stan model for QC purposes, defaults to FALSE to save disk space. Object ending with "noGT.stan.input.rds" is a named list with each element the inputs for a cis-SNP. For each cis-SNP there is a list of 2 elements: "NB" and "ase". "NB" is a list with elements "counts" and "p.g". "Counts" is a data.table with columns sample names and one row corresponding to the gene, values total read counts. "p.g" is a named list with each element a sample. For each sample there is an array with names genotypes (0,1,2) and values the genotype probabilities. For the "ase" list they are for elements: "m" numeric vector with  total ASE counts per sample. "g" list with each element a sample and for each sample the genoptype of the cis SNP coded as 0,1,2 and -1, with -1 indicating that the alternative allele is in haplotype 1. "p" has the same structure as "g" and indicates the probability for each genotype. "n"  is similar to "g" and "p" but contains the mapped reads to haplotype 2. The file ending with "noGT.fsnps.counts.rds is a matrix with rows samples and columns fSNPS. When a fSNPs ends with ".n" correspond to the counts matching the alternative allele and ".m" indicates the total counts matching the SNP.
+#' @inheritParams baseqtl.gt
 #' @export
 #' @return data.table with summary of gene-snp associations. Saves the summary table in "out" dir as /out/prefix.main.txt. When using tags, saves /out/prefix.tags.lookup.txt. Saves a table of excluded rsnps.
-
 baseqtl.nogt <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, additional_cov = NULL,
                          e.snps, u.esnps = NULL, gene.coord, vcf, sample.file = NULL, le.file,
                          h.file, population = c("EUR", "AFR", "AMR", "EAS", "SAS", "ALL"),
                          maf = 0.05, min.ase = 5, min.ase.snp = 5, min.ase.n = 5, tag.threshold = .9,
-                         info = 0.3, out = ".", prefix = NULL, model = NULL, model.negonly = NULL,
+                         info = 0.3, out = ".", prefix = NULL, stan.model = NULL, stan.negonly = NULL,
                          prob = NULL, prior = NULL, ex.fsnp = 0.01, AI_estimate = NULL,
                          pretotalReads = 100, save_input = FALSE,
-                         mc.cores = getOption("mc.cores", parallel::detectCores()), inference.method = "sampling") {
+                         inference.method = "sampling",
+                         mc.cores = getOption("mc.cores", parallel::detectCores())) {
   ## check stan models
-  if (is.null(model)) {
+  if (is.null(stan.model)) {
     ## check if ref panelbias correction
     if (is.null(AI_estimate)) {
-      model <- stanmodels$noGT_nb_ase
+      stan.model <- stanmodels$noGT_nb_ase
     } else {
-      model <- stanmodels$noGT_nb_ase_refbias
+      stan.model <- stanmodels$noGT_nb_ase_refbias
     }
   } else { ## model provided by user
-    if (!inherits(model, "stanmodel")) {
+    if (!inherits(stan.model, "stanmodel")) {
       stop("Model provided by user for argument model is not a stanmodel object")
     }
   }
 
-  if (is.null(model.negonly)) {
-    model.negonly <- stanmodels$noGT_nb
+  if (is.null(stan.negonly)) {
+    stan.negonly <- stanmodels$noGT_nb
   } else {
-    if (!inherits(model.negonly, "stanmodel")) {
-      stop("Model provided by user for argument model.negonly is not a stanmodel object")
+    if (!inherits(stan.negonly, "stanmodel")) {
+      stop("Model provided by user for argument stan.negonly is not a stanmodel object")
     }
   }
 
@@ -135,9 +139,9 @@ baseqtl.nogt <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, a
   })
 
   if (inputs$model == "NB-ASE") {
-    model2run <- model
+    model2run <- stan.model
   } else {
-    model2run <- model.negonly
+    model2run <- stan.negonly
   }
 
   model <- inputs$model # "NB-ASE" or 'NB'

@@ -27,14 +27,16 @@ baseqtl.nogt(
   info = 0.3,
   out = ".",
   prefix = NULL,
-  model = NULL,
-  model.negonly = NULL,
+  stan.model = NULL,
+  stan.negonly = NULL,
   prob = NULL,
   prior = NULL,
   ex.fsnp = 0.01,
   AI_estimate = NULL,
   pretotalReads = 100,
-  save_input = FALSE
+  save_input = FALSE,
+  inference.method = "sampling",
+  mc.cores = getOption("mc.cores", parallel::detectCores())
 )
 }
 \arguments{
@@ -56,23 +58,23 @@ baseqtl.nogt(
 
 \item{gene.coord}{path to file listing gene coordinates and exons, prepared in input.R}
 
-\item{vcf}{path to vcf file with ASE and GT for the exonic snps for the chromosome where the gene is}
+\item{vcf}{path to vcf file with ASE and GT for the chromosome where the gene is}
 
-\item{sample.file}{sample file for the reference panel (sample description), to be used if ex.fsnp test is required and population is not the whole reference panel}
+\item{sample.file}{sample file for the reference panel (sample description), to be used if ex.fsnp test is required and populatios is not the whole reference panel}
 
 \item{le.file}{path to gz legend file (legend.gz) for the chromosome of interest for the reference panel (snp description)}
 
 \item{h.file}{path to gz haplotpe file for the chromosome of interest for the reference panel (haplotypes for all samples in reference panel)}
 
-\item{population}{ethnicity to set a cut-off for maf: AFR AMR EAS EUR SAS ALL, and for testing fSNPs to exclude (ex.fsnp below) if applicable, defaults to EUR}
+\item{population}{ethnicity to get EAF for rsnp: AFR AMR EAS EUR SAS ALL, defaults to EUR. It is also used to exclude fSNPs if frequency is different from reference panel when using no GT and selecting ex.fsnps argument, except if population=ALL}
 
 \item{maf}{cut-off for maf, defaults to 0.05}
 
-\item{min.ase}{minimun number of ASE counts for an individual in order to be included, defaults to 5}
+\item{min.ase}{minimum number of ASE counts for an individual in order to be included, defaults to 5}
 
-\item{min.ase.snp}{minum number of ASE counts for a single snp to be considered, for a particular individual}
+\item{min.ase.snp}{minimum number of ASE counts for a single snp to be considered, for a particular individual}
 
-\item{min.ase.n}{minimun number individuals with the minimun of ASE counts, defaults to 5.}
+\item{min.ase.n}{minimum number individuals with the minimum of ASE counts, defaults to 5.}
 
 \item{tag.threshold}{numeric with r2 threshold (0-1) for grouping snps to reduce the number of running tests, to disable use "no"}
 
@@ -80,23 +82,27 @@ baseqtl.nogt(
 
 \item{out}{path to save outputs, default to current directory}
 
-\item{prefix}{optional prefix for saving files, if NULL gene_id.eqtl will be used}
+\item{prefix}{optional prefix for saving tables, if NULL gene_id will be used}
 
-\item{model}{compiled stanmodel object with stan model, defaults NULL which uses  built-in NB-ASE model. When AI_estimate is provided the model corrects for reference panel bias, otherwise id doesn't.}
+\item{stan.model}{compiled stanmodel object with stan model, defaults NULL to use  built-in NB-ASE model. When AI_estimate argument (below) is provided the model corrects for reference panel bias, otherwise it doesn't.}
 
-\item{model.negonly}{compiled stanmodel object with neg only side, defaults to NULL which is built-in model.}
+\item{stan.negonly}{compiled stanmodel object with neg only side, deafults to NULL to use built-in model.}
 
 \item{prob}{number p∈(0,1) indicating the desired probability mass to include in the intervals, defaults to 0.99 and 0.95 quantiles}
 
-\item{prior}{named list: mean= vector with the mean of Gaussians, sd= vector with Gaussians sd for eQTL effect prior, mix=vector with mixing proportions. Defaults to NULL, mixture of 2 components with mean (0,0) ;sd  c( 0.0309, 0.3479); and mixing proportions  c(0.97359164, 0.02640836).}
+\item{prior}{named list: mean= vector with the mean of Gaussians, sd= vector with Gaussians sd for eQTL effect prior, mix=vector with mixing proportions. Defaults to NULL, mixture of 2 components with mean (0,0); sd  c( 0.0309, 0.3479); and mixing proportions  c(0.97359164, 0.02640836).}
 
-\item{ex.fsnp}{if character: vector with pos:ref:alt for fsnps to exclude, if numeric  p-value cut-off for fSNPs to exclude based on fisher test for suspected genotype error based on comparing the proportion of hets in the sample and reference panel,  defaults to 0.01. If NULL no fSNP will be excluded.}
+\item{ex.fsnp}{character vector with pos:ref:alt for fsnps to exclude,  defaults to NULL which corresponds to no exclusions}
 
-\item{AI_estimate}{full name to data table with AI estimates for reference panel bias for fSNPs, if NULL no reference panel bias correction is applied}
+\item{AI_estimate}{full name to data table with AI estimates for reference panel bias for fSNPs, defaults to NULL}
 
 \item{pretotalReads}{numeric indicating a cut-off for total initial reads to consider AI estimates, defaults to 100}
 
 \item{save_input}{whether to save input to stan model for QC purposes, defaults to FALSE to save disk space. Object ending with "noGT.stan.input.rds" is a named list with each element the inputs for a cis-SNP. For each cis-SNP there is a list of 2 elements: "NB" and "ase". "NB" is a list with elements "counts" and "p.g". "Counts" is a data.table with columns sample names and one row corresponding to the gene, values total read counts. "p.g" is a named list with each element a sample. For each sample there is an array with names genotypes (0,1,2) and values the genotype probabilities. For the "ase" list they are for elements: "m" numeric vector with  total ASE counts per sample. "g" list with each element a sample and for each sample the genoptype of the cis SNP coded as 0,1,2 and -1, with -1 indicating that the alternative allele is in haplotype 1. "p" has the same structure as "g" and indicates the probability for each genotype. "n"  is similar to "g" and "p" but contains the mapped reads to haplotype 2. The file ending with "noGT.fsnps.counts.rds is a matrix with rows samples and columns fSNPS. When a fSNPs ends with ".n" correspond to the counts matching the alternative allele and ".m" indicates the total counts matching the SNP.}
+
+\item{inference.method}{The inference method to use with Stan. Options are \code{c("sampling", "vb", "optimizing")}}
+
+\item{mc.cores}{The number of parallel cores to use when performing tests.}
 }
 \value{
 data.table with summary of gene-snp associations. Saves the summary table in "out" dir as /out/prefix.main.txt. When using tags, saves /out/prefix.tags.lookup.txt. Saves a table of excluded rsnps.

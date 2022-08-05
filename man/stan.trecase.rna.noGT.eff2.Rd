@@ -14,19 +14,9 @@ stan.trecase.rna.noGT.eff2(counts.g, rp.1r, rp.f, stan.f)
 \item{rp.f}{matrix of haplotypes from reference panel for fsnps, rows=snps, cols samples from reference panel}
 
 \item{stan.f}{list with information for fsnps per sample, output from snp.prep}
-
-\item{f.ase}{data.table with GT and ASE for fSNPs, output from gt.as, same fsnps in same order as rp.f}
-
-\item{c.ase}{output from tot.ase for the rsnp id}
-
-\item{min.ase}{ase cut-off default is 5 counts, trecase default 5}
-
-\item{min.ase.n}{minimun number of individuals with suffiicent ase counts}
 }
 \value{
 list of 1) data table with total counts (y) and genotype rsnp (g) 2) data.table with data for ASE: genotype rsnp (g) and total ase counts (m). 3) list of vectors n: each vector with ase n.counts compatible with each haplotype pair for 1 individual. 4) list of vectors p: each vector with p for each haplotype corresponding to n. The first haplotype pair corresponds to {h1,h2}, the "true" one.
-
-stan.trecase.rna.noGT.eff2()
 }
 \description{
 This function allows you to format input for stan per individual: constructs list of vectors with counts/ase/p(H|G) for all haplotypes concordant with "g", each vector one individual. Starts from refernce panel input, calculates p(H|G) and then prepares stan input for full model
