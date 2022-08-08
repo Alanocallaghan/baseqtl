@@ -6,8 +6,6 @@
 #' @param y name of samples to make haps
 #' @export
 #' @return list
-#' haps()
-
 haps <- function(x, y) {
   haps.samples <- list()
   for (i in seq_along(y)) {
@@ -231,8 +229,6 @@ stan.bt <- function(x, y = "bj", rtag = NULL, model = "NB-ASE", nhets = NA, ASE.
 #' @keywords stan multiple snps 2 tissues
 #' @export
 #' @return DT with formated data
-#' stan.2T()
-
 stan.2T <- function(x, rtag = NULL, gene, EAF = NULL, info = NULL, nfsnps = NULL, min.pval = NULL, probs = NULL) {
   ind.error <- sapply(x, class) == "try-error"
   if (all(ind.error)) {

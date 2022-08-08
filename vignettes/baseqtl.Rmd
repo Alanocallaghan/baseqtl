@@ -94,7 +94,8 @@ model.
 
 
 
-```{r}
+```{r gt-setup}
+library("baseqtl")
 ## Retrive input files for running baseqtl.gt
 ## Most of the files contain information for the selected gene only to minimise their size
 counts.f <- system.file("extdata/input", "counts.txt", package = "baseqtl", mustWork = TRUE)
@@ -109,9 +110,11 @@ AI_estimate <- system.file("extdata/input", "AI_estimate.GT.txt", package = "bas
 ```
 
 
-```{r, eval = FALSE}
+```{r gt-run}
 ## Choose your output directory
-out <- "../baseqtl_output/GT"
+# out <- "../baseqtl_output/GT"
+out <- tempdir()
+
 
 ## To minimise file sizes and computational load SNPs are within a 10^4 cis-window
 ## baseqtl is computational intense, it is recommended to be run with several cores
@@ -152,7 +155,7 @@ With default 'prefix' argument you will find the following files in your output 
 1. ENSG00000159958.GT.excluded.rsnps.txt
 1. ENSG00000159958.GT.stan.summary.txt
 
-```{r}
+```{r gt-out}
 ## Inspecting output files
 tags <- data.table::fread(system.file("extdata/output", "ENSG00000159958.GT.eqtl.tags.lookup.txt", package = "baseqtl", mustWork = TRUE))
 excluded.rsnps <- data.table::fread(system.file("extdata/output", "ENSG00000159958.GT.excluded.rsnps.txt", package = "baseqtl", mustWork = TRUE))
@@ -163,7 +166,7 @@ results <- data.table::fread(system.file("extdata/output", "ENSG00000159958.GT.s
 
 When tagging: column tag is the tag SNP, column SNP are the tagged SNPs. SNPs are identified by position:reference allele:alternative allele
 
-```{r, echo=FALSE, results='asis'} 
+```{r gt-tags, echo=FALSE, results='asis'} 
 knitr::kable(head(tags))
 ```
 
@@ -182,7 +185,7 @@ The table details the SNPs that were excluded from running NB and/or NB_ASE mode
     1. Not unique fsnps in gene
     1. No fSNPs with GT or AI estimates (when applying reference panel bias correction)
 
-```{r, echo=FALSE, results='asis'} 
+```{r gt-excluded, echo=FALSE, results='asis'} 
 knitr::kable(head(excluded.rsnps))
 ```
 
@@ -190,7 +193,7 @@ knitr::kable(head(excluded.rsnps))
 
 The summary file has the following information:
 
-``` {r}
+``` {r gt-res}
 names(results)
 ```
 
@@ -215,7 +218,7 @@ names(results)
     * min_AI: when using reference panel bias correction gives the most extreme allelic imbalance estimate for the exonic SNPs used in model (no imbalance corresponds to 0.5), NA otherwise
 
 
-```{r, echo=FALSE, results='asis'} 
+```{r gt-rhat, echo=FALSE, results='asis'} 
 knitr::kable(results[ Rhat<1.001,][7:8,1:7])
 knitr::kable(results[ Rhat<1.001,][7:8,8:15])
 knitr::kable(results[ Rhat<1.001,][7:8,16:24])
@@ -236,7 +239,7 @@ I will describe below the arguments that differ from baseqtl.gt.
 
 *sample.file*: sample file for the reference panel (sample description), to be used if ex.fsnp test is numeric and population is not the whole reference panel
 
-```{r}
+```{r nogt-setup}
 ## Retrive input files for running baseqtl.nogt
 
 counts.f <- system.file("extdata/input", "counts.txt", package = "baseqtl", mustWork = TRUE)
@@ -244,19 +247,19 @@ covariates <- system.file("extdata/input", "lbsize_gc.rds", package = "baseqtl",
 e.snps <- system.file("extdata/input", "chr22.fSNPS.ENSG00000159958.txt", package = "baseqtl", mustWork = TRUE)
 u.snps <- system.file("extdata/input", "chr22.unique.fSNPS.ENSG00000159958.txt", package = "baseqtl", mustWork = TRUE)
 gene.coord <- system.file("extdata/input", "ENSG00000159958_data.txt", package = "baseqtl", mustWork = TRUE)
-vcf = system.file("extdata/input", "chr22noGT.86GEU.vcf.gz", package = "baseqtl", mustWork = TRUE)
+vcf <- system.file("extdata/input", "chr22noGT.86GEU.vcf.gz", package = "baseqtl", mustWork = TRUE)
 sample.f <- system.file("extdata/input", "1000GP_Phase3.sample", package = "baseqtl", mustWork = TRUE)
 le.file <- system.file("extdata/input", "1000GP_Phase3_subset_chr22.legend.gz", package = "baseqtl", mustWork = TRUE)
 h.file <- system.file("extdata/input", "1000GP_Phase3_subset_chr22.hap.gz", package = "baseqtl", mustWork = TRUE)
 AI_estimate <- system.file("extdata/input", "AI_estimate.noGT.txt", package = "baseqtl", mustWork = TRUE)
-
-
 ```
 
 
-```{r, eval=FALSE}
+```{r nogt-run}
 ## Choose your output directory
-out <- "../baseqtl-output/noGT"
+# out <- "../baseqtl-output/noGT"
+out <- tempdir()
+
 
 ## To minimise file sizes and computational load SNPs are within a 10^4 cis-window
 ## baseqtl is computational intense, it is recommended to be run with several cores
@@ -291,7 +294,7 @@ With default 'prefix' argument you will find the following files in your output 
 1. ENSG00000159958.fsnps.het.fisher.test.txt 
 1. ENSG00000159958.noGT.stan.summary.txt
 
-```{r}
+```{r nogt-out}
 ## Inspecting output files
 fsnps <- data.table::fread(system.file("extdata/output", "ENSG00000159958.fsnps.het.fisher.test.txt", package = "baseqtl", mustWork = TRUE))
 results <- data.table::fread(system.file("extdata/output", "ENSG00000159958.noGT.stan.summary.txt", package = "baseqtl", mustWork = TRUE))
@@ -301,10 +304,10 @@ results <- data.table::fread(system.file("extdata/output", "ENSG00000159958.noGT
 
 Table with feature SNP (exonic SNP) id (position:reference:alternative allele), odds ratio (OR) and pvalue testing the frequency of heterozygosity between sample and reference panel and ensembl gene id.
 
-```{r}
+```{r nogt-excluded}
 fsnps <- data.table::fread(system.file("extdata/output", "ENSG00000159958.fsnps.het.fisher.test.txt", package = "baseqtl", mustWork = TRUE))
 ```
-```{r, echo=FALSE, results='asis'} 
+```{r nogt-fsnps, echo=FALSE, results='asis'} 
 knitr::kable(head(fsnps))
 ```
 
@@ -321,6 +324,7 @@ names(results)
     * min.p.fsnp: minumun pvalue for Fisher test of heterozygocity across all fSNPs (exonic SNPS)
 
 
+
 ## eQTL analysis with paired samples (two treatments on same samples) with genotypes.
 
 The function to call is **baseqtl.gt.paired**. It will test for eQTL interaction effect between 2 conditions in a pair design. We use again  gene ENSG00000159958 on chromosome 22.
@@ -334,7 +338,7 @@ Same as baseqtl.gt except:
 *vcf*: vector with full name to vcf files with GT adn ASE counts. Genotype field should be the same in both files. Order of treatments should be the same as in count.f, details in **input4baseqtl**.
 
 
-```{r}
+```{r gt2t-setup}
 ## Retrive input files for running baseqtl.gt
 ## Most of the files contain information for the selected gene only to minimise their size
 ## For simplicity I will use the same counts.f and vcf files twice, but in reality each file
@@ -342,19 +346,19 @@ Same as baseqtl.gt except:
 
 counts.f <- rep(system.file("extdata/input", "counts.txt", package = "baseqtl", mustWork = TRUE),2)
 covariates <- system.file("extdata/input", "lbsize_gc.rds", package = "baseqtl", mustWork = TRUE)
-e.snps = system.file("extdata/input", "chr22.fSNPS.ENSG00000159958.txt", package = "baseqtl", mustWork = TRUE)
-u.snps = system.file("extdata/input", "chr22.unique.fSNPS.ENSG00000159958.txt", package = "baseqtl", mustWork = TRUE)
-gene.coord = system.file("extdata/input", "ENSG00000159958_data.txt", package = "baseqtl", mustWork = TRUE)
-vcf = rep(system.file("extdata/input", "chr22GT.86GEU.vcf.gz", package = "baseqtl", mustWork = TRUE), 2)
-le.file = system.file("extdata/input", "1000GP_Phase3_subset_chr22.legend.gz", package = "baseqtl", mustWork = TRUE)
-h.file = system.file("extdata/input", "1000GP_Phase3_subset_chr22.hap.gz", package = "baseqtl", mustWork = TRUE)
-AI_estimate = system.file("extdata/input", "AI_estimate.GT.txt", package = "baseqtl", mustWork = TRUE)
-
+e.snps <- system.file("extdata/input", "chr22.fSNPS.ENSG00000159958.txt", package = "baseqtl", mustWork = TRUE)
+u.snps <- system.file("extdata/input", "chr22.unique.fSNPS.ENSG00000159958.txt", package = "baseqtl", mustWork = TRUE)
+gene.coord <- system.file("extdata/input", "ENSG00000159958_data.txt", package = "baseqtl", mustWork = TRUE)
+vcf <- rep(system.file("extdata/input", "chr22GT.86GEU.vcf.gz", package = "baseqtl", mustWork = TRUE), 2)
+le.file <- system.file("extdata/input", "1000GP_Phase3_subset_chr22.legend.gz", package = "baseqtl", mustWork = TRUE)
+h.file <- system.file("extdata/input", "1000GP_Phase3_subset_chr22.hap.gz", package = "baseqtl", mustWork = TRUE)
+AI_estimate <- system.file("extdata/input", "AI_estimate.GT.txt", package = "baseqtl", mustWork = TRUE)
 ```
 
-```{r, eval=FALSE}
+```{r gt2t-run}
 ## Choose your output directory
-out <- "../baseqtl-output/GT-paired"
+# out <- "../baseqtl-output/GT-paired"
+out <- tempdir()
 
 ## To minimise file sizes and computational load SNPs are within a 10^4 cis-window
 ## baseqtl is computational intense, it is recommended to be run with several cores
@@ -386,7 +390,7 @@ With default 'prefix' argument you will find the following files in your output 
 1. ENSG00000159958.paired.GT.excluded.rsnps.txt, same format as ENSG00000159958.GT.excluded.rsnps.txt explained above.
 1. ENSG00000159958.paired.GT.stan.summary.txt
 
-```{r}
+```{r gt2t-paired}
 ## Inspecting output files
 results <- data.table::fread(system.file("extdata/output", "ENSG00000159958.paired.GT.stan.summary.txt", package = "baseqtl", mustWork = TRUE))
 ```
@@ -395,7 +399,7 @@ results <- data.table::fread(system.file("extdata/output", "ENSG00000159958.pair
 
 The summary file has the following information:
 
-``` {r}
+```{r gt2t-res}
 names(results)
 ```
 
@@ -409,6 +413,7 @@ names(results)
     1. When ba significant implies a significant eQTl effect in one or both treatments. If bd is significant, there is evidence for condition specific effect, likely the eQTL effect is detected in one condition only.
     1. If ba is not significant but bd is significant it could indicate eQTL effects in opposite directions.
     1. ASE.hets gives the number of hets individuals for the rSNP with sufficient ASE counts for each treatment as '14,10'
+
 
 
 ## eQTL analysis with samples from two conditions (diseases vs control) and unknown genotypes.
@@ -430,18 +435,14 @@ We call **baseqtl2T.nogt**. I will describe below the arguments that differ from
 
 *fishjoin* whether to run Fisher test for heterozygocity frequency between samples and reference panel fSNPs (ex.fsnp argument) jointly in all samples or by treatment, defaults to jointly but  for QC purposes, to use the same fSNPs in each treatment as the ones used  when the treatments were run using independent models select  NULL.
 
-```{r}
+```{r nogt2t-setup}
 ## Retrive input files for running baseqtl2T.nogt
-
 counts.f <- c(system.file("extdata/input", "counts_Psoriasis_skin.txt", package = "baseqtl", mustWork = TRUE),
 	 system.file("extdata/input", "counts_normal_skin.txt", package = "baseqtl", mustWork = TRUE))
-	 
 covariates <- c(system.file("extdata/input", "Psoriasis_skin_gc_lib_size.rds", package = "baseqtl", mustWork = TRUE),
 	   system.file("extdata/input", "normal_skin_gc_lib_size.rds", package = "baseqtl", mustWork = TRUE))
-
-vcf = c(system.file("extdata/input", "chr10.ASE.Psoriasis_skin.vcf.gz", package = "baseqtl", mustWork = TRUE),
+vcf <- c(system.file("extdata/input", "chr10.ASE.Psoriasis_skin.vcf.gz", package = "baseqtl", mustWork = TRUE),
     system.file("extdata/input", "chr10.ASE.normal_skin.vcf.gz", package = "baseqtl", mustWork = TRUE))
-    
 e.snps <- system.file("extdata/input", "chr10.fSNPS.ENSG00000178372.txt", package = "baseqtl", mustWork = TRUE)
 u.snps <- system.file("extdata/input", "chr10.unique.fSNPS.ENSG00000178372.txt", package = "baseqtl", mustWork = TRUE)
 gene.coord <- system.file("extdata/input", "ENSG00000178372_data.txt", package = "baseqtl", mustWork = TRUE)
@@ -449,19 +450,20 @@ sample.f <- system.file("extdata/input", "1000GP_Phase3.sample", package = "base
 le.file <- system.file("extdata/input", "1000GP_Phase3_subset_chr10.legend.gz", package = "baseqtl", mustWork = TRUE)
 h.file <- system.file("extdata/input", "1000GP_Phase3_subset_chr10.hap.gz", package = "baseqtl", mustWork = TRUE)
 AI_estimate <- system.file("extdata/input", "AI_estimate.psoriasis.txt", package = "baseqtl", mustWork = TRUE)
-
 ```
 
-```{r, eval=FALSE}
+```{r nogt2t-run}
 ## Choose your output directory
-out <- "../baseqtl-output"
+# out <- "../baseqtl-output"
+out <- tempdir()
 
 ## To minimise file sizes and computational load SNPs are within a 10^4 cis-window
 ## baseqtl is computational intense, it is recommended to be run with several cores
 ## cores are automatically detected by R
 
 ## Run baseqtl.n2Togt:
-baseqtl2T.nogt(gene = "ENSG00000178372",
+baseqtl2T.nogt(
+    gene = "ENSG00000178372",
     chr = 10,
     snps = 10^4,
     counts.f = counts.f,
@@ -497,5 +499,6 @@ With default 'prefix' argument you will find the following files in your output 
 1. ENSG00000178372.2T.fsnps.het.fisher.test.txt same format as ENSG00000159958.fsnps.het.fisher.test.txt
 1. ENSG00000178372.2T.noGT.summary.txt same format as ENSG00000159958.paired.GT.stan.summary.txt
 
-All ouput files are available at "extdata/output".
+All output files are available at "extdata/output".
+
 

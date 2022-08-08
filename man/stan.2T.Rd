@@ -34,7 +34,6 @@ stan.2T(
 }
 \value{
 DT with formated data
-stan.2T()
 }
 \description{
 This function allows you to extract the parameter information from a list of stan summaries (output from stan.many.sim)

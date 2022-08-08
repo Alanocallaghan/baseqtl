@@ -74,6 +74,7 @@ baseqtl.gt <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, add
   } else {
     screen.results <- NULL
   }
+  
   ## check for valid stan models
   if (is.null(stan.model)) {
     ## check if ref panelbias correction

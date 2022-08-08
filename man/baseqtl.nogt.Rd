@@ -110,3 +110,43 @@ data.table with summary of gene-snp associations. Saves the summary table in "ou
 \description{
 This function allows you to run baseqtl for one gene and multiple pre-selected snps.
 }
+\examples{
+## example input files
+
+counts.f <- system.file("extdata/input", "counts.txt", package = "baseqtl", mustWork = TRUE)
+covariates <- system.file("extdata/input", "lbsize_gc.rds", package = "baseqtl", mustWork = TRUE)
+e.snps <- system.file("extdata/input", "chr22.fSNPS.ENSG00000159958.txt", package = "baseqtl", mustWork = TRUE)
+u.snps <- system.file("extdata/input", "chr22.unique.fSNPS.ENSG00000159958.txt", package = "baseqtl", mustWork = TRUE)
+gene.coord <- system.file("extdata/input", "ENSG00000159958_data.txt", package = "baseqtl", mustWork = TRUE)
+vcf <- system.file("extdata/input", "chr22noGT.86GEU.vcf.gz", package = "baseqtl", mustWork = TRUE)
+sample.f <- system.file("extdata/input", "1000GP_Phase3.sample", package = "baseqtl", mustWork = TRUE)
+le.file <- system.file("extdata/input", "1000GP_Phase3_subset_chr22.legend.gz", package = "baseqtl", mustWork = TRUE)
+h.file <- system.file("extdata/input", "1000GP_Phase3_subset_chr22.hap.gz", package = "baseqtl", mustWork = TRUE)
+AI_estimate <- system.file("extdata/input", "AI_estimate.noGT.txt", package = "baseqtl", mustWork = TRUE)
+
+
+## Choose your output directory
+out <- tempdir()
+
+## To minimise file sizes and computational load SNPs are within a 10^4 cis-window
+## baseqtl is computational intense, it is recommended to be run with several cores
+## cores are automatically detected by R
+
+## Run baseqtl.nogt:
+baseqtl.nogt(
+    gene = "ENSG00000159958",
+    chr = 22,
+    snps = 10^4,
+    counts.f = counts.f,
+    covariates = covariates,
+    e.snps = e.snps,
+    u.esnps = u.snps,
+    gene.coord = gene.coord,
+    vcf = vcf,
+    sample.f = sample.f,
+    le.file = le.file,
+    h.file = h.file,
+    out = out,
+    AI_estimate = AI_estimate
+)
+}

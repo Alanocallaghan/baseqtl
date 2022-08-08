@@ -35,8 +35,47 @@
 #' @param info numeric cut-off for var(E(G))/var(G), var(E(G)) is the expected variance for input and var(G) for reference panel, similar to info score in impute2, defaults to 0.3. rsnps with lower info wont be run by stan.
 #' @param save_input whether to save input to stan model for QC purposes, defaults to FALSE to save disk space. Object ending with "noGT.stan.input.rds" is a named list with each element the inputs for a cis-SNP. For each cis-SNP there is a list of 2 elements: "NB" and "ase". "NB" is a list with elements "counts" and "p.g". "Counts" is a data.table with columns sample names and one row corresponding to the gene, values total read counts. "p.g" is a named list with each element a sample. For each sample there is an array with names genotypes (0,1,2) and values the genotype probabilities. For the "ase" list they are for elements: "m" numeric vector with  total ASE counts per sample. "g" list with each element a sample and for each sample the genoptype of the cis SNP coded as 0,1,2 and -1, with -1 indicating that the alternative allele is in haplotype 1. "p" has the same structure as "g" and indicates the probability for each genotype. "n"  is similar to "g" and "p" but contains the mapped reads to haplotype 2. The file ending with "noGT.fsnps.counts.rds is a matrix with rows samples and columns fSNPS. When a fSNPs ends with ".n" correspond to the counts matching the alternative allele and ".m" indicates the total counts matching the SNP.
 #' @inheritParams baseqtl.gt
-#' @export
+#' @examples
+#' ## example input files
+#' 
+#' counts.f <- system.file("extdata/input", "counts.txt", package = "baseqtl", mustWork = TRUE)
+#' covariates <- system.file("extdata/input", "lbsize_gc.rds", package = "baseqtl", mustWork = TRUE)
+#' e.snps <- system.file("extdata/input", "chr22.fSNPS.ENSG00000159958.txt", package = "baseqtl", mustWork = TRUE)
+#' u.snps <- system.file("extdata/input", "chr22.unique.fSNPS.ENSG00000159958.txt", package = "baseqtl", mustWork = TRUE)
+#' gene.coord <- system.file("extdata/input", "ENSG00000159958_data.txt", package = "baseqtl", mustWork = TRUE)
+#' vcf <- system.file("extdata/input", "chr22noGT.86GEU.vcf.gz", package = "baseqtl", mustWork = TRUE)
+#' sample.f <- system.file("extdata/input", "1000GP_Phase3.sample", package = "baseqtl", mustWork = TRUE)
+#' le.file <- system.file("extdata/input", "1000GP_Phase3_subset_chr22.legend.gz", package = "baseqtl", mustWork = TRUE)
+#' h.file <- system.file("extdata/input", "1000GP_Phase3_subset_chr22.hap.gz", package = "baseqtl", mustWork = TRUE)
+#' AI_estimate <- system.file("extdata/input", "AI_estimate.noGT.txt", package = "baseqtl", mustWork = TRUE)
+#' 
+#' 
+#' ## Choose your output directory
+#' out <- tempdir()
+#' 
+#' ## To minimise file sizes and computational load SNPs are within a 10^4 cis-window
+#' ## baseqtl is computational intense, it is recommended to be run with several cores
+#' ## cores are automatically detected by R
+#' 
+#' ## Run baseqtl.nogt:
+#' baseqtl.nogt(
+#'     gene = "ENSG00000159958",
+#'     chr = 22,
+#'     snps = 10^4,
+#'     counts.f = counts.f,
+#'     covariates = covariates,
+#'     e.snps = e.snps,
+#'     u.esnps = u.snps,
+#'     gene.coord = gene.coord,
+#'     vcf = vcf,
+#'     sample.f = sample.f,
+#'     le.file = le.file,
+#'     h.file = h.file,
+#'     out = out,
+#'     AI_estimate = AI_estimate
+#' )
 #' @return data.table with summary of gene-snp associations. Saves the summary table in "out" dir as /out/prefix.main.txt. When using tags, saves /out/prefix.tags.lookup.txt. Saves a table of excluded rsnps.
+#' @export
 baseqtl.nogt <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, additional_cov = NULL,
                          e.snps, u.esnps = NULL, gene.coord, vcf, sample.file = NULL, le.file,
                          h.file, population = c("EUR", "AFR", "AMR", "EAS", "SAS", "ALL"),

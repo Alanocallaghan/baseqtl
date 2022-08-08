@@ -13,7 +13,6 @@ haps(x, y)
 }
 \value{
 list
-haps()
 }
 \description{
 This function allows you to compute all possible haplotypes for an individual for a set of fSNPs and each rSNP
