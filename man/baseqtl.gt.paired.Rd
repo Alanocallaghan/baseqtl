@@ -120,6 +120,7 @@ out <- tempdir()
 ## baseqtl is computational intense, it is recommended to be run with several cores
 ## cores are automatically detected by R
 
+\dontrun{
 ## Run baseqtl.gt.paired:
 baseqtl.gt.paired(
     gene = "ENSG00000159958",
@@ -136,4 +137,5 @@ baseqtl.gt.paired(
     out = out,
     AI_estimate = AI_estimate
 )
+}
 }

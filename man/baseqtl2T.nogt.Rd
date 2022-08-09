@@ -134,8 +134,8 @@ out <- tempdir()
 ## To minimise file sizes and computational load SNPs are within a 10^4 cis-window
 ## baseqtl is computational intense, it is recommended to be run with several cores
 ## cores are automatically detected by R
-
 ## Run baseqtl.n2Togt:
+\dontrun{
 baseqtl2T.nogt(gene = "ENSG00000178372",
     chr = 10,
     snps = 10^3,
@@ -152,4 +152,5 @@ baseqtl2T.nogt(gene = "ENSG00000178372",
     treatment = c("Psoriasis_skin", "normal_skin"),
     AI_estimate = AI_estimate
 )
+}
 }

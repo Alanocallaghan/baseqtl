@@ -22,6 +22,7 @@
 #' ## baseqtl is computational intense, it is recommended to be run with several cores
 #' ## cores are automatically detected by R
 #' 
+#' \dontrun{
 #' ## Run baseqtl.gt.paired:
 #' baseqtl.gt.paired(
 #'     gene = "ENSG00000159958",
@@ -38,6 +39,7 @@
 #'     out = out,
 #'     AI_estimate = AI_estimate
 #' )
+#' }
 #' @return Saves the summary table in "out" dir as /out/prefix.main.txt. When using tags, saves /out/prefix.tags.lookup.txt. Saves a table of excluded rsnps.
 #' @export
 baseqtl.gt.paired <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, additional_cov = NULL,
