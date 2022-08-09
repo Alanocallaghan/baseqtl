@@ -36,7 +36,7 @@ baseqtl.nogt(
   pretotalReads = 100,
   save_input = FALSE,
   inference.method = "sampling",
-  mc.cores = getOption("mc.cores", parallel::detectCores())
+  mc.cores = getOption("mc.cores", 1)
 )
 }
 \arguments{
@@ -147,6 +147,7 @@ baseqtl.nogt(
     le.file = le.file,
     h.file = h.file,
     out = out,
+    inference.method = "vb",
     AI_estimate = AI_estimate
 )
 }

@@ -19,7 +19,6 @@ aux.in2(gene, u.esnps, case, ex.fsnp = NULL, ai = NULL)
 }
 \value{
 data table with filtered ASE counts
-aux.in2()
 }
 \description{
 This function allows you to check arguments with and without GT

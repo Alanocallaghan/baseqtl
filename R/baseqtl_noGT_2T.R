@@ -54,7 +54,7 @@ baseqtl2T.nogt <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1,
                            prior = NULL, ex.fsnp = 0.01, AI_estimate = NULL, pretotalReads = 100,
                            treatments, fishjoin = "joint",
                            inference.method = c("sampling", "vb"),
-                           mc.cores = getOption("mc.cores", parallel::detectCores())) {
+                           mc.cores = getOption("mc.cores", 1)) {
   inference.method <- match.arg(inference.method)
   if (is.null(stan.model)) {
     ## check if ref panelbias correction

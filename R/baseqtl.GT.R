@@ -42,6 +42,7 @@
 #'     le.file = le.file,
 #'     h.file = h.file,
 #'     out = out,
+#'     inference.method = "vb",
 #'     AI_estimate = AI_estimate
 #' )
 #' 
@@ -58,7 +59,7 @@ baseqtl.gt <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, add
                        snps.list = NULL,
                        screen.method = NULL, screen.prob = 0.5,
                        # backend = c("rstan", "cmdstanr"),
-                       mc.cores = getOption("mc.cores", parallel::detectCores())) {
+                       mc.cores = getOption("mc.cores", 1)) {
 
   if (!is.null(screen.method)) {
     screen.method <- match.arg(screen.method, choices = "vb")

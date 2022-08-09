@@ -7,9 +7,9 @@
 #' @param gcoord data table from reading gene.coord
 #' @param rsnps.ex data table with id and reason column to exclude rsnps from analysis
 #' @inheritParams baseqtl.gt
-#' @export
 #' @return list with gt.ase info for whole cis-window to contain fSNPs, rs is the genotype plus rsnp info, excluded rsnps and cis-window
-
+#' @rdname aux-snps
+#' @export
 aux.snps <- function(gene, chr, snps, gcoord, gene.coord, vcf, rsnps.ex) {
   if (is.numeric(snps)) {
     if ("percentage_gc_content" %in% names(gcoord)) { ## newer version of gcoord from psoriasis snakefile rule geno_info using start, end, chrom, longest transcript length and GC percentage
@@ -130,7 +130,7 @@ help.tags <- function(gene, tag.threshold, rs, prefix, rec.rs, out) {
 #' @export
 #' @return data.table with summary of gene-snp associations. Saves the summary table in "out" dir as /out/prefix.main.txt. When using tags, saves /out/prefix.tags.lookup.txt. Saves a table of excluded rsnps.
 
-baseqtl.gt.in <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, additional_cov = NULL, e.snps, u.esnps = NULL, gene.coord, vcf, le.file, h.file, population = c("EUR", "AFR", "AMR", "EAS", "SAS", "ALL"), nhets = 5, min.ase = 5, min.ase.het = 5, tag.threshold = .9, out = ".", prefix = NULL, model = c("both", "NB-ASE", "NB"), prob = NULL, prior = NULL, ex.fsnp = NULL, AI_estimate = NULL, pretotalReads = 100, mc.cores = getOption("mc.cores", parallel::detectCores())) {
+baseqtl.gt.in <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, additional_cov = NULL, e.snps, u.esnps = NULL, gene.coord, vcf, le.file, h.file, population = c("EUR", "AFR", "AMR", "EAS", "SAS", "ALL"), nhets = 5, min.ase = 5, min.ase.het = 5, tag.threshold = .9, out = ".", prefix = NULL, model = c("both", "NB-ASE", "NB"), prob = NULL, prior = NULL, ex.fsnp = NULL, AI_estimate = NULL, pretotalReads = 100, mc.cores = getOption("mc.cores", 1)) {
 
   ## check inputs and extract inputs for gene
   model <- tryCatch(match.arg(model), error = function(e) {

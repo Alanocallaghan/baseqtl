@@ -32,7 +32,7 @@ baseqtl.gt.paired(
   ex.fsnp = NULL,
   AI_estimate = NULL,
   pretotalReads = 100,
-  mc.cores = getOption("mc.cores", parallel::detectCores()),
+  mc.cores = getOption("mc.cores", 1),
   inference.method = c("sampling", "vb")
 )
 }

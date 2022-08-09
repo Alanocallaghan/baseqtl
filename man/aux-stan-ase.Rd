@@ -15,8 +15,6 @@ aux.stan.ase(mat, g.rsnp, n.mat)
 }
 \value{
 list of stan input: list with AI reference bias estimates or variance estimates per individual
-
-aux.stan.ase()
 }
 \description{
 aux function to prepare inputs for allelic imbalance estimates, wrapper to avoid code repetition

@@ -72,6 +72,7 @@
 #'     le.file = le.file,
 #'     h.file = h.file,
 #'     out = out,
+#'     inference.method = "vb",
 #'     AI_estimate = AI_estimate
 #' )
 #' @return data.table with summary of gene-snp associations. Saves the summary table in "out" dir as /out/prefix.main.txt. When using tags, saves /out/prefix.tags.lookup.txt. Saves a table of excluded rsnps.
@@ -84,7 +85,7 @@ baseqtl.nogt <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, a
                          prob = NULL, prior = NULL, ex.fsnp = 0.01, AI_estimate = NULL,
                          pretotalReads = 100, save_input = FALSE,
                          inference.method = "sampling",
-                         mc.cores = getOption("mc.cores", parallel::detectCores())) {
+                         mc.cores = getOption("mc.cores", 1)) {
   ## check stan models
   if (is.null(stan.model)) {
     ## check if ref panelbias correction

@@ -20,7 +20,7 @@ aux.in3(
   prefix = NULL,
   out = ".",
   save_input = FALSE,
-  mc.cores = getOption("mc.cores", parallel::detectCores())
+  mc.cores = getOption("mc.cores", 1)
 )
 }
 \arguments{
@@ -58,7 +58,6 @@ aux.in3(
 }
 \value{
 list with stan input
-aux.in3()
 }
 \description{
 This function allows you to prepare stan inputs final stages

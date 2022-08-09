@@ -110,7 +110,7 @@ AI_estimate <- system.file("extdata/input", "AI_estimate.GT.txt", package = "bas
 ```
 
 
-```{r gt-run}
+```{r gt-run, eval = FALSE}
 ## Choose your output directory
 # out <- "../baseqtl_output/GT"
 out <- tempdir()
@@ -255,7 +255,7 @@ AI_estimate <- system.file("extdata/input", "AI_estimate.noGT.txt", package = "b
 ```
 
 
-```{r nogt-run}
+```{r nogt-run, eval = FALSE}
 ## Choose your output directory
 # out <- "../baseqtl-output/noGT"
 out <- tempdir()
@@ -355,7 +355,7 @@ h.file <- system.file("extdata/input", "1000GP_Phase3_subset_chr22.hap.gz", pack
 AI_estimate <- system.file("extdata/input", "AI_estimate.GT.txt", package = "baseqtl", mustWork = TRUE)
 ```
 
-```{r gt2t-run}
+```{r gt2t-run, eval = FALSE}
 ## Choose your output directory
 # out <- "../baseqtl-output/GT-paired"
 out <- tempdir()
@@ -453,7 +453,7 @@ h.file <- system.file("extdata/input", "1000GP_Phase3_subset_chr10.hap.gz", pack
 AI_estimate <- system.file("extdata/input", "AI_estimate.psoriasis.txt", package = "baseqtl", mustWork = TRUE)
 ```
 
-```{r nogt2t-run}
+```{r nogt2t-run, eval = FALSE}
 ## Choose your output directory
 # out <- "../baseqtl-output"
 out <- tempdir()

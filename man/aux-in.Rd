@@ -20,7 +20,7 @@ aux.in(
   prefix = NULL,
   out = ".",
   prior = NULL,
-  mc.cores = getOption("mc.cores", parallel::detectCores())
+  mc.cores = getOption("mc.cores", 1)
 )
 }
 \arguments{

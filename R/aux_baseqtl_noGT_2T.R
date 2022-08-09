@@ -37,12 +37,12 @@ list.err <- function(l, txt) {
 #' @param out path to save outputs, default to current directory
 #' @param prior named list: mean= vector with the mean of Gaussians, sd= vector with Gaussians sd for eQTL effect prior, mix=vector with mixing proportions. Defaults to NULL, mixture of 3 components with mean (0,0,0) ;sd  c( 0.0436992,  0.3492696, 0.4920049); and mixing proportions  c(0.955, 2*0.015, 0.015).
 #' @param mc.cores The number of parallel cores to use.
-#' @export
 #' @return list with stan input
-
+#' @rdname aux-in
+#' @export
 aux.in <- function(gene, ai = NULL, case, rp.f, rp.r, f.ase, counts.g, covariates,
                    min.ase = 5, min.ase.n = 5, info = 0.3, snps.ex, prefix = NULL, out = ".",
-                   prior = NULL, mc.cores = getOption("mc.cores", parallel::detectCores())) {
+                   prior = NULL, mc.cores = getOption("mc.cores", 1)) {
   if (!is.null(ai)) {
     stan.f <- mapply(function(a, b, c, d) fsnp.prep2(a, b, c, min.ase, min.ase.n, d),
       a = rp.f,

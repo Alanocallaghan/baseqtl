@@ -853,9 +853,9 @@ in.neg.beta.noGT.eff2 <- function(x, covar = 1) {
 #' @param a list to sort
 #' @param b Vector of indices to sort a by.
 #' @keywords sort ase by Gi=g
-#' @export
 #' @return vector to input for stan
-#'
+#' @rdname aux-sort
+#' @export
 aux.sort <- function(a, b) {
   tmp <- unlist(mapply(function(x, y) x[y], x = a, y = b, SIMPLIFY = F, USE.NAMES = F))
   return(tmp)
@@ -1368,11 +1368,10 @@ stan.ase <- function(M, M.cond, s.M, n.mat, ai0.mat = NULL, vai0.mat = NULL) {
 #' @param mat matrix with allelic imbalance or variance allelic imbalance estimates
 #' @param g.rsnp object created in stan.ase containing genotypes compatible with reference panel
 #' @param n.mat matrix with hap for fsnps and ase counts, output from fsnp.prep or stan.fsnp.noGT
-#' @export
 #' @return list of stan input: list with AI reference bias estimates or variance estimates per individual
 #'
-#' aux.stan.ase()
-
+#' @rdname aux-stan-ase
+#' @export
 aux.stan.ase <- function(mat, g.rsnp, n.mat) {
   ai0.mat <- Reduce(cbind, lapply(1:ncol(mat), function(i) matrix(rep(mat[, i], length(g.rsnp[[i]])), ncol = length(g.rsnp[[i]]))))
   ai0.list <- lapply(1:nrow(ai0.mat), function(i) ai0.mat[i, ])

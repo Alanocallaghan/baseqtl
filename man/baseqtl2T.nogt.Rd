@@ -37,7 +37,7 @@ baseqtl2T.nogt(
   treatments,
   fishjoin = "joint",
   inference.method = c("sampling", "vb"),
-  mc.cores = getOption("mc.cores", parallel::detectCores())
+  mc.cores = getOption("mc.cores", 1)
 )
 }
 \arguments{

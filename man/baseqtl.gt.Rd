@@ -36,7 +36,7 @@ baseqtl.gt(
   snps.list = NULL,
   screen.method = NULL,
   screen.prob = 0.5,
-  mc.cores = getOption("mc.cores", parallel::detectCores())
+  mc.cores = getOption("mc.cores", 1)
 )
 }
 \arguments{
@@ -138,6 +138,7 @@ baseqtl.gt(
     le.file = le.file,
     h.file = h.file,
     out = out,
+    inference.method = "vb",
     AI_estimate = AI_estimate
 )
 
