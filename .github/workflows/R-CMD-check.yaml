@@ -30,7 +30,7 @@ jobs:
         env:
           RHUB_PLATFORM: linux-x86_64-ubuntu-gcc
         run: |
-          sudo apt-get update && sudo apt-get -y install libcurl4-openssl-dev libglpk-dev libharfbuzz-dev libfribidi-dev
+          sudo apt-get update && sudo apt-get -y install pandoc libcurl4-openssl-dev libglpk-dev libharfbuzz-dev libfribidi-dev
       #     Rscript -e "remotes::install_github('r-hub/sysreqs')"
       #     sysreqs=$(Rscript -e "cat(sysreqs::sysreq_commands('DESCRIPTION'))")
       #     sudo -s eval "$sysreqs"
@@ -38,7 +38,7 @@ jobs:
       - name: Install mac dependencies
         if: runner.os == 'macOS'
         run: |
-          brew install gsl
+          brew install gsl pandoc
 
       - name: Install dependencies
         run: |
