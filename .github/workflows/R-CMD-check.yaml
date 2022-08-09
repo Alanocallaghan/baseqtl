@@ -39,6 +39,7 @@ jobs:
         run: |
           install.packages(c("remotes", "rcmdcheck", "curl"))
           remotes::install_deps(dependencies = TRUE)
+          devtools::install(".")
         shell: Rscript {0}
 
       - name: Session info
