@@ -26,7 +26,7 @@
 #' baseqtl.gt.paired(
 #'     gene = "ENSG00000159958",
 #'     chr = 22,
-#'     snps = 10^4,
+#'     snps = 10^3,
 #'     counts.f = counts.f,
 #'     covariates = covariates,
 #'     e.snps = e.snps,
@@ -100,6 +100,7 @@ baseqtl.gt.paired <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates =
   )
 
   if (is.character(base.in)) stop(base.in)
+  if (!length(base.in)) stop("No SNPs in cis-window!")
 
   param <- c("ba", "bd", "bp", "bn")
   ## get inputs
@@ -150,7 +151,7 @@ baseqtl.gt.paired <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates =
     probs <- base.in$neg$probs
     nhets <- base.in$neg$nhets
 
-    print("Running NB model")
+    message("Running NB model")
 
     stan.neg <- parallel::mclapply(
       1:length(in.neg),

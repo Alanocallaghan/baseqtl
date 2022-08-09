@@ -138,7 +138,7 @@ out <- tempdir()
 ## Run baseqtl.n2Togt:
 baseqtl2T.nogt(gene = "ENSG00000178372",
     chr = 10,
-    snps = 10^4,
+    snps = 10^3,
     counts.f = counts.f,
     covariates = covariates,
     e.snps = e.snps,

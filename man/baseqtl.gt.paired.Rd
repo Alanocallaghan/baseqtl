@@ -124,7 +124,7 @@ out <- tempdir()
 baseqtl.gt.paired(
     gene = "ENSG00000159958",
     chr = 22,
-    snps = 10^4,
+    snps = 10^3,
     counts.f = counts.f,
     covariates = covariates,
     e.snps = e.snps,

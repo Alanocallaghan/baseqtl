@@ -6,8 +6,6 @@
 #' @param n name of elements on l to join
 #' @export
 #' @return data table with inputs for stan
-#' treat.form()
-
 treat.form <- function(l, dt, n) {
   tmp <- Reduce(
     function(a, b) merge(a, b, by = c("samples", "index"), all = T),
@@ -219,7 +217,7 @@ btrecase.gt.paired.in <- function(gene, chr, snps = 5 * 10^5, counts.f, covariat
           ## make sure to select fsnps from reference panel
           f.ase <- lapply(gt.as, function(i) i[id %in% fsnps$id, ][id %in% rownames(rp), ])
           if (nrow(f.ase[[1]]) == 0) {
-            print("No fsnps ref panel")
+            message("No fsnps ref panel")
             rsnps.ex <- rbind(rsnps.ex, data.table::data.table(id = rec.rs2$id, reason = "No fsnps in reference panel"))
           } else {
 
@@ -236,7 +234,7 @@ btrecase.gt.paired.in <- function(gene, chr, snps = 5 * 10^5, counts.f, covariat
               s <- sapply(counts.ase, function(i) is.character(filt.fsnp(i, min.ase.snp = 0)))
               if (!all(s)) { ## Enough ind with ase counts
 
-                print(paste("Effective number of fSNPs:", nrow(f.ase[[1]])))
+                message(paste("Effective number of fSNPs:", nrow(f.ase[[1]])))
 
                 ## select rsnps in ref panel for full model
                 rs.full <- rs[id %in% rec.rs2$id, which(names(rs) %in% names(rec.rs2)), with = F]
@@ -257,7 +255,7 @@ btrecase.gt.paired.in <- function(gene, chr, snps = 5 * 10^5, counts.f, covariat
                 }
 
 
-                print("Preparing stan inputs")
+                message("Preparing stan inputs")
 
                 ## order fsnps in couts.ase as in f.ase
 

@@ -15,7 +15,6 @@ treat.form(l, dt, n)
 }
 \value{
 data table with inputs for stan
-treat.form()
 }
 \description{
 Aux for formatting 2 tretmenat inputs
