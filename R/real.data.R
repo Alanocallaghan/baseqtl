@@ -8,8 +8,6 @@
 #' @keywords vcf fread
 #' @export
 #' @return data table
-#' vcf_cl()
-
 vcf_cl <- function(cl1, cl2, sep = " ") {
   tmp <- data.table::fread(cmd = cl1, header = F, sep = sep, colClasses = c(V4 = "character", V5 = "character"))
   names(tmp) <- gsub("^.*]", "", names(data.table::fread(cmd = cl2)))[-1]
@@ -30,8 +28,6 @@ vcf_cl <- function(cl1, cl2, sep = " ") {
 #' @keywords command line bcftools query GT ASE
 #' @export
 #' @return character vector with bcftools command
-#' cl_bcfq()
-
 cl_bcfq <- function(vcf, chr = NULL, st = NULL, end = NULL, samples = NULL, f.arg = NULL, part = c("body", "header")) {
   if (!is.null(samples)) { ## select samples first
     samp <- paste(" -s ", paste0(samples, collapse = ","))
@@ -103,8 +99,6 @@ cl_bcfq <- function(vcf, chr = NULL, st = NULL, end = NULL, samples = NULL, f.ar
 #' @param exclude whether to return a list with snps excluded from vcf (all homo or missing)
 #' @export
 #' @return data table with GT and ASE, unless !is.null(excluded), returns list with first element data table with GT and ASE and second element a data table with exluded snps.
-#' vcf_w()
-
 vcf_w <- function(vcf, chr = NULL, st = NULL, end = NULL, samples = NULL, f.arg = NULL, qc = NULL, exclude = NULL) {
   body <- cl_bcfq(vcf, chr, st, end, samples, f.arg, part = "body")
 
@@ -112,15 +106,18 @@ vcf_w <- function(vcf, chr = NULL, st = NULL, end = NULL, samples = NULL, f.arg 
 
 
   ## open GT and ASE for the selected gene
-
-  gt.ase <- tryCatch(
-    {
-      vcf_cl(body, header, sep = " ")
-    },
-    error = function(e) {
-      paste("Region not found for chrom and positions", chr, st, end, sep = ":")
-    }
-  )
+  cl <- basiliskStart(bcf_env)
+  on.exit(basiliskStop(cl))
+  gt.ase <- basiliskRun(cl, {
+    tryCatch(
+      {
+        vcf_cl(body, header, sep = " ")
+      },
+      error = function(e) {
+        paste("Region not found for chrom and positions", chr, st, end, sep = ":")
+      }
+    )
+  })
   if (is.character(gt.ase)) {
     return(gt.ase)
   } else {
@@ -175,8 +172,6 @@ vcf_w <- function(vcf, chr = NULL, st = NULL, end = NULL, samples = NULL, f.arg 
 #' @keywords vcf gt qc
 #' @export
 #' @return named vector when the only argument used is gt.ase. The vector gives the total number of snps, number of snps with wrong GT format, total number of samples and number of samples with wrong GT format. When all arguments are used it saves and indexes a new vcf excluding wrongly GT entries by snps or samples in format vcf.gz. In this mode the function returns a DT with the chr:pos:ref:alt of snps excluded or the name of the samples excluded.
-#' vcf.gt.qc()
-
 vcf.gt.qc <- function(gt.ase, exclude = c("snps", "samples"), vcf.path, path = ".", vcf.out = "chr22.GTqc") {
   gt.col <- grep("GT$", names(gt.ase))
   ok <- c("0|1", "0|0", "1|1", "1|0")
@@ -204,9 +199,13 @@ vcf.gt.qc <- function(gt.ase, exclude = c("snps", "samples"), vcf.path, path = "
         bcf.f <- paste("bcftools view -Oz -s", del2, vcf.path, "-o", out)
         report <- data.table::data.table(samples.excluded = del)
       }
-      system(bcf.f)
-      bcf.i <- paste("bcftools index -t", out)
-      system(bcf.i)
+      cl <- basiliskStart(bcf_env)
+      on.exit(basiliskStop(cl))
+      basiliskRun(cl, {
+        system(bcf.f)
+        bcf.i <- paste("bcftools index -t", out)
+        system(bcf.i)
+      })
     }
   }
 

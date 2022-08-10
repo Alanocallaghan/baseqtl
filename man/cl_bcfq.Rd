@@ -31,7 +31,6 @@ cl_bcfq(
 }
 \value{
 character vector with bcftools command
-cl_bcfq()
 }
 \description{
 This function allows you to write the command to extract any field for a region of a vcf, allows sample selection

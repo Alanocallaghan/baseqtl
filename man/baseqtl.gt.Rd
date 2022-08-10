@@ -126,20 +126,20 @@ AI_estimate <- system.file("extdata/input", "AI_estimate.GT.txt", package = "bas
 out <- tempdir()
 
 baseqtl.gt(
-    gene = "ENSG00000159958",
-    chr = 22,
-    snps = 10^4,
-    counts.f = counts.f,
-    covariates = covariates,
-    e.snps = e.snps,
-    u.esnps = u.snps,
-    gene.coord = gene.coord,
-    vcf = vcf,
-    le.file = le.file,
-    h.file = h.file,
-    out = out,
-    inference.method = "vb",
-    AI_estimate = AI_estimate
+  gene = "ENSG00000159958",
+  chr = 22,
+  snps = 10^4,
+  counts.f = counts.f,
+  covariates = covariates,
+  e.snps = e.snps,
+  u.esnps = u.snps,
+  gene.coord = gene.coord,
+  vcf = vcf,
+  le.file = le.file,
+  h.file = h.file,
+  out = out,
+  inference.method = "vb",
+  AI_estimate = AI_estimate
 )
 
 }

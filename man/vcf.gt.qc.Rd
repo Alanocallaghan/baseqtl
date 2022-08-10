@@ -25,7 +25,6 @@ vcf.gt.qc(
 }
 \value{
 named vector when the only argument used is gt.ase. The vector gives the total number of snps, number of snps with wrong GT format, total number of samples and number of samples with wrong GT format. When all arguments are used it saves and indexes a new vcf excluding wrongly GT entries by snps or samples in format vcf.gz. In this mode the function returns a DT with the chr:pos:ref:alt of snps excluded or the name of the samples excluded.
-vcf.gt.qc()
 }
 \description{
 This function allows you to test wether a vcf_w returned object is correctly formatted in GT field with the option to list snps or samples with wrong GT in format to be excluded from

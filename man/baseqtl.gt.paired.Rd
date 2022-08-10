@@ -103,7 +103,7 @@ This function allows you to run BaseQTL with paired design for one gene and mult
 }
 \examples{
 ## Retrieve input files for running baseqtl.gt (paired)
-counts.f <- rep(system.file("extdata/input", "counts.txt", package = "baseqtl", mustWork = TRUE),2)
+counts.f <- rep(system.file("extdata/input", "counts.txt", package = "baseqtl", mustWork = TRUE), 2)
 covariates <- system.file("extdata/input", "lbsize_gc.rds", package = "baseqtl", mustWork = TRUE)
 e.snps <- system.file("extdata/input", "chr22.fSNPS.ENSG00000159958.txt", package = "baseqtl", mustWork = TRUE)
 u.snps <- system.file("extdata/input", "chr22.unique.fSNPS.ENSG00000159958.txt", package = "baseqtl", mustWork = TRUE)
@@ -123,19 +123,19 @@ out <- tempdir()
 \dontrun{
 ## Run baseqtl.gt.paired:
 baseqtl.gt.paired(
-    gene = "ENSG00000159958",
-    chr = 22,
-    snps = 10^3,
-    counts.f = counts.f,
-    covariates = covariates,
-    e.snps = e.snps,
-    u.esnps = u.snps,
-    gene.coord = gene.coord,
-    vcf = vcf,
-    le.file = le.file,
-    h.file = h.file,
-    out = out,
-    AI_estimate = AI_estimate
+  gene = "ENSG00000159958",
+  chr = 22,
+  snps = 10^3,
+  counts.f = counts.f,
+  covariates = covariates,
+  e.snps = e.snps,
+  u.esnps = u.snps,
+  gene.coord = gene.coord,
+  vcf = vcf,
+  le.file = le.file,
+  h.file = h.file,
+  out = out,
+  AI_estimate = AI_estimate
 )
 }
 }

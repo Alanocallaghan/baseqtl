@@ -114,12 +114,18 @@ This function allows you to run baseqtl for one gene and multiple pre-selected s
 }
 \examples{
 ## Retrive input files for running baseqtl2T.nogt
-counts.f <- c(system.file("extdata/input", "counts_Psoriasis_skin.txt", package = "baseqtl", mustWork = TRUE),
-	   system.file("extdata/input", "counts_normal_skin.txt", package = "baseqtl", mustWork = TRUE))
-covariates <- c(system.file("extdata/input", "Psoriasis_skin_gc_lib_size.rds", package = "baseqtl", mustWork = TRUE),
-	   system.file("extdata/input", "normal_skin_gc_lib_size.rds", package = "baseqtl", mustWork = TRUE))
-vcf <- c(system.file("extdata/input", "chr10.ASE.Psoriasis_skin.vcf.gz", package = "baseqtl", mustWork = TRUE),
-    system.file("extdata/input", "chr10.ASE.normal_skin.vcf.gz", package = "baseqtl", mustWork = TRUE))
+counts.f <- c(
+  system.file("extdata/input", "counts_Psoriasis_skin.txt", package = "baseqtl", mustWork = TRUE),
+  system.file("extdata/input", "counts_normal_skin.txt", package = "baseqtl", mustWork = TRUE)
+)
+covariates <- c(
+  system.file("extdata/input", "Psoriasis_skin_gc_lib_size.rds", package = "baseqtl", mustWork = TRUE),
+  system.file("extdata/input", "normal_skin_gc_lib_size.rds", package = "baseqtl", mustWork = TRUE)
+)
+vcf <- c(
+  system.file("extdata/input", "chr10.ASE.Psoriasis_skin.vcf.gz", package = "baseqtl", mustWork = TRUE),
+  system.file("extdata/input", "chr10.ASE.normal_skin.vcf.gz", package = "baseqtl", mustWork = TRUE)
+)
 e.snps <- system.file("extdata/input", "chr10.fSNPS.ENSG00000178372.txt", package = "baseqtl", mustWork = TRUE)
 u.snps <- system.file("extdata/input", "chr10.unique.fSNPS.ENSG00000178372.txt", package = "baseqtl", mustWork = TRUE)
 gene.coord <- system.file("extdata/input", "ENSG00000178372_data.txt", package = "baseqtl", mustWork = TRUE)
@@ -136,21 +142,22 @@ out <- tempdir()
 ## cores are automatically detected by R
 ## Run baseqtl.n2Togt:
 \dontrun{
-baseqtl2T.nogt(gene = "ENSG00000178372",
-    chr = 10,
-    snps = 10^3,
-    counts.f = counts.f,
-    covariates = covariates,
-    e.snps = e.snps,
-    u.esnps = u.snps,
-    gene.coord = gene.coord,
-    vcf = vcf,
-    sample.f = sample.f,
-    le.file = le.file,
-    h.file = h.file,
-    out = out,
-    treatment = c("Psoriasis_skin", "normal_skin"),
-    AI_estimate = AI_estimate
+baseqtl2T.nogt(
+  gene = "ENSG00000178372",
+  chr = 10,
+  snps = 10^3,
+  counts.f = counts.f,
+  covariates = covariates,
+  e.snps = e.snps,
+  u.esnps = u.snps,
+  gene.coord = gene.coord,
+  vcf = vcf,
+  sample.f = sample.f,
+  le.file = le.file,
+  h.file = h.file,
+  out = out,
+  treatment = c("Psoriasis_skin", "normal_skin"),
+  AI_estimate = AI_estimate
 )
 }
 }

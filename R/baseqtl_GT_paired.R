@@ -5,7 +5,7 @@
 #' @inheritParams baseqtl.gt
 #' @examples
 #' ## Retrieve input files for running baseqtl.gt (paired)
-#' counts.f <- rep(system.file("extdata/input", "counts.txt", package = "baseqtl", mustWork = TRUE),2)
+#' counts.f <- rep(system.file("extdata/input", "counts.txt", package = "baseqtl", mustWork = TRUE), 2)
 #' covariates <- system.file("extdata/input", "lbsize_gc.rds", package = "baseqtl", mustWork = TRUE)
 #' e.snps <- system.file("extdata/input", "chr22.fSNPS.ENSG00000159958.txt", package = "baseqtl", mustWork = TRUE)
 #' u.snps <- system.file("extdata/input", "chr22.unique.fSNPS.ENSG00000159958.txt", package = "baseqtl", mustWork = TRUE)
@@ -14,30 +14,30 @@
 #' le.file <- system.file("extdata/input", "1000GP_Phase3_subset_chr22.legend.gz", package = "baseqtl", mustWork = TRUE)
 #' h.file <- system.file("extdata/input", "1000GP_Phase3_subset_chr22.hap.gz", package = "baseqtl", mustWork = TRUE)
 #' AI_estimate <- system.file("extdata/input", "AI_estimate.GT.txt", package = "baseqtl", mustWork = TRUE)
-#' 
+#'
 #' ## Choose your output directory
 #' out <- tempdir()
-#' 
+#'
 #' ## To minimise file sizes and computational load SNPs are within a 10^4 cis-window
 #' ## baseqtl is computational intense, it is recommended to be run with several cores
 #' ## cores are automatically detected by R
-#' 
+#'
 #' \dontrun{
 #' ## Run baseqtl.gt.paired:
 #' baseqtl.gt.paired(
-#'     gene = "ENSG00000159958",
-#'     chr = 22,
-#'     snps = 10^3,
-#'     counts.f = counts.f,
-#'     covariates = covariates,
-#'     e.snps = e.snps,
-#'     u.esnps = u.snps,
-#'     gene.coord = gene.coord,
-#'     vcf = vcf,
-#'     le.file = le.file,
-#'     h.file = h.file,
-#'     out = out,
-#'     AI_estimate = AI_estimate
+#'   gene = "ENSG00000159958",
+#'   chr = 22,
+#'   snps = 10^3,
+#'   counts.f = counts.f,
+#'   covariates = covariates,
+#'   e.snps = e.snps,
+#'   u.esnps = u.snps,
+#'   gene.coord = gene.coord,
+#'   vcf = vcf,
+#'   le.file = le.file,
+#'   h.file = h.file,
+#'   out = out,
+#'   AI_estimate = AI_estimate
 #' )
 #' }
 #' @return Saves the summary table in "out" dir as /out/prefix.main.txt. When using tags, saves /out/prefix.tags.lookup.txt. Saves a table of excluded rsnps.
@@ -50,7 +50,6 @@ baseqtl.gt.paired <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates =
                               prob = NULL, prior = NULL, ex.fsnp = NULL, AI_estimate = NULL,
                               pretotalReads = 100, mc.cores = getOption("mc.cores", 1),
                               inference.method = c("sampling", "vb")) {
-  
   inference.method <- match.arg(inference.method)
   ## check for valid stan models
   if (is.null(stan.model)) {

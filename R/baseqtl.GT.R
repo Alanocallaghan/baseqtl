@@ -12,7 +12,7 @@
 #' @param screen.method The method to used to perform screening with approximate inference.
 #' @param screen.prob The probability threshold to use for screening with approximate inference.
 #' @param mc.cores The number of parallel cores to use when performing tests.
-#' 
+#'
 #' @inheritParams aux.in1
 #' @examples
 #' ## example inputs saved in package directory
@@ -25,27 +25,27 @@
 #' le.file <- system.file("extdata/input", "1000GP_Phase3_subset_chr22.legend.gz", package = "baseqtl", mustWork = TRUE)
 #' h.file <- system.file("extdata/input", "1000GP_Phase3_subset_chr22.hap.gz", package = "baseqtl", mustWork = TRUE)
 #' AI_estimate <- system.file("extdata/input", "AI_estimate.GT.txt", package = "baseqtl", mustWork = TRUE)
-#' 
+#'
 #' ## output dir
 #' out <- tempdir()
-#' 
+#'
 #' baseqtl.gt(
-#'     gene = "ENSG00000159958",
-#'     chr = 22,
-#'     snps = 10^4,
-#'     counts.f = counts.f,
-#'     covariates = covariates,
-#'     e.snps = e.snps,
-#'     u.esnps = u.snps,
-#'     gene.coord = gene.coord,
-#'     vcf = vcf,
-#'     le.file = le.file,
-#'     h.file = h.file,
-#'     out = out,
-#'     inference.method = "vb",
-#'     AI_estimate = AI_estimate
+#'   gene = "ENSG00000159958",
+#'   chr = 22,
+#'   snps = 10^4,
+#'   counts.f = counts.f,
+#'   covariates = covariates,
+#'   e.snps = e.snps,
+#'   u.esnps = u.snps,
+#'   gene.coord = gene.coord,
+#'   vcf = vcf,
+#'   le.file = le.file,
+#'   h.file = h.file,
+#'   out = out,
+#'   inference.method = "vb",
+#'   AI_estimate = AI_estimate
 #' )
-#' 
+#'
 #' @return Saves the summary table in "out" dir as /out/prefix.main.txt. When using tags, saves /out/prefix.tags.lookup.txt. Saves a table of excluded rsnps from model.
 #' @export
 
@@ -60,7 +60,6 @@ baseqtl.gt <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, add
                        screen.method = NULL, screen.prob = 0.5,
                        # backend = c("rstan", "cmdstanr"),
                        mc.cores = getOption("mc.cores", 1)) {
-
   if (!is.null(screen.method)) {
     screen.method <- match.arg(screen.method, choices = "vb")
     call <- match.call()
@@ -75,7 +74,7 @@ baseqtl.gt <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, add
   } else {
     screen.results <- NULL
   }
-  
+
   ## check for valid stan models
   if (is.null(stan.model)) {
     ## check if ref panelbias correction
@@ -147,14 +146,15 @@ baseqtl.gt <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, add
     nhets <- base.in$nbase$nhets
     nfsnps <- base.in$nbase$nfsnps
     r.tag <- base.in$nbase$r.tag
-    
+
 
     message("Running NB_ASE model")
     stan.full <- parallel::mclapply(stan.in2,
       function(i) {
         s <- run.stan(stan.model, data = i, pars = "bj", probs = probs, inference.method = inference.method)
         return(s)
-      }, mc.cores = mc.cores
+      },
+      mc.cores = mc.cores
     )
     names(stan.full) <- names(stan.in2)
     full.sum <- stan.bt(x = stan.full, y = NULL, rtag = r.tag, model = "NB-ASE", nhets = nhets, ASE.het = ASE.hets, gene = gene, EAF = eaf.t, nfsnps = nfsnps, probs = probs)

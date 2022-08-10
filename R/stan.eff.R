@@ -1447,26 +1447,28 @@ run.stan <- function(mod, data, pars, probs, tries = 5, inference.method = c("sa
     if (inference.method == "sampling") {
       post <- rstan::sampling(mod, data = data, cores = 1, refresh = 0, pars = pars)
     } else if (inference.method == "vb") {
-        while (try < tries) {
-          capture.output(
-            post <- try({
-                rstan::vb(
-                  mod, data = data, refresh = 0, pars = pars,
-                  iter = 20000,
-                  tol_rel_obj = 1e-3
-                  # ,
-                  # eval_elbo = 50
-                  # ,
-                  # grad_samples = 10,
-                  # elbo_samples = 500
-                )
-              },
-              silent = TRUE
-            )
+      while (try < tries) {
+        capture.output(
+          post <- try(
+            {
+              rstan::vb(
+                mod,
+                data = data, refresh = 0, pars = pars,
+                iter = 20000,
+                tol_rel_obj = 1e-3
+                # ,
+                # eval_elbo = 50
+                # ,
+                # grad_samples = 10,
+                # elbo_samples = 500
+              )
+            },
+            silent = TRUE
           )
-          if (!inherits(post, "try-error")) break
-          try <- try + 1
-        }
+        )
+        if (!inherits(post, "try-error")) break
+        try <- try + 1
+      }
     }
     sum <- rstan::summary(post, pars = pars, use_cache = F, probs = probs)$summary
     ex <- rstan::extract(post, pars = pars)

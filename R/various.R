@@ -143,7 +143,7 @@ stan.bt <- function(x, y = "bj", rtag = NULL, model = "NB-ASE", nhets = NA, ASE.
   cols.ex <- intersect(colnames(DT), c("n_eff", "Rhat", "post.prop.neg"))
   ## new version allowing extra probs cols
   DT2 <- DT[, lapply(.SD, function(i) i / log(2)), .SDcols = names(DT)[!names(DT) %in% cols.ex]]
-  DT[, setdiff(names(DT),  cols.ex) := DT2]
+  DT[, setdiff(names(DT), cols.ex) := DT2]
 
   ## add col for whether 95-99%CI contains the null (0)
 
