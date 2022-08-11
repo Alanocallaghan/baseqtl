@@ -34,7 +34,7 @@ SystemRequirements: GNU make
 RoxygenNote: 7.2.1
 Remotes:
     Alanocallaghan/GUESSFM@groups,
-    gitlab::evigorito/addstrings
+    gitlab::evigorito/addstrings,
     bioc::basilisk
 Language: en-GB
 Suggests: 
