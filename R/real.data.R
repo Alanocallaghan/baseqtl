@@ -108,7 +108,7 @@ vcf_w <- function(vcf, chr = NULL, st = NULL, end = NULL, samples = NULL, f.arg 
   ## open GT and ASE for the selected gene
   cl <- basiliskStart(bcf_env)
   on.exit(basiliskStop(cl))
-  gt.ase <- basiliskRun(cl, {
+  gt.ase <- basiliskRun(cl, function(...) {
     tryCatch(
       {
         vcf_cl(body, header, sep = " ")
@@ -201,7 +201,7 @@ vcf.gt.qc <- function(gt.ase, exclude = c("snps", "samples"), vcf.path, path = "
       }
       cl <- basiliskStart(bcf_env)
       on.exit(basiliskStop(cl))
-      basiliskRun(cl, {
+      basiliskRun(cl, function(...) {
         system(bcf.f)
         bcf.i <- paste("bcftools index -t", out)
         system(bcf.i)
