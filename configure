@@ -1,3 +1,3 @@
 #! /bin/sh
-"${R_HOME}/bin/Rscript" "rstantools::rstan_config()"
-"${R_HOME}/bin/Rscript" "basilisk::configureBasiliskEnv()"
+"${R_HOME}/bin/Rscript" -e "rstantools::rstan_config()"
+"${R_HOME}/bin/Rscript" -e "basilisk::configureBasiliskEnv()"

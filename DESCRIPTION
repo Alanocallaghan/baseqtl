@@ -35,6 +35,7 @@ RoxygenNote: 7.2.1
 Remotes:
     Alanocallaghan/GUESSFM@groups,
     gitlab::evigorito/addstrings
+    bioc::basilisk
 Language: en-GB
 Suggests: 
     knitr,

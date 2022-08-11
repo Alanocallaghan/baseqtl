@@ -15,7 +15,6 @@ vcf_cl(cl1, cl2, sep = " ")
 }
 \value{
 data table
-vcf_cl()
 }
 \description{
 This function allows you to extract part of a vcf file and read it as data table
