@@ -3,3 +3,4 @@
 ^doc$
 ^\.travis\.yml$
 .github
+.BBSoptions
