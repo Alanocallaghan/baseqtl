@@ -82,6 +82,7 @@ baseqtl.gt.paired <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates =
                               model = c("both", "NB-ASE", "NB"), stan.model = NULL, stan.negonly = NULL,
                               prob = NULL, prior = NULL, ex.fsnp = NULL, AI_estimate = NULL,
                               pretotalReads = 100, mc.cores = getOption("mc.cores", 1),
+                              screen.method = NULL, screen.prob = 0.5,
                               inference.method = c("sampling", "vb")) {
 
   if (!is.null(screen.method)) {

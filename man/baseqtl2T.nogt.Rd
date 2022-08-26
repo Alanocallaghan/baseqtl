@@ -37,6 +37,8 @@ baseqtl2T.nogt(
   treatments,
   fishjoin = "joint",
   inference.method = c("sampling", "vb"),
+  screen.method = NULL,
+  screen.prob = 0.5,
   mc.cores = getOption("mc.cores", 1)
 )
 }
@@ -102,6 +104,10 @@ baseqtl2T.nogt(
 \item{fishjoin}{whether to run Fisher test jointly in all samples or by treatment, defaults to jointly but  for QC purposes, to use the same fSNPs in ech treatment as the ones used  when the treatments were run using independent models select  NULL}
 
 \item{inference.method}{The inference method to use with Stan. Options are \code{c("sampling", "vb", "optimizing")}}
+
+\item{screen.method}{The method to used to perform screening with approximate inference.}
+
+\item{screen.prob}{The probability threshold to use for screening with approximate inference.}
 
 \item{mc.cores}{The number of parallel cores to use when performing tests.}
 }

@@ -33,6 +33,8 @@ baseqtl.gt.paired(
   AI_estimate = NULL,
   pretotalReads = 100,
   mc.cores = getOption("mc.cores", 1),
+  screen.method = NULL,
+  screen.prob = 0.5,
   inference.method = c("sampling", "vb")
 )
 }
@@ -92,6 +94,10 @@ baseqtl.gt.paired(
 \item{pretotalReads}{numeric indicating a cut-off for total initial reads to consider AI estimates, defaults to 100}
 
 \item{mc.cores}{The number of parallel cores to use when performing tests.}
+
+\item{screen.method}{The method to used to perform screening with approximate inference.}
+
+\item{screen.prob}{The probability threshold to use for screening with approximate inference.}
 
 \item{inference.method}{The inference method to use with Stan. Options are \code{c("sampling", "vb", "optimizing")}}
 }

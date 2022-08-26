@@ -36,6 +36,8 @@ baseqtl.nogt(
   pretotalReads = 100,
   save_input = FALSE,
   inference.method = "sampling",
+  screen.method = NULL,
+  screen.prob = 0.5,
   mc.cores = getOption("mc.cores", 1)
 )
 }
@@ -101,6 +103,10 @@ baseqtl.nogt(
 \item{save_input}{whether to save input to stan model for QC purposes, defaults to FALSE to save disk space. Object ending with "noGT.stan.input.rds" is a named list with each element the inputs for a cis-SNP. For each cis-SNP there is a list of 2 elements: "NB" and "ase". "NB" is a list with elements "counts" and "p.g". "Counts" is a data.table with columns sample names and one row corresponding to the gene, values total read counts. "p.g" is a named list with each element a sample. For each sample there is an array with names genotypes (0,1,2) and values the genotype probabilities. For the "ase" list they are for elements: "m" numeric vector with  total ASE counts per sample. "g" list with each element a sample and for each sample the genoptype of the cis SNP coded as 0,1,2 and -1, with -1 indicating that the alternative allele is in haplotype 1. "p" has the same structure as "g" and indicates the probability for each genotype. "n"  is similar to "g" and "p" but contains the mapped reads to haplotype 2. The file ending with "noGT.fsnps.counts.rds is a matrix with rows samples and columns fSNPS. When a fSNPs ends with ".n" correspond to the counts matching the alternative allele and ".m" indicates the total counts matching the SNP.}
 
 \item{inference.method}{The inference method to use with Stan. Options are \code{c("sampling", "vb", "optimizing")}}
+
+\item{screen.method}{The method to used to perform screening with approximate inference.}
+
+\item{screen.prob}{The probability threshold to use for screening with approximate inference.}
 
 \item{mc.cores}{The number of parallel cores to use when performing tests.}
 }
