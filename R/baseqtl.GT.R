@@ -16,15 +16,42 @@
 #' @inheritParams aux.in1
 #' @examples
 #' ## example inputs saved in package directory
-#' counts.f <- system.file("extdata/input", "counts.txt", package = "baseqtl", mustWork = TRUE)
-#' covariates <- system.file("extdata/input", "lbsize_gc.rds", package = "baseqtl", mustWork = TRUE)
-#' e.snps <- system.file("extdata/input", "chr22.fSNPS.ENSG00000159958.txt", package = "baseqtl", mustWork = TRUE)
-#' u.snps <- system.file("extdata/input", "chr22.unique.fSNPS.ENSG00000159958.txt", package = "baseqtl", mustWork = TRUE)
-#' gene.coord <- system.file("extdata/input", "ENSG00000159958_data.txt", package = "baseqtl", mustWork = TRUE)
-#' vcf <- system.file("extdata/input", "chr22GT.86GEU.vcf.gz", package = "baseqtl", mustWork = TRUE)
-#' le.file <- system.file("extdata/input", "1000GP_Phase3_subset_chr22.legend.gz", package = "baseqtl", mustWork = TRUE)
-#' h.file <- system.file("extdata/input", "1000GP_Phase3_subset_chr22.hap.gz", package = "baseqtl", mustWork = TRUE)
-#' AI_estimate <- system.file("extdata/input", "AI_estimate.GT.txt", package = "baseqtl", mustWork = TRUE)
+#' counts.f <- system.file(
+#'    "extdata/input", "counts.txt",
+#'    package = "baseqtl", mustWork = TRUE
+#' )
+#' covariates <- system.file(
+#'    "extdata/input", "lbsize_gc.rds",
+#'    package = "baseqtl", mustWork = TRUE
+#' )
+#' e.snps <- system.file(
+#'    "extdata/input", "chr22.fSNPS.ENSG00000159958.txt",
+#'    package = "baseqtl", mustWork = TRUE
+#' )
+#' u.snps <- system.file(
+#'    "extdata/input", "chr22.unique.fSNPS.ENSG00000159958.txt",
+#'    package = "baseqtl", mustWork = TRUE
+#' )
+#' gene.coord <- system.file(
+#'    "extdata/input", "ENSG00000159958_data.txt",
+#'    package = "baseqtl", mustWork = TRUE
+#' )
+#' vcf <- system.file(
+#'    "extdata/input", "chr22GT.86GEU.vcf.gz",
+#'    package = "baseqtl", mustWork = TRUE
+#' )
+#' le.file <- system.file(
+#'    "extdata/input", "1000GP_Phase3_subset_chr22.legend.gz",
+#'    package = "baseqtl", mustWork = TRUE
+#' )
+#' h.file <- system.file(
+#'    "extdata/input", "1000GP_Phase3_subset_chr22.hap.gz",
+#'    package = "baseqtl", mustWork = TRUE
+#' )
+#' AI_estimate <- system.file(
+#'    "extdata/input", "AI_estimate.GT.txt",
+#'    package = "baseqtl", mustWork = TRUE
+#' )
 #'
 #' ## output dir
 #' out <- tempdir()
