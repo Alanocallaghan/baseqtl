@@ -100,7 +100,24 @@ baseqtl2T.nogt <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1,
                            prior = NULL, ex.fsnp = 0.01, AI_estimate = NULL, pretotalReads = 100,
                            treatments, fishjoin = "joint",
                            inference.method = c("sampling", "vb"),
+                           screen.method = NULL, screen.prob = 0.5,
                            mc.cores = getOption("mc.cores", 1)) {
+
+  if (!is.null(screen.method)) {
+    screen.method <- match.arg(screen.method, choices = "vb")
+    call <- match.call()
+    call[["inference.method"]] <- call[["screen.method"]]
+    call[["screen.method"]] <- NULL
+    call[["prob"]] <- screen.prob
+    screen.results <- eval(call, parent.frame())
+    sig <- screen.results[[sprintf("null.%s", screen.prob)]] == "no"
+    # assocs.test <- screen.results[sig, c("Gene_id", "tag")]
+    # snps.list <- screen.results[sig, c("Gene_id", "tag")]
+    snps.list <- screen.results[["tag"]][sig]
+  } else {
+    screen.results <- NULL
+  }
+
   inference.method <- match.arg(inference.method)
   if (is.null(stan.model)) {
     ## check if ref panelbias correction
@@ -193,6 +210,12 @@ baseqtl2T.nogt <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1,
 
   full.sum[, model := inputs$model]
   if (!is.null(AI_estimate)) full.sum[, min_AI := min_AI]
+
+  
+  if (!is.null(screen.results)) {
+    full.sum <- rbind(full.sum, screen.results, fill = TRUE)
+    full.sum$test.type <- c(rep("full", nrow(full.sum) - nrow(screen.results)), rep("screen", nrow(screen.results)))
+  }
 
   if (!is.null(prefix)) {
     write.table(dt, paste0(out, "/", prefix, ".2T.noGT.summary.txt"), row.names = FALSE)

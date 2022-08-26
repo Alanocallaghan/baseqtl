@@ -110,7 +110,7 @@ AI_estimate <- system.file("extdata/input", "AI_estimate.GT.txt", package = "bas
 ```
 
 
-```{r gt-run, eval = FALSE}
+```{r gt-run}
 ## Choose your output directory
 # out <- "../baseqtl_output/GT"
 out <- tempdir()
@@ -136,6 +136,23 @@ baseqtl.gt(
     out = out,
     AI_estimate = AI_estimate
 )
+baseqtl.gt(
+    gene = "ENSG00000159958",
+    chr = 22,
+    snps = 10^4,
+    counts.f = counts.f,
+    covariates = covariates,
+    e.snps = e.snps,
+    u.esnps = u.snps,
+    gene.coord = gene.coord,
+    vcf = vcf,
+    le.file = le.file,
+    h.file = h.file,
+    out = out,
+    AI_estimate = AI_estimate,
+    screen.method = "vb"
+)
+
 ```
 
 * The following messages will appear on screen: 
@@ -255,7 +272,7 @@ AI_estimate <- system.file("extdata/input", "AI_estimate.noGT.txt", package = "b
 ```
 
 
-```{r nogt-run, eval = FALSE}
+```{r nogt-run}
 ## Choose your output directory
 # out <- "../baseqtl-output/noGT"
 out <- tempdir()
@@ -281,6 +298,23 @@ baseqtl.nogt(
     h.file = h.file,
     out = out,
     AI_estimate = AI_estimate
+)
+baseqtl.nogt(
+    gene = "ENSG00000159958",
+    chr = 22,
+    snps = 10^4,
+    counts.f = counts.f,
+    covariates = covariates,
+    e.snps = e.snps,
+    u.esnps = u.snps,
+    gene.coord = gene.coord,
+    vcf = vcf,
+    sample.f = sample.f,
+    le.file = le.file,
+    h.file = h.file,
+    out = out,
+    AI_estimate = AI_estimate,
+    screen.method = "vb"
 )
 ```
 
@@ -355,7 +389,7 @@ h.file <- system.file("extdata/input", "1000GP_Phase3_subset_chr22.hap.gz", pack
 AI_estimate <- system.file("extdata/input", "AI_estimate.GT.txt", package = "baseqtl", mustWork = TRUE)
 ```
 
-```{r gt2t-run, eval = FALSE}
+```{r gt2t-run}
 ## Choose your output directory
 # out <- "../baseqtl-output/GT-paired"
 out <- tempdir()
@@ -380,6 +414,23 @@ baseqtl.gt.paired(
     out = out,
     inference.method = "vb",
     AI_estimate = AI_estimate
+)
+baseqtl.gt.paired(
+    gene = "ENSG00000159958",
+    chr = 22,
+    snps = 10^3,
+    counts.f = counts.f,
+    covariates = covariates,
+    e.snps = e.snps,
+    u.esnps = u.snps,
+    gene.coord = gene.coord,
+    vcf = vcf,
+    le.file = le.file,
+    h.file = h.file,
+    out = out,
+    inference.method = "vb",
+    AI_estimate = AI_estimate,
+    screen.method = "vb"
 )
 ```
 
@@ -453,7 +504,7 @@ h.file <- system.file("extdata/input", "1000GP_Phase3_subset_chr10.hap.gz", pack
 AI_estimate <- system.file("extdata/input", "AI_estimate.psoriasis.txt", package = "baseqtl", mustWork = TRUE)
 ```
 
-```{r nogt2t-run, eval = FALSE}
+```{r nogt2t-run}
 ## Choose your output directory
 # out <- "../baseqtl-output"
 out <- tempdir()
@@ -480,6 +531,25 @@ baseqtl2T.nogt(
     treatment = c("Psoriasis_skin", "normal_skin"),
     inference.method = "vb",
     AI_estimate = AI_estimate
+)
+baseqtl2T.nogt(
+    gene = "ENSG00000178372",
+    chr = 10,
+    snps = 10^3,
+    counts.f = counts.f,
+    covariates = covariates,
+    e.snps = e.snps,
+    u.esnps = u.snps,
+    gene.coord = gene.coord,
+    vcf = vcf,
+    sample.f = sample.f,
+    le.file = le.file,
+    h.file = h.file,
+    out = out,
+    treatment = c("Psoriasis_skin", "normal_skin"),
+    inference.method = "vb",
+    AI_estimate = AI_estimate,
+    screen.method = "vb"
 )
 ```
 

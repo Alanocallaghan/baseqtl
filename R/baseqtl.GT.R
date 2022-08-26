@@ -85,8 +85,10 @@ baseqtl.gt <- function(gene, chr, snps = 5 * 10^5, counts.f, covariates = 1, add
                        pretotalReads = 100, inference.method = "sampling",
                        snps.list = NULL,
                        screen.method = NULL, screen.prob = 0.5,
+                       ## need to add screen.args??
                        # backend = c("rstan", "cmdstanr"),
                        mc.cores = getOption("mc.cores", 1)) {
+  
   if (!is.null(screen.method)) {
     screen.method <- match.arg(screen.method, choices = "vb")
     call <- match.call()
